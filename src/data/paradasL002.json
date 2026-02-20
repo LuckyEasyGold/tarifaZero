@@ -1,0 +1,182 @@
+[
+  {
+    "id": "P001",
+    "nome": "Interior R. Rio Grande do Sul, Palmas PR",
+    "coordenadas": {
+      "lat": -26.496997,
+      "lng": -51.986463
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P002",
+    "nome": "R. 7 de Setembro, Palmas PR",
+    "coordenadas": {
+      "lat": -26.491865,
+      "lng": -51.998886
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P003",
+    "nome": "R. Jose Joaquim Bahls, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P004",
+    "nome": "R. Siegmun Knolseisen, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P005",
+    "nome": "R. Rafael Ribas, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P006",
+    "nome": "R. Bispo Dom Carlos, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P007",
+    "nome": "R. Expedicionário Palmense, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P008",
+    "nome": "Av. Cel. José Osório, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P009",
+    "nome": "R. Marechal Deodoro, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P010",
+    "nome": "R. Constantino Fabrício da Silva Pinto, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P011",
+    "nome": "R. Prof. Henrique José Berhost, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P012",
+    "nome": "R. Felipe Shell Loureiro, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P013",
+    "nome": "Av. Bento Munhoz da Rocha Neto, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P014",
+    "nome": "R. Dr. Bernardo Ribeiro Viana, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P015",
+    "nome": "R. Dr. Bezerra de Menezes, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P016",
+    "nome": "Terminal Rodoviário, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P017",
+    "nome": "Av. Constantino Fabrício da Silva Pinto, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P018",
+    "nome": "Av. Marechal Deodoro, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P019",
+    "nome": "Av. Coronel José Osório, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P020",
+    "nome": "R. José Joaquim Bahls, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  }
+]

@@ -1,0 +1,200 @@
+[
+  {
+    "id": "P001",
+    "nome": "R. Jose Joaquim Bahls, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P002",
+    "nome": "R. 7 de Setembro, Palmas PR",
+    "coordenadas": {
+      "lat": -26.491865,
+      "lng": -51.998886
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P003",
+    "nome": "R. Rafael Ribas, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P004",
+    "nome": "R. Siegmun Knolseisen, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P005",
+    "nome": "R. Bispo Dom Carlos, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P006",
+    "nome": "R. Expedicionário Palmense, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P007",
+    "nome": "R. Capitão Francisco Paulo de Araújo, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P008",
+    "nome": "R. Rui Barbosa, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P009",
+    "nome": "R. São Sebastião, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P010",
+    "nome": "R. Frei Jacobe, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P011",
+    "nome": "R. Nossa Senhora de Fátima, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P012",
+    "nome": "R. Professor Virgílio Ferreira, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P013",
+    "nome": "R. Capitão Paulo Araújo, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P014",
+    "nome": "R. Ubiratã Araújo, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P015",
+    "nome": "R. Bituruna, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P016",
+    "nome": "R. Roberto Schnaufer, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P017",
+    "nome": "R. Presidente Getúlio Vargas, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P018",
+    "nome": "R. Cacique Viri, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P019",
+    "nome": "Av. Gov. Pedro Viriato Parigot de Souza, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P020",
+    "nome": "R. Paulo Banach, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P021",
+    "nome": "Eloy Erich Bernert, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P022",
+    "nome": "R. José Joaquim Bahls, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "P001",
+    "nome": "R. Jose Fortunato, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P002",
+    "nome": "R. Tertuliano de Almeida, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P003",
+    "nome": "R. Jose Alessi, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P004",
+    "nome": "R. Pedro Nito, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P005",
+    "nome": "R. XV de Novembro, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P006",
+    "nome": "R. Dr. Bezerra de Menezes, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P007",
+    "nome": "R. Dr. Bernardo Ribeiro Viana, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  },
+  {
+    "id": "P008",
+    "nome": "Terminal Rodoviário, Palmas PR",
+    "coordenadas": {
+      "lat": -26.476884,
+      "lng": -51.991917
+    },
+    "horarioPrevisto": ""
+  }
+]
