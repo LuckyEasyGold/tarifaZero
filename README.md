@@ -169,4 +169,4 @@ MIT - Livre para uso e modificação.
 
 ---
 
-Desenvolvido para facilitar o transporte público da sua cidade! 🚌
+Desenvolvido para facilitar o transporte público da cidade de Palmas no Paraná! 🚌
