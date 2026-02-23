@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "nome": "Marcos Dieison",
+    "redeSocial": "https://www.instagram.com/marcdieison",
+    "tipo": "instagram"
+  },
+  {
+    "id": 2,
+    "nome": "Din0",
+    "redeSocial": "",
+    "tipo": "outro"
+  }
+]

@@ -23,6 +23,7 @@ const Header = () => {
               <p className="text-xs text-gray-500">Rastreamento em tempo real</p>
             </div>
           </div>
+          
 
           {/* Info Button */}
           <Dialog>
@@ -79,6 +80,11 @@ const Header = () => {
           </Dialog>
         </div>
       </div>
+      <div className="bg-gray-900 p-4 text-center">
+            <p className="text-white text-sm font-medium">
+              Empresário? <span className="text-yellow-400 italic">Sua marca pode aparecer aqui para milhares de usuários.</span>
+            </p>
+          </div>
     </header>
   );
 };

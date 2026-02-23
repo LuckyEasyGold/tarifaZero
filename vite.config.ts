@@ -1,15 +1,31 @@
-import path from "path"
-import react from "@vitejs/plugin-react"
-import { defineConfig } from "vite"
-import { inspectAttr } from 'kimi-plugin-inspect-react'
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
-  base: './',
-  plugins: [inspectAttr(), react()],
+  plugins: [react()],
+  base: './', // Mude para './' (sem pasta TarifaZero)
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, './src'),
     },
   },
-});
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true,
+    sourcemap: false,
+    // Dividir chunks para evitar arquivos muito grandes
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'leaflet-vendor': ['leaflet', '@react-leaflet/core'],
+        },
+      },
+    },
+    // Aumentar limite de warning (opcional)
+    chunkSizeWarningLimit: 1000,
+  },
+})

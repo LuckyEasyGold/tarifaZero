@@ -10,6 +10,7 @@ interface BusMapProps {
   posicao: PosicaoOnibus | null;
   centro?: [number, number];
   zoom?: number;
+  isMobile?: boolean;
 }
 
 // Componente para ajustar o bounds do mapa
@@ -45,7 +46,8 @@ const BusMap = ({
   linha, 
   posicao, 
   centro = [-23.5505, -46.6333], 
-  zoom = 13 
+  zoom = 13,
+  isMobile = false
 }: BusMapProps) => {
   const mapRef = useRef<L.Map>(null);
   
@@ -103,7 +105,9 @@ const BusMap = ({
       center={centro}
       zoom={zoom}
       style={{ height: '100%', width: '100%', borderRadius: '12px' }}
-      scrollWheelZoom={true}
+      dragging={!isMobile}
+      scrollWheelZoom={!isMobile}
+      touchZoom={isMobile}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
