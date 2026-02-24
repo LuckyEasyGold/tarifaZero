@@ -8,10 +8,9 @@ import type { LinhaOnibus } from '@/types';
 import { useGPSSimulator } from '@/hooks/useGPSSimulator';
 import { Instagram, Facebook, User, ExternalLink } from 'lucide-react';
 import './App.css';
-// Importação correta do JSON
 import apoiadoresData from '@/data/apoiadores.json';
 
-// Tipo para os apoiadores
+// Interface para tipagem dos apoiadores do projeto
 interface Apoiador {
   id: number;
   nome: string;
@@ -20,19 +19,22 @@ interface Apoiador {
 }
 
 function App() {
+  // ==========================================
+  // ESTADOS (STATES)
+  // ==========================================
   const [linhaSelecionada, setLinhaSelecionada] = useState<LinhaOnibus>(todasLinhas[0]);
   const [isMobile, setIsMobile] = useState(false);
-  // Use o import direto, não precisa de estado
   const [apoiadores] = useState<Apoiador[]>(apoiadoresData as Apoiador[]);
+  
+  // Estados da Tela de Carregamento (Loading)
+  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
-  // REMOVA este useEffect que faz fetch - não é necessário
-  // useEffect(() => {
-  //   fetch('/apoiadores.json')
-  //     .then(res => res.json())
-  //     .then(data => setApoiadores(data))
-  //     .catch(err => console.error("Erro ao carregar apoiadores", err));
-  // }, []);
-
+  // ==========================================
+  // EFEITOS (EFFECTS)
+  // ==========================================
+  
+  // 1. Monitorar redimensionamento da tela (Mobile vs Desktop)
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
@@ -40,6 +42,29 @@ function App() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // 2. Lógica do progresso da tela de carregamento
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(timer);
+          // Pequeno atraso para o usuário ver o 100% antes de fechar
+          setTimeout(() => setLoading(false), 500);
+          return 100;
+        }
+        // Incremento aleatório para simular carregamento de dados
+        return Math.min(prev + Math.random() * 15, 100);
+      });
+    }, 200);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // ==========================================
+  // HOOKS PERSONALIZADOS
+  // ==========================================
+  
+  // Hook que controla a simulação do movimento do ônibus no mapa
   const {
     posicao, progressoRota, paradaAtual, proximaParada,
     isSimulando, iniciarSimulacao, pausarSimulacao, reiniciarSimulacao,
@@ -48,16 +73,54 @@ function App() {
     velocidadeSimulacao: 35,
     intervaloAtualizacao: 1000,
   });
-
+   
+  // Reiniciar a posição do ônibus sempre que o usuário trocar de linha
   useEffect(() => {
     reiniciarSimulacao();
   }, [linhaSelecionada, reiniciarSimulacao]);
 
+  // ==========================================
+  // RENDERIZAÇÃO CONDICIONAL (LOADING)
+  // Importante: Deve vir após todos os Hooks!
+  // ==========================================
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="loader-card">
+          <div className="bus-container">
+            <div className="road-line"></div>
+            <div className="bus-emoji">🚌</div>
+          </div>
+          
+          <div className="loading-content">
+            <h2 className="loading-title">Tarifa Zero</h2>
+            <p className="loading-subtitle">Sincronizando rotas em tempo real...</p>
+            
+            <div className="progress-container">
+              <div className="progress-track">
+                <div 
+                  className="progress-fill-modern" 
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              <span className="progress-number">{Math.floor(progress)}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // RENDERIZAÇÃO PRINCIPAL DO APLICATIVO
+  // ==========================================
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster position="top-center" />
       
       <Header />
+      
+      {/* Banner de aviso de expansão/apoio */}
       <div className="bg-blue-600 py-2 border-t border-blue-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-white">
           <p className="text-xs sm:text-sm font-medium animate-pulse text-center w-full sm:w-auto">
@@ -72,14 +135,10 @@ function App() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Grid Principal: Painel de Informações e Mapa */}
         <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-3'}`}>
-          <div className={`${isMobile ? 'h-[400px]' : 'col-span-2 h-[600px]'}`}>
-            <div className="bg-white rounded-xl shadow-sm border h-full overflow-hidden relative z-0">
-              <BusMap linha={linhaSelecionada} posicao={posicao} isMobile={isMobile} />
-            </div>
-          </div>
-
-          <div className={`${isMobile ? '' : 'col-span-1 overflow-y-auto max-h-[600px]'}`}>
+          {/* Coluna 1: Painel de Controle e Status */}
+          <div className={`${isMobile ? '' : 'col-span-1 overflow-y-auto max-h-[600px] relative z-0'}`}>
             <InfoPanel
               linha={linhaSelecionada} posicao={posicao} progressoRota={progressoRota}
               paradaAtual={paradaAtual} proximaParada={proximaParada} isSimulando={isSimulando}
@@ -87,9 +146,20 @@ function App() {
               linhas={todasLinhas} onSelecionarLinha={setLinhaSelecionada}
             />
           </div>
+          
+          {/* Coluna 2: Mapa Interativo */}
+          <div className={`${isMobile ? 'h-[400px]' : 'col-span-2 h-[600px]'}`}>
+            <div className="bg-white rounded-xl shadow-sm border h-full relative z-0 overflow-hidden">
+              <BusMap 
+                linha={linhaSelecionada} 
+                posicao={posicao} 
+                isMobile={isMobile} 
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Legenda */}
+        {/* Seção: Legenda do Mapa */}
         <div className="mt-6 bg-white rounded-xl shadow-sm border p-4">
           <h3 className="text-sm font-semibold text-gray-900 mb-3">Legenda do Mapa</h3>
           <div className="flex flex-wrap gap-4 text-sm">
@@ -104,21 +174,22 @@ function App() {
           </div>
         </div>
 
-        {/* SEÇÃO DE DOAÇÃO */}
+        {/* Seção: Doação e Apoio ao Projeto */}
         <section id="contribuir" className="mt-12 bg-white rounded-xl shadow-md border-2 border-blue-100 overflow-hidden">
           <div className="bg-blue-50 p-6 border-b border-blue-100">
             <h2 className="text-xl font-bold text-blue-900">Apoie o Projeto Tarifa Zero</h2>
-            <p className="text-sm text-blue-700 mt-1">Projeto independente do IFPR Palmas.</p>
+            <p className="text-sm text-blue-700 mt-1">Projeto independente do curso de Sistema de Informação do IFPR Palmas.</p>
           </div>
           
           <div className="p-6 grid md:grid-cols-2 gap-8 items-start">
+            {/* Metas Financeiras */}
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-sm font-semibold text-gray-700">Meta: 5 GPS ativos</span>
-                <span className="text-sm font-bold text-blue-600">20%</span>
+                <span className="text-sm font-bold text-blue-600">22%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-4">
-                <div className="bg-blue-600 h-4 rounded-full transition-all" style={{ width: '20%' }}></div>
+                <div className="bg-blue-600 h-4 rounded-full transition-all" style={{ width: '22%' }}></div>
               </div>
               <div className="space-y-2 mt-4">
                 <p className="text-xs text-green-600 font-bold">✅ 1 GPS adquirido via doação!</p>
@@ -128,6 +199,7 @@ function App() {
               </div>
             </div>
 
+            {/* Dados de Contribuição e Lista de Apoiadores */}
             <div className="space-y-4">
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
                 <p className="text-sm text-gray-600 mb-1">PIX para contribuição:</p>
@@ -135,7 +207,7 @@ function App() {
                 <p className="text-[10px] text-gray-400 uppercase mt-2 tracking-widest">Vinicius Ribeiro Ramos</p>
               </div>
 
-              {/* LISTA DE APOIADORES DINÂMICA */}
+              {/* Renderização dinâmica dos apoiadores vindo do JSON */}
               <div className="bg-white p-4 rounded-lg border border-blue-50">
                 <p className="text-xs font-bold text-blue-900 mb-3 uppercase tracking-tighter text-center">
                   Quem já contribuiu:
@@ -143,7 +215,6 @@ function App() {
                 <div className="flex flex-wrap justify-center gap-2">
                   {apoiadores.map((apoiador) => (
                     <div key={apoiador.id} className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
-                      {/* Ícone baseado no tipo */}
                       {apoiador.tipo === 'instagram' ? (
                         <Instagram size={14} className="text-pink-600" />
                       ) : apoiador.tipo === 'facebook' ? (
@@ -154,14 +225,8 @@ function App() {
                       
                       <span className="text-xs font-medium text-gray-700">{apoiador.nome}</span>
                       
-                      {/* Link da rede social se existir */}
                       {apoiador.redeSocial && (
-                        <a 
-                          href={apoiador.redeSocial} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="text-gray-400 hover:text-blue-500 transition"
-                        >
+                        <a href={apoiador.redeSocial} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-500 transition">
                           <ExternalLink size={12} />
                         </a>
                       )}
@@ -173,6 +238,7 @@ function App() {
           </div>
         </section>
 
+        {/* Rodapé do Sistema */}
         <footer className="mt-12 mb-8 text-center text-sm text-gray-500 border-t pt-6">
           <p className="font-bold text-gray-700">© 2026 Tarifa Zero - Palmas/PR</p>
           <p className="mt-2 text-blue-600 font-medium tracking-tight uppercase text-xs">Desenvolvido por Vinicius Ribeiro Ramos</p>

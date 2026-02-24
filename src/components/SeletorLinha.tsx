@@ -38,7 +38,7 @@ const SeletorLinha = ({ linhas, linhaSelecionada, onSelecionar }: SeletorLinhaPr
           <ChevronDown className="w-5 h-5 text-gray-400" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[320px]" align="start">
+      <DropdownMenuContent className="max-w-[320px] z-50" align="start">
         {linhas.map((linha) => (
           <DropdownMenuItem
             key={linha.id}

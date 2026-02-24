@@ -10,5 +10,11 @@
     "nome": "Din0",
     "redeSocial": "",
     "tipo": "outro"
+  },
+  {
+    "id": 3,
+    "nome": "Leticia",
+    "redeSocial": "https://www.instagram.com/leti_bzt",
+    "tipo": "instagram"
   }
 ]
