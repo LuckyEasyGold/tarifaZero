@@ -1,4 +1,4 @@
-# Tarifa Zero - Rastreamento de Ônibus
+# TaraifaZero - Rastreamento de Ônibus
 
 Sistema web de rastreamento de ônibus em tempo real, inspirado no Uber. Permite aos usuários acompanhar a localização dos ônibus, ver rotas, paradas e tempos estimados de chegada.
 
@@ -169,4 +169,4 @@ MIT - Livre para uso e modificação.
 
 ---
 
-Desenvolvido para facilitar o transporte público da cidade de Palmas no Paraná! 🚌
+Desenvolvido para facilitar o transporte público da sua cidade! 🚌
