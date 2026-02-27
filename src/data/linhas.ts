@@ -35,7 +35,7 @@ export const linha1: LinhaOnibus = {
 };
 
 // ================================
-// LINHA 2 - (Aguardando dados)
+// LINHA 2 - Tia Joanoa / Terminal Rodoviário
 // ================================
 export const linha2: LinhaOnibus = {
   id: 'L002',
@@ -55,7 +55,7 @@ export const linha2: LinhaOnibus = {
 };
 
 // ================================
-// LINHA 3 - (Aguardando dados)
+// LINHA 3 - Fortunato / Terminal Rodoviário
 // ================================
 export const linha3: LinhaOnibus = {
   id: 'L003',
@@ -75,7 +75,7 @@ export const linha3: LinhaOnibus = {
 };
 
 // ================================
-// LINHA 4 - (Aguardando dados)
+// LINHA 4 - Vila Rural / Terminal Rodoviário
 // ================================
 export const linha4: LinhaOnibus = {
   id: 'L004',
@@ -95,7 +95,7 @@ export const linha4: LinhaOnibus = {
 };
 
 // ================================
-// LINHA 5 - (Aguardando dados)
+// LINHA 5 - Lagoão / Insana
 // ================================
 export const linha5: LinhaOnibus = {
   id: 'L005',

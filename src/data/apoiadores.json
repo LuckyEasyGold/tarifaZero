@@ -16,5 +16,11 @@
     "nome": "Leticia",
     "redeSocial": "https://www.instagram.com/leti_bzt",
     "tipo": "instagram"
+  },
+  {
+    "id": 4,
+    "nome": "Claudio",
+    "redeSocial": "https://www.instagram.com/claudiomarturra",
+    "tipo": "instagram"
   }
 ]

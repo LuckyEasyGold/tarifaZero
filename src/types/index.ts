@@ -36,3 +36,10 @@ export interface Rua {
   nome: string;
   coordenadas: LatLng[];
 }
+
+export interface Apoiador {
+  id: number;
+  nome: string;
+  redeSocial: string;
+  tipo: 'instagram' | 'facebook' | 'outro';
+}

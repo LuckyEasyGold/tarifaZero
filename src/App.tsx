@@ -9,18 +9,13 @@ import { useGPSSimulator } from '@/hooks/useGPSSimulator';
 import { Instagram, Facebook, User, ExternalLink } from 'lucide-react';
 import './App.css';
 import apoiadoresData from '@/data/apoiadores.json';
+import type { Apoiador } from '@/types';
 
-// Interface para tipagem dos apoiadores do projeto
-interface Apoiador {
-  id: number;
-  nome: string;
-  redeSocial: string;
-  tipo: 'instagram' | 'facebook' | 'outro';
-}
+
 
 function App() {
   // ==========================================
-  // ESTADOS (STATES)
+  // ESTADOS
   // ==========================================
   const [linhaSelecionada, setLinhaSelecionada] = useState<LinhaOnibus>(todasLinhas[0]);
   const [isMobile, setIsMobile] = useState(false);
@@ -31,7 +26,7 @@ function App() {
   const [progress, setProgress] = useState(0);
 
   // ==========================================
-  // EFEITOS (EFFECTS)
+  // EFEITOS
   // ==========================================
   
   // 1. Monitorar redimensionamento da tela (Mobile vs Desktop)
@@ -80,7 +75,7 @@ function App() {
   }, [linhaSelecionada, reiniciarSimulacao]);
 
   // ==========================================
-  // RENDERIZAÇÃO CONDICIONAL (LOADING)
+  // RENDERIZAÇÃO CONDICIONAL
   // Importante: Deve vir após todos os Hooks!
   // ==========================================
   if (loading) {
@@ -126,11 +121,11 @@ function App() {
           <p className="text-xs sm:text-sm font-medium animate-pulse text-center w-full sm:w-auto">
             🚀 Projeto em Expansão: Ajude a monitorar os ônibus do Tarifa Zero em Palmas!
           </p>
-          {!isMobile && (
-            <a href="#contribuir" className="text-xs bg-yellow-400 text-blue-900 px-3 py-1 rounded-full font-bold hover:bg-yellow-300 transition">
-              Apoiar Projeto
-            </a>
-          )}
+          
+          <a href="#contribuir" className="text-xs bg-yellow-400 text-blue-900 px-3 py-1 rounded-full font-bold hover:bg-yellow-300 transition">
+            Apoiar Projeto
+          </a>
+          
         </div>
       </div>
 

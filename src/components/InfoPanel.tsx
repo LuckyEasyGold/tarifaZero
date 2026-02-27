@@ -84,7 +84,7 @@ const InfoPanel = ({
     <div className="space-y-4">
       {/* Seletor de Linha - Agora no topo do InfoPanel */}
       <Card>
-        <CardContent className="p-4">
+        <CardContent className="p-4 z-9999">
           <SeletorLinha
             linhas={linhas}
             linhaSelecionada={linha}
