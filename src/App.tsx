@@ -69,10 +69,11 @@ function App() {
     intervaloAtualizacao: 1000,
   });
    
-  // Reiniciar a posição do ônibus sempre que o usuário trocar de linha
+  // Reiniciar e iniciar a simulação automaticamente quando o usuário trocar de linha
   useEffect(() => {
     reiniciarSimulacao();
-  }, [linhaSelecionada, reiniciarSimulacao]);
+    iniciarSimulacao();
+  }, [linhaSelecionada, reiniciarSimulacao, iniciarSimulacao]);
 
   // ==========================================
   // RENDERIZAÇÃO CONDICIONAL
