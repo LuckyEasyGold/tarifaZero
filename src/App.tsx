@@ -142,6 +142,7 @@ function App() {
               linhas={todasLinhas}
               linhasSelecionadas={linhasSelecionadas}
               onSelecionarLinhas={setLinhasSelecionadas}
+              posicoes={posicoes}
             />
           </div>
           

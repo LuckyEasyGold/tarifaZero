@@ -8,7 +8,7 @@ interface SimuladorLinhaProps {
 }
 
 const SimuladorLinha = ({ linha, onPosicaoAtualizada }: SimuladorLinhaProps) => {
-  const ultimaPosicaoRef = useRef<PosicaoOnibus | null>(null);
+  const iniciouRef = useRef(false);
   
   const simulador = useGPSSimulator({
     linha,
@@ -16,18 +16,18 @@ const SimuladorLinha = ({ linha, onPosicaoAtualizada }: SimuladorLinhaProps) => 
     intervaloAtualizacao: 1000,
   });
 
-  // Iniciar simulação automaticamente
+  // Iniciar simulação apenas uma vez por linha
   useEffect(() => {
-    simulador.reiniciarSimulacao();
-    simulador.iniciarSimulacao();
-  }, [simulador]);
+    if (!iniciouRef.current) {
+      simulador.reiniciarSimulacao();
+      simulador.iniciarSimulacao();
+      iniciouRef.current = true;
+    }
+  }, [linha.id]); // Reinicia apenas quando a linha muda
 
   // Notificar quando a posição muda
   useEffect(() => {
-    if (simulador.posicao !== ultimaPosicaoRef.current) {
-      ultimaPosicaoRef.current = simulador.posicao;
-      onPosicaoAtualizada(simulador.posicao);
-    }
+    onPosicaoAtualizada(simulador.posicao);
   }, [simulador.posicao, onPosicaoAtualizada]);
 
   return null;
