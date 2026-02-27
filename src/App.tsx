@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import Header from '@/components/Header';
 import BusMap from '@/components/map/BusMap';
-import InfoPanel from '@/components/InfoPanel';
+import SeletorLinhas from '@/components/SeletorLinhas';
+import SimuladorLinha from '@/components/SimuladorLinha';
 import { todasLinhas } from '@/data/linhas';
-import type { LinhaOnibus } from '@/types';
-import { useGPSSimulator } from '@/hooks/useGPSSimulator';
+import type { LinhaOnibus, PosicaoOnibus } from '@/types';
 import { Instagram, Facebook, User, ExternalLink } from 'lucide-react';
 import './App.css';
 import apoiadoresData from '@/data/apoiadores.json';
@@ -17,9 +17,10 @@ function App() {
   // ==========================================
   // ESTADOS
   // ==========================================
-  const [linhaSelecionada, setLinhaSelecionada] = useState<LinhaOnibus>(todasLinhas[0]);
+  const [linhasSelecionadas, setLinhasSelecionadas] = useState<LinhaOnibus[]>(todasLinhas);
   const [isMobile, setIsMobile] = useState(false);
   const [apoiadores] = useState<Apoiador[]>(apoiadoresData as Apoiador[]);
+  const [posicoes, setPosicoes] = useState<Map<string, PosicaoOnibus>>(new Map());
   
   // Estados da Tela de Carregamento (Loading)
   const [loading, setLoading] = useState(true);
@@ -55,25 +56,18 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
-  // ==========================================
-  // HOOKS PERSONALIZADOS
-  // ==========================================
-  
-  // Hook que controla a simulação do movimento do ônibus no mapa
-  const {
-    posicao, progressoRota, paradaAtual, proximaParada,
-    isSimulando, iniciarSimulacao, pausarSimulacao, reiniciarSimulacao,
-  } = useGPSSimulator({
-    linha: linhaSelecionada,
-    velocidadeSimulacao: 35,
-    intervaloAtualizacao: 1000,
-  });
-   
-  // Reiniciar e iniciar a simulação automaticamente quando o usuário trocar de linha
-  useEffect(() => {
-    reiniciarSimulacao();
-    iniciarSimulacao();
-  }, [linhaSelecionada, reiniciarSimulacao, iniciarSimulacao]);
+  // 3. Atualizar posições quando uma linha atualiza sua posição
+  const handlePosicaoAtualizada = (linhaId: string, posicao: PosicaoOnibus | null) => {
+    setPosicoes((prev) => {
+      const novo = new Map(prev);
+      if (posicao) {
+        novo.set(linhaId, posicao);
+      } else {
+        novo.delete(linhaId);
+      }
+      return novo;
+    });
+  };
 
   // ==========================================
   // RENDERIZAÇÃO CONDICIONAL
@@ -131,15 +125,23 @@ function App() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Grid Principal: Painel de Informações e Mapa */}
+        {/* Renderizar simuladores para todas as linhas selecionadas */}
+        {linhasSelecionadas.map((linha) => (
+          <SimuladorLinha
+            key={linha.id}
+            linha={linha}
+            onPosicaoAtualizada={(posicao) => handlePosicaoAtualizada(linha.id, posicao)}
+          />
+        ))}
+
+        {/* Grid Principal: Seletor de Linhas e Mapa */}
         <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-3'}`}>
-          {/* Coluna 1: Painel de Controle e Status */}
+          {/* Coluna 1: Seletor de Linhas */}
           <div className={`${isMobile ? '' : 'col-span-1 overflow-y-auto max-h-[600px] relative z-0'}`}>
-            <InfoPanel
-              linha={linhaSelecionada} posicao={posicao} progressoRota={progressoRota}
-              paradaAtual={paradaAtual} proximaParada={proximaParada} isSimulando={isSimulando}
-              onIniciar={iniciarSimulacao} onPausar={pausarSimulacao} onReiniciar={reiniciarSimulacao}
-              linhas={todasLinhas} onSelecionarLinha={setLinhaSelecionada}
+            <SeletorLinhas
+              linhas={todasLinhas}
+              linhasSelecionadas={linhasSelecionadas}
+              onSelecionarLinhas={setLinhasSelecionadas}
             />
           </div>
           
@@ -147,8 +149,8 @@ function App() {
           <div className={`${isMobile ? 'h-[400px]' : 'col-span-2 h-[600px]'}`}>
             <div className="bg-white rounded-xl shadow-sm border h-full relative z-0 overflow-hidden">
               <BusMap 
-                linha={linhaSelecionada} 
-                posicao={posicao} 
+                linhas={linhasSelecionadas} 
+                posicoes={Array.from(posicoes.values())}
                 isMobile={isMobile} 
               />
             </div>
@@ -157,12 +159,18 @@ function App() {
 
         {/* Seção: Legenda do Mapa */}
         <div className="mt-6 bg-white rounded-xl shadow-sm border p-4">
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">Legenda do Mapa</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Legenda do Mapa - Linhas em Operação</h3>
           <div className="flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full animate-pulse" style={{ backgroundColor: linhaSelecionada.corHex }} />
-              <span className="text-gray-600">Ônibus em movimento</span>
-            </div>
+            {linhasSelecionadas.length > 0 ? (
+              linhasSelecionadas.map((linha) => (
+                <div key={linha.id} className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full animate-pulse" style={{ backgroundColor: linha.corHex }} />
+                  <span className="text-gray-600">{linha.nome}</span>
+                </div>
+              ))
+            ) : (
+              <span className="text-gray-600">Nenhuma linha selecionada</span>
+            )}
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full border-2 border-gray-400 bg-white" />
               <span className="text-gray-600">Parada</span>

@@ -6,98 +6,98 @@ import type { LinhaOnibus, PosicaoOnibus } from '@/types';
 import { createBusIcon, createStopIcon } from './icons';
 
 interface BusMapProps {
-  linha: LinhaOnibus;
-  posicao: PosicaoOnibus | null;
+  linhas: LinhaOnibus[];
+  posicoes: PosicaoOnibus[];
   centro?: [number, number];
   zoom?: number;
   isMobile?: boolean;
 }
 
-// Componente para ajustar o bounds do mapa
+// Componente para ajustar o bounds do mapa (apenas uma vez)
 const FitBounds = ({ bounds }: { bounds: L.LatLngBoundsExpression }) => {
   const map = useMap();
+  const initializedRef = useRef(false);
   
   useEffect(() => {
-    if (bounds) {
-      map.fitBounds(bounds, { padding: [50, 50] });
+    if (bounds && !initializedRef.current) {
+      setTimeout(() => {
+        if (map && bounds) {
+          map.fitBounds(bounds, { padding: [50, 50] });
+          initializedRef.current = true;
+        }
+      }, 100);
     }
   }, [map, bounds]);
   
   return null;
 };
 
-// Componente para seguir o ônibus
-const FollowBus = ({ posicao, shouldFollow }: { posicao: PosicaoOnibus | null; shouldFollow: boolean }) => {
-  const map = useMap();
-  
-  useEffect(() => {
-    if (shouldFollow && posicao) {
-      map.panTo([posicao.coordenadas.lat, posicao.coordenadas.lng], {
-        animate: true,
-        duration: 0.5,
-      });
-    }
-  }, [map, posicao, shouldFollow]);
-  
-  return null;
-};
-
 const BusMap = ({ 
-  linha, 
-  posicao, 
+  linhas, 
+  posicoes, 
   centro = [-23.5505, -46.6333], 
   zoom = 13,
   isMobile = false
 }: BusMapProps) => {
   const mapRef = useRef<L.Map>(null);
   
-  // Criar bounds da rota
+  // Criar bounds de todas as rotas
   const bounds = useMemo(() => {
-    const coords = linha.rota.map(p => [p.lat, p.lng] as [number, number]);
-    return L.latLngBounds(coords);
-  }, [linha.rota]);
-  
-  // Converter coordenadas da rota para formato do Leaflet
-  const rotaCoords = useMemo(() => {
-    return linha.rota.map(p => [p.lat, p.lng] as [number, number]);
-  }, [linha.rota]);
-  
-  // Calcular progresso da rota percorrida
-  const rotaPercorrida = useMemo(() => {
-    if (!posicao) return [];
-    
-    const coords: [number, number][] = [];
-    let distanciaTotal = 0;
-    
-    // Calcular distância total
-    for (let i = 0; i < linha.rota.length - 1; i++) {
-      const p1 = linha.rota[i];
-      const p2 = linha.rota[i + 1];
-      const dist = L.latLng(p1.lat, p1.lng).distanceTo(L.latLng(p2.lat, p2.lng));
-      distanciaTotal += dist;
-    }
-    
-    // Encontrar ponto atual na rota
-    const posAtual = L.latLng(posicao.coordenadas.lat, posicao.coordenadas.lng);
-    let menorDistancia = Infinity;
-    let indiceMaisProximo = 0;
-    
-    linha.rota.forEach((p, i) => {
-      const dist = posAtual.distanceTo(L.latLng(p.lat, p.lng));
-      if (dist < menorDistancia) {
-        menorDistancia = dist;
-        indiceMaisProximo = i;
-      }
+    const todasAsCoords: [number, number][] = [];
+    linhas.forEach(linha => {
+      linha.rota.forEach(p => {
+        todasAsCoords.push([p.lat, p.lng]);
+      });
     });
     
-    // Retornar coordenadas até o ponto atual
-    for (let i = 0; i <= indiceMaisProximo; i++) {
-      coords.push([linha.rota[i].lat, linha.rota[i].lng]);
+    if (todasAsCoords.length === 0) {
+      return L.latLngBounds([centro, centro]);
     }
-    coords.push([posicao.coordenadas.lat, posicao.coordenadas.lng]);
     
-    return coords;
-  }, [linha.rota, posicao]);
+    return L.latLngBounds(todasAsCoords);
+  }, [linhas]);
+  
+  // Converter coordenadas de todas as rotas para formato do Leaflet
+  const rotasCoords = useMemo(() => {
+    return linhas.map(linha => ({
+      linha,
+      coords: linha.rota.map(p => [p.lat, p.lng] as [number, number]),
+    }));
+  }, [linhas]);
+  
+  // Calcular progresso de cada rota percorrida
+  const rotasPercorridas = useMemo(() => {
+    return linhas.map(linha => {
+      const posicaoLinha = posicoes.find(p => p.linhaId === linha.id);
+      
+      if (!posicaoLinha) {
+        return { linha, coords: [] as [number, number][] };
+      }
+      
+      const coords: [number, number][] = [];
+      
+      // Encontrar ponto atual na rota
+      const posAtual = L.latLng(posicaoLinha.coordenadas.lat, posicaoLinha.coordenadas.lng);
+      let menorDistancia = Infinity;
+      let indiceMaisProximo = 0;
+      
+      linha.rota.forEach((p, i) => {
+        const dist = posAtual.distanceTo(L.latLng(p.lat, p.lng));
+        if (dist < menorDistancia) {
+          menorDistancia = dist;
+          indiceMaisProximo = i;
+        }
+      });
+      
+      // Retornar coordenadas até o ponto atual
+      for (let i = 0; i <= indiceMaisProximo; i++) {
+        coords.push([linha.rota[i].lat, linha.rota[i].lng]);
+      }
+      coords.push([posicaoLinha.coordenadas.lat, posicaoLinha.coordenadas.lng]);
+      
+      return { linha, coords };
+    });
+  }, [linhas, posicoes]);
   
   return (
     <MapContainer
@@ -115,95 +115,108 @@ const BusMap = ({
       />
       
       <FitBounds bounds={bounds} />
-      <FollowBus posicao={posicao} shouldFollow={true} />
       
-      {/* Rota completa (fundo cinza) */}
-      <Polyline
-        positions={rotaCoords}
-        color="#9CA3AF"
-        weight={6}
-        opacity={0.5}
-        dashArray="10, 10"
-      />
-      
-      {/* Rota percorrida */}
-      {rotaPercorrida.length > 0 && (
+      {/* Renderizar todas as rotas */}
+      {rotasCoords.map(({ linha, coords }) => (
         <Polyline
-          positions={rotaPercorrida}
-          color={linha.corHex}
+          key={`rota-${linha.id}`}
+          positions={coords}
+          color="#9CA3AF"
           weight={6}
-          opacity={0.9}
+          opacity={0.5}
+          dashArray="10, 10"
         />
-      )}
-      
-      {/* Paradas */}
-      {linha.paradas.map((parada) => (
-        <Marker
-          key={parada.id}
-          position={[parada.coordenadas.lat, parada.coordenadas.lng]}
-          icon={createStopIcon(linha.corHex)}
-        >
-          <Popup>
-            <div className="p-2">
-              <h3 className="font-semibold text-gray-900">{parada.nome}</h3>
-              {parada.horarioPrevisto && (
-                <p className="text-sm text-gray-600 mt-1">
-                  Horário previsto: <span className="font-medium">{parada.horarioPrevisto}</span>
-                </p>
-              )}
-              <p className="text-xs text-gray-500 mt-1">
-                Linha: {linha.nome}
-              </p>
-            </div>
-          </Popup>
-        </Marker>
       ))}
       
-      {/* Ônibus */}
-      {posicao && (
-        <Marker
-          position={[posicao.coordenadas.lat, posicao.coordenadas.lng]}
-          icon={createBusIcon(linha.corHex)}
-          zIndexOffset={1000}
-        >
-          <Popup>
-            <div className="p-3 min-w-[200px]">
-              <div className="flex items-center gap-2 mb-2">
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: linha.corHex }}
-                />
-                <h3 className="font-bold text-gray-900">{linha.nome}</h3>
-              </div>
-              
-              <div className="space-y-1 text-sm">
-                <p className="text-gray-700">
-                  <span className="font-medium">Velocidade:</span> {posicao.velocidade} km/h
-                </p>
-                
-                {posicao.proximaParada && (
-                  <p className="text-gray-700">
-                    <span className="font-medium">Próxima parada:</span> {posicao.proximaParada}
+      {/* Renderizar rotas percorridas */}
+      {rotasPercorridas.map(({ linha, coords }) => (
+        coords.length > 0 && (
+          <Polyline
+            key={`percorrida-${linha.id}`}
+            positions={coords}
+            color={linha.corHex}
+            weight={6}
+            opacity={0.9}
+          />
+        )
+      ))}
+      
+      {/* Renderizar todas as paradas de todas as linhas */}
+      {linhas.map((linha) => (
+        linha.paradas.map((parada) => (
+          <Marker
+            key={`parada-${linha.id}-${parada.id}`}
+            position={[parada.coordenadas.lat, parada.coordenadas.lng]}
+            icon={createStopIcon(linha.corHex)}
+          >
+            <Popup>
+              <div className="p-2">
+                <h3 className="font-semibold text-gray-900">{parada.nome}</h3>
+                {parada.horarioPrevisto && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    Horário previsto: <span className="font-medium">{parada.horarioPrevisto}</span>
                   </p>
                 )}
-                
-                {posicao.tempoChegadaMinutos !== undefined && (
-                  <p className="text-gray-700">
-                    <span className="font-medium">Chegada em:</span>{' '}
-                    <span className="text-green-600 font-semibold">
-                      {posicao.tempoChegadaMinutos} min
-                    </span>
-                  </p>
-                )}
-                
-                <p className="text-xs text-gray-500 mt-2">
-                  Atualizado: {posicao.ultimaAtualizacao.toLocaleTimeString()}
+                <p className="text-xs text-gray-500 mt-1">
+                  Linha: {linha.nome}
                 </p>
               </div>
-            </div>
-          </Popup>
-        </Marker>
-      )}
+            </Popup>
+          </Marker>
+        ))
+      ))}
+      
+      {/* Renderizar todos os ônibus */}
+      {posicoes.map((posicao) => {
+        const linha = linhas.find(l => l.id === posicao.linhaId);
+        if (!linha) return null;
+        
+        return (
+          <Marker
+            key={`onibus-${posicao.linhaId}`}
+            position={[posicao.coordenadas.lat, posicao.coordenadas.lng]}
+            icon={createBusIcon(linha.corHex)}
+            zIndexOffset={1000}
+          >
+            <Popup>
+              <div className="p-3 min-w-[200px]">
+                <div className="flex items-center gap-2 mb-2">
+                  <div 
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: linha.corHex }}
+                  />
+                  <h3 className="font-bold text-gray-900">{linha.nome}</h3>
+                </div>
+                
+                <div className="space-y-1 text-sm">
+                  <p className="text-gray-700">
+                    <span className="font-medium">Velocidade:</span> {posicao.velocidade} km/h
+                  </p>
+                  
+                  {posicao.proximaParada && (
+                    <p className="text-gray-700">
+                      <span className="font-medium">Próxima parada:</span> {posicao.proximaParada}
+                    </p>
+                  )}
+                  
+                  {posicao.tempoChegadaMinutos !== undefined && (
+                    <p className="text-gray-700">
+                      <span className="font-medium">Chegada em:</span>{' '}
+                      <span className="text-green-600 font-semibold">
+                        {posicao.tempoChegadaMinutos} min
+                      </span>
+                    </p>
+                  )}
+                  
+                  <p className="text-xs text-gray-500 mt-2">
+                    Atualizado: {posicao.ultimaAtualizacao.toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
     </MapContainer>
   );
 };
