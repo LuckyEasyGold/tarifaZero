@@ -1,5 +1,5 @@
 import { useEffect, useRef, useMemo } from 'react';
-import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { LinhaOnibus, PosicaoOnibus } from '@/types';
@@ -178,6 +178,16 @@ const BusMap = ({
             icon={createBusIcon(linha.corHex)}
             zIndexOffset={1000}
           >
+            <Tooltip 
+              permanent={true}
+              direction="right"
+              offset={[10, 0]}
+              className="bg-white rounded-md shadow-md"
+            >
+              <div className="font-semibold text-sm" style={{ color: linha.corHex }}>
+                {linha.nome}
+              </div>
+            </Tooltip>
             <Popup>
               <div className="p-3 min-w-[200px]">
                 <div className="flex items-center gap-2 mb-2">
