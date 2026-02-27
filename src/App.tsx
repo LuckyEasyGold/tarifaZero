@@ -83,7 +83,7 @@ function App() {
           </div>
           
           <div className="loading-content">
-            <h2 className="loading-title">Tarifa Zero</h2>
+            <h2 className="loading-title">Tarifa Zero- Palmas - PR</h2>
             <p className="loading-subtitle">Sincronizando rotas em tempo real...</p>
             
             <div className="progress-container">
@@ -116,15 +116,13 @@ function App() {
           <p className="text-xs sm:text-sm font-medium animate-pulse text-center w-full sm:w-auto">
             🚀 Projeto em Expansão: Ajude a monitorar os ônibus do Tarifa Zero em Palmas!
           </p>
-          
           <a href="#contribuir" className="text-xs bg-yellow-400 text-blue-900 px-3 py-1 rounded-full font-bold hover:bg-yellow-300 transition">
             Apoiar Projeto
           </a>
-          
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="mt-6 bg-white rounded-xl shadow-sm border p-4">
         {/* Renderizar simuladores para todas as linhas selecionadas */}
         {linhasSelecionadas.map((linha) => (
           <SimuladorLinha
