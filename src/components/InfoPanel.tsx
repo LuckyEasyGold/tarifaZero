@@ -59,7 +59,7 @@ const InfoPanel = ({
   // Filtra paradas para mostrar apenas as relevantes (atual, próximas e algumas anteriores)
   const paradasFiltradas = useMemo(() => {
     const totalParadas = linha.paradas.length;
-    
+
     // Se tiver poucas paradas, mostra todas
     if (totalParadas <= 15) {
       return linha.paradas;
@@ -73,7 +73,7 @@ const InfoPanel = ({
     // Mostra paradas ao redor da posição atual
     const inicio = Math.max(0, indiceParadaAtual - 2);
     const fim = Math.min(totalParadas, indiceParadaAtual + 8);
-    
+
     return linha.paradas.slice(inicio, fim);
   }, [linha.paradas, indiceParadaAtual, mostrarTodasParadas, paradasVisiveis]);
 
@@ -83,8 +83,8 @@ const InfoPanel = ({
   return (
     <div className="space-y-4">
       {/* Seletor de Linha - Agora no topo do InfoPanel */}
-      <Card>
-        <CardContent className="p-4 z-9999">
+      <Card className="relative z-50">
+        <CardContent className="p-4">
           <SeletorLinha
             linhas={linhas}
             linhaSelecionada={linha}
@@ -106,8 +106,8 @@ const InfoPanel = ({
                 Linha {linha.id}
               </p>
             </div>
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className="font-mono"
               style={{ borderColor: linha.corHex, color: linha.corHex }}
             >
@@ -134,7 +134,7 @@ const InfoPanel = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Status</span>
-                <Badge 
+                <Badge
                   variant={isSimulando ? "default" : "secondary"}
                   className={isSimulando ? "bg-green-500" : ""}
                 >
@@ -175,11 +175,11 @@ const InfoPanel = ({
                   <span>{Math.round(progressoRota * 100)}%</span>
                 </div>
                 <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full transition-all duration-500"
-                    style={{ 
+                    style={{
                       width: `${progressoRota * 100}%`,
-                      backgroundColor: linha.corHex 
+                      backgroundColor: linha.corHex
                     }}
                   />
                 </div>
@@ -197,8 +197,8 @@ const InfoPanel = ({
           {/* Controles de simulação */}
           <div className="flex gap-2">
             {!isSimulando ? (
-              <Button 
-                onClick={onIniciar} 
+              <Button
+                onClick={onIniciar}
                 className="flex-1"
                 style={{ backgroundColor: linha.corHex }}
               >
@@ -206,18 +206,18 @@ const InfoPanel = ({
                 Iniciar
               </Button>
             ) : (
-              <Button 
-                onClick={onPausar} 
-                variant="outline" 
+              <Button
+                onClick={onPausar}
+                variant="outline"
                 className="flex-1"
               >
                 <Pause className="w-4 h-4 mr-2" />
                 Pausar
               </Button>
             )}
-            <Button 
-              onClick={onReiniciar} 
-              variant="outline" 
+            <Button
+              onClick={onReiniciar}
+              variant="outline"
               size="icon"
               title="Reiniciar"
             >
@@ -245,34 +245,31 @@ const InfoPanel = ({
             {paradasFiltradas.map((parada, index) => {
               const isAtual = parada.nome === paradaAtual;
               const isProxima = parada.nome === proximaParada;
-              const numeroParada = mostrarTodasParadas 
-                ? index + 1 
+              const numeroParada = mostrarTodasParadas
+                ? index + 1
                 : (totalParadas > 15 ? indiceParadaAtual - 2 + index + 1 : index + 1);
-              
+
               return (
-                <div 
+                <div
                   key={parada.id}
-                  className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
-                    isAtual ? 'bg-green-50 border border-green-200' : 
-                    isProxima ? 'bg-blue-50 border border-blue-200' : 
-                    'hover:bg-gray-50'
-                  }`}
-                >
-                  <div 
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${
-                      isAtual ? 'bg-green-500 text-white' :
-                      isProxima ? 'bg-blue-500 text-white' :
-                      'bg-gray-200 text-gray-600'
+                  className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${isAtual ? 'bg-green-50 border border-green-200' :
+                      isProxima ? 'bg-blue-50 border border-blue-200' :
+                        'hover:bg-gray-50'
                     }`}
+                >
+                  <div
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${isAtual ? 'bg-green-500 text-white' :
+                        isProxima ? 'bg-blue-500 text-white' :
+                          'bg-gray-200 text-gray-600'
+                      }`}
                   >
                     {numeroParada}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium truncate ${
-                      isAtual ? 'text-green-700' :
-                      isProxima ? 'text-blue-700' :
-                      'text-gray-900'
-                    }`}>
+                    <p className={`text-sm font-medium truncate ${isAtual ? 'text-green-700' :
+                        isProxima ? 'text-blue-700' :
+                          'text-gray-900'
+                      }`}>
                       {parada.nome}
                     </p>
                     {parada.horarioPrevisto && (
@@ -300,9 +297,9 @@ const InfoPanel = ({
           {totalParadas > 15 && (
             <div className="mt-4 space-y-2">
               {!mostrarTodasParadas ? (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="w-full"
                   onClick={() => setMostrarTodasParadas(true)}
                 >
@@ -312,9 +309,9 @@ const InfoPanel = ({
               ) : (
                 <>
                   {temMaisParadas && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="w-full"
                       onClick={() => setParadasVisiveis(prev => prev + 20)}
                     >
@@ -322,9 +319,9 @@ const InfoPanel = ({
                       Carregar mais ({paradasVisiveis} de {totalParadas})
                     </Button>
                   )}
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="w-full"
                     onClick={() => {
                       setMostrarTodasParadas(false);
