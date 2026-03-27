@@ -1,19 +1,19 @@
 [
   {
     "id": "P001",
-    "nome": "Eloy Erich Bernert, Palmas PR",
+    "nome": "Unidade Básica de Saúde do Eldorado",
     "coordenadas": {
-      "lat": -26.46890,
-      "lng": -52.02566
+      "lat": -26.46851925298019,
+      "lng": -52.021586155763444
     },
     "horarioPrevisto": ""
   },
   {
     "id": "P002",
-    "nome": "Av. Gov. Pedro Viriato Parigot de Souza, Palmas PR",
+    "nome": "Mercado Melpan",
     "coordenadas": {
-      "lat": -26.46939,
-      "lng": -52.01728
+      "lat": -26.469312569082053,
+      "lng": -52.01622948116313
     },
     "horarioPrevisto": ""
   },
