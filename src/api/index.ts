@@ -11,9 +11,9 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'production',
       endpoints: {
-        health: './api/health',
-        lines: '..api/lines (em breve)',
-        stops: './api/stops (em breve)',
+        health: '/api/health',
+        lines: '.api/lines (em breve)',
+        stops: '/api/stops (em breve)',
       },
     },
   });
