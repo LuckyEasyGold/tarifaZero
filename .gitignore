@@ -38,3 +38,4 @@ prisma/migrations
 
 # Build
 api/dist
+.env*.local
