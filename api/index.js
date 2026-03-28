@@ -1,22 +1,19 @@
-// API Health Check
+// API Health Check - Simple Version
 export default async function handler(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  
   return res.status(200).json({
     success: true,
     data: {
       message: 'Tarifa Zero API v1.0',
       status: 'healthy',
       timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'production',
       endpoints: {
-        lines: '/api/lines',
-        stops: '/api/stops',
-        tracking: '/api/tracking',
-        vehicle: '/api/vehicle',
-        route: '/api/route',
+        health: '/api/health',
+        lines: '/api/lines (em breve)',
+        stops: '/api/stops (em breve)',
       },
-    },
-    meta: {
-      timestamp: new Date().toISOString(),
-      version: '1.0.0',
     },
   });
 }

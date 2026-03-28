@@ -1,24 +1,16 @@
-// Health Check with Database
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
+// Health Check with Database - Simple Test
 export default async function handler(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  
   try {
+    // Import Prisma dynamically to avoid build issues
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
+    
     // Test database connection
-    await prisma.$queryRaw`SELECT 1`;
+    await prisma.$queryRaw`SELECT 1 as test`;
     
-    // Check PostGIS
-    const postgisVersion = await prisma.$queryRaw`
-      SELECT PostGIS_version() as version
-    `;
-    
-    // Count tables
-    const tables = await prisma.$queryRaw`
-      SELECT COUNT(*) as count 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public'
-    `;
+    await prisma.$disconnect();
     
     return res.status(200).json({
       success: true,
@@ -26,13 +18,7 @@ export default async function handler(req, res) {
         message: 'Tarifa Zero API v1.0',
         status: 'healthy',
         database: 'connected',
-        postgis: postgisVersion[0]?.version || 'not available',
-        tables: Number(tables[0]?.count || 0),
         timestamp: new Date().toISOString(),
-      },
-      meta: {
-        timestamp: new Date().toISOString(),
-        version: '1.0.0',
       },
     });
   } catch (err) {
@@ -41,12 +27,8 @@ export default async function handler(req, res) {
     return res.status(500).json({
       success: false,
       error: {
-        message: err.message || 'Internal server error',
-        code: 'INTERNAL_ERROR',
-      },
-      meta: {
-        timestamp: new Date().toISOString(),
-        version: '1.0.0',
+        message: err.message || 'Database connection failed',
+        code: 'DATABASE_ERROR',
       },
     });
   }
