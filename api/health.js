@@ -1,9 +1,9 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+// Health Check with Database
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export default async function handler(_req: VercelRequest, res: VercelResponse) {
+export default async function handler(_req, res) {
   res.setHeader('Content-Type', 'application/json');
   
   try {
@@ -11,12 +11,12 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     await prisma.$queryRaw`SELECT 1 as test`;
     
     // Check PostGIS
-    const postgisVersion = await prisma.$queryRaw<Array<{ version: string }>>`
+    const postgisVersion = await prisma.$queryRaw`
       SELECT PostGIS_version() as version
     `;
     
     // Count tables
-    const tables = await prisma.$queryRaw<Array<{ count: bigint }>>`
+    const tables = await prisma.$queryRaw`
       SELECT COUNT(*) as count 
       FROM information_schema.tables 
       WHERE table_schema = 'public'
@@ -35,7 +35,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
         timestamp: new Date().toISOString(),
       },
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error('Health check error:', err);
     
     return res.status(500).json({
