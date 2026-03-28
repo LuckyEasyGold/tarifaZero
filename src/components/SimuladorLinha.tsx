@@ -12,7 +12,7 @@ const SimuladorLinha = ({ linha, onPosicaoAtualizada }: SimuladorLinhaProps) => 
   
   const simulador = useGPSSimulator({
     linha,
-    velocidadeSimulacao: 35,
+    velocidadeSimulacao: 20,
     intervaloAtualizacao: 1000,
   });
 

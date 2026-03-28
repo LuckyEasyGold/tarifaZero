@@ -1,0 +1,213 @@
+// Tarifa Zero - Database Schema
+// PostgreSQL + PostGIS (Neon)
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+// ============================================================
+// LINHAS DE ÔNIBUS
+// ============================================================
+model Line {
+  id          String   @id @default(cuid())
+  code        String   @unique // L001, L002, etc
+  name        String
+  color       String
+  colorHex    String
+  startTime   String // "05:00"
+  endTime     String // "22:00"
+  intervalMin Int // intervalo em minutos
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  routes          Route[]
+  stops           Stop[]
+  trips           Trip[]
+  vehiclePositions VehiclePosition[]
+  wifiNetworks    WifiNetwork[]
+
+  @@map("lines")
+}
+
+// ============================================================
+// ROTAS (IDA E VOLTA)
+// ============================================================
+model Route {
+  id        String   @id @default(cuid())
+  lineId    String
+  direction String // "outbound" (ida) ou "inbound" (volta)
+  name      String // "Terminal → Centro"
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  line   Line         @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  points RoutePoint[]
+  trips  Trip[]
+
+  @@unique([lineId, direction])
+  @@map("routes")
+}
+
+// ============================================================
+// PONTOS DA ROTA (SHAPE)
+// ============================================================
+model RoutePoint {
+  id        String   @id @default(cuid())
+  routeId   String
+  sequence  Int // ordem do ponto na rota
+  lat       Float
+  lng       Float
+  // location  Unsupported("geography(Point, 4326)")? // PostGIS point
+  createdAt DateTime @default(now())
+
+  route Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@unique([routeId, sequence])
+  @@index([routeId])
+  @@map("route_points")
+}
+
+// ============================================================
+// PARADAS
+// ============================================================
+model Stop {
+  id          String   @id @default(cuid())
+  lineId      String
+  code        String   @unique // P001, P002, etc
+  name        String
+  lat         Float
+  lng         Float
+  // location    Unsupported("geography(Point, 4326)")? // PostGIS point
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  line Line @relation(fields: [lineId], references: [id], onDelete: Cascade)
+
+  @@index([lineId])
+  @@map("stops")
+}
+
+// ============================================================
+// VIAGENS PROGRAMADAS
+// ============================================================
+model Trip {
+  id              String   @id @default(cuid())
+  lineId          String
+  routeId         String
+  scheduledStart  DateTime
+  scheduledEnd    DateTime
+  actualStart     DateTime?
+  actualEnd       DateTime?
+  status          String   @default("scheduled") // scheduled, active, completed, cancelled
+  vehicleId       String? // identificador do veículo (se disponível)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  line  Line  @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  route Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@index([lineId, status])
+  @@index([scheduledStart])
+  @@map("trips")
+}
+
+// ============================================================
+// POSIÇÕES DOS VEÍCULOS (TEMPO REAL)
+// ============================================================
+model VehiclePosition {
+  id         String   @id @default(cuid())
+  lineId     String
+  userId     String? // usuário que enviou a posição
+  lat        Float
+  lng        Float
+  // location   Unsupported("geography(Point, 4326)")? // PostGIS point
+  speed      Float? // velocidade em km/h
+  heading    Float? // direção em graus (0-360)
+  accuracy   Float? // precisão em metros
+  confidence Float    @default(1.0) // confiança (0-1)
+  source     String   @default("crowdsource") // crowdsource, gps, inference
+  timestamp  DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  line Line @relation(fields: [lineId], references: [id], onDelete: Cascade)
+
+  @@index([lineId, timestamp])
+  @@index([timestamp])
+  @@map("vehicle_positions")
+}
+
+// ============================================================
+// TRACKING DE USUÁRIOS (CROWDSOURCING)
+// ============================================================
+model UserTrack {
+  id         String   @id @default(cuid())
+  userId     String
+  sessionId  String // identificador da sessão de tracking
+  lineId     String? // linha identificada (pode ser null no início)
+  lat        Float
+  lng        Float
+  // location   Unsupported("geography(Point, 4326)")? // PostGIS point
+  speed      Float?
+  heading    Float?
+  accuracy   Float?
+  timestamp  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([userId, timestamp])
+  @@index([lineId, timestamp])
+  @@map("user_tracks")
+}
+
+// ============================================================
+// REDES WI-FI DOS ÔNIBUS
+// ============================================================
+model WifiNetwork {
+  id          String   @id @default(cuid())
+  lineId      String
+  ssid        String
+  bssid       String? // MAC address do roteador
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  line Line @relation(fields: [lineId], references: [id], onDelete: Cascade)
+
+  @@unique([lineId, ssid])
+  @@index([ssid])
+  @@map("wifi_networks")
+}
+
+// ============================================================
+// ESTATÍSTICAS DE VELOCIDADE (APRENDIZADO)
+// ============================================================
+model SpeedStats {
+  id            String   @id @default(cuid())
+  lineId        String
+  segmentStart  String // "lat,lng" do início do segmento
+  segmentEnd    String // "lat,lng" do fim do segmento
+  hourOfDay     Int // 0-23
+  dayOfWeek     Int // 0-6 (0=domingo)
+  avgSpeed      Float // velocidade média em km/h
+  minSpeed      Float
+  maxSpeed      Float
+  sampleCount   Int // número de amostras
+  lastUpdated   DateTime @updatedAt
+  createdAt     DateTime @default(now())
+
+  @@unique([lineId, segmentStart, segmentEnd, hourOfDay, dayOfWeek])
+  @@index([lineId])
+  @@map("speed_stats")
+}
