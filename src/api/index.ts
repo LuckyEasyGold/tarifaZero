@@ -12,7 +12,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       environment: process.env.NODE_ENV || 'production',
       endpoints: {
         health: '/api/health',
-        lines: '.api/lines (em breve)',
+        lines: '/api/lines (em breve)',
         stops: '/api/stops (em breve)',
       },
     },
