@@ -17,6 +17,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "index.js"],
   "exclude": ["node_modules", "dist"]
 }
