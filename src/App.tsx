@@ -11,6 +11,7 @@ import Contribuir from '@/pages/Contribuir';
 import Ranking from '@/pages/Ranking';
 import './App.css';
 
+// v2.1 - Splash sempre ativo, simulação de ônibus, navegação corrigida
 function App() {
   const [showSplash, setShowSplash] = useState(true);
 
