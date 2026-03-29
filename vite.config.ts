@@ -5,7 +5,7 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // Mude para './' (sem pasta TarifaZero)
+  base: '/', // Base path absoluto para Vercel
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
