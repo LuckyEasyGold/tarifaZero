@@ -5,7 +5,7 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/', // Base path absoluto para Vercel
+  base: './', // Base path relativo para funcionar em subpastas
   server: {
     proxy: {
       '/api': {

@@ -3,7 +3,6 @@
 # Enable Rewrite Engine
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /TarifaZero/tarifa_teste/
 
   # Serve correct MIME types
   AddType application/javascript .js
