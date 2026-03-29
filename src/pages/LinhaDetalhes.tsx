@@ -9,7 +9,7 @@ interface Stop {
   description: string | null;
   lat: number;
   lng: number;
-  sequence: number;
+  code: string;
 }
 
 interface RoutePoint {
@@ -184,7 +184,7 @@ export default function LinhaDetalhes() {
         <div className="max-w-7xl mx-auto px-4 pb-4">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 divide-y divide-gray-200">
             {linha.stops
-              .sort((a, b) => a.sequence - b.sequence)
+              .sort((a, b) => a.code.localeCompare(b.code))
               .map((stop, index) => (
                 <div key={stop.id} className="p-4 flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold text-sm flex-shrink-0">
