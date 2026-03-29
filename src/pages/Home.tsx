@@ -353,11 +353,17 @@ export default function Home() {
   // Buscar usuários ativos e enviar heartbeat
   useEffect(() => {
     const anonymousId = localStorage.getItem('anonymousId');
-    if (!anonymousId) return;
+    if (!anonymousId) {
+      console.log('❌ Sem anonymousId - usuário não fez onboarding');
+      return;
+    }
+
+    console.log('✅ AnonymousId encontrado:', anonymousId);
 
     // Buscar usuários ativos inicialmente
     getActiveUsers()
       .then(response => {
+        console.log('👥 Usuários ativos:', response.count);
         setActiveUsers(response.users);
       })
       .catch(err => console.error('Erro ao buscar usuários ativos:', err));
@@ -368,6 +374,10 @@ export default function Home() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
+            console.log('📍 Enviando heartbeat com localização:', {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            });
             sendHeartbeat(
               anonymousId,
               position.coords.latitude,
@@ -375,13 +385,15 @@ export default function Home() {
               false // não está tracking na tela Home
             ).catch(err => console.error('Erro ao enviar heartbeat:', err));
           },
-          () => {
+          (error) => {
+            console.log('⚠️ Erro ao obter localização:', error.message);
             // Se não conseguir localização, envia sem coordenadas
             sendHeartbeat(anonymousId, undefined, undefined, false)
               .catch(err => console.error('Erro ao enviar heartbeat:', err));
           }
         );
       } else {
+        console.log('⚠️ Geolocalização não disponível');
         sendHeartbeat(anonymousId, undefined, undefined, false)
           .catch(err => console.error('Erro ao enviar heartbeat:', err));
       }
@@ -391,10 +403,31 @@ export default function Home() {
     const usersInterval = setInterval(() => {
       getActiveUsers()
         .then(response => {
+          console.log('🔄 Atualizando usuários ativos:', response.count);
           setActiveUsers(response.users);
         })
         .catch(err => console.error('Erro ao buscar usuários ativos:', err));
     }, 10000); // 10 segundos
+
+    // Enviar heartbeat imediatamente ao carregar
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log('📍 Heartbeat inicial com localização');
+          sendHeartbeat(
+            anonymousId,
+            position.coords.latitude,
+            position.coords.longitude,
+            false
+          ).catch(err => console.error('Erro ao enviar heartbeat inicial:', err));
+        },
+        () => {
+          console.log('⚠️ Heartbeat inicial sem localização');
+          sendHeartbeat(anonymousId, undefined, undefined, false)
+            .catch(err => console.error('Erro ao enviar heartbeat inicial:', err));
+        }
+      );
+    }
 
     return () => {
       clearInterval(heartbeatInterval);
