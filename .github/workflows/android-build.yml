@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,6 +35,10 @@ jobs:
       
     - name: Build web app
       run: npm run build
+      continue-on-error: false
+      
+    - name: List dist folder
+      run: ls -la dist/
       
     - name: Sync Capacitor
       run: npx cap sync android
@@ -42,7 +49,7 @@ jobs:
     - name: Build APK
       run: |
         cd android
-        ./gradlew assembleDebug --no-daemon --stacktrace
+        ./gradlew assembleDebug --no-daemon --stacktrace --info
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
