@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import BusMap from '@/components/map/BusMap';
+import type { PosicaoOnibus } from '@/types';
 
 interface RoutePoint {
   lat: number;
@@ -29,19 +30,123 @@ interface Line {
   stops: Stop[];
 }
 
-interface BusPosition {
+interface BusPosition extends PosicaoOnibus {
   id: string;
-  linhaId: string;
-  coordenadas: { lat: number; lng: number };
-  velocidade: number;
-  direcao: number;
+  pontoAtualIndex?: number;
+  direcaoIda?: boolean;
+  progresso?: number;
   timestamp: Date;
+  direcao: number;
 }
 
 export default function Home() {
   const [linhas, setLinhas] = useState<any[]>([]);
   const [posicoes, setPosicoes] = useState<BusPosition[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Carregar posições salvas do localStorage
+  const carregarPosicoesSalvas = (): BusPosition[] | null => {
+    try {
+      const saved = localStorage.getItem('busPositions');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Converter strings de data de volta para Date
+        return parsed.map((pos: any) => ({
+          ...pos,
+          timestamp: new Date(pos.timestamp),
+          ultimaAtualizacao: new Date(pos.ultimaAtualizacao)
+        }));
+      }
+    } catch (error) {
+      console.error('Erro ao carregar posições salvas:', error);
+    }
+    return null;
+  };
+
+  // Salvar posições no localStorage
+  const salvarPosicoes = (posicoes: BusPosition[]) => {
+    try {
+      localStorage.setItem('busPositions', JSON.stringify(posicoes));
+    } catch (error) {
+      console.error('Erro ao salvar posições:', error);
+    }
+  };
+
+  // Calcular onde o ônibus deveria estar baseado no tempo decorrido
+  const calcularPosicaoAtual = (pos: BusPosition, linha: any, tempoDecorridoMs: number): BusPosition => {
+    const VELOCIDADE_MEDIA_KMH = 25;
+    const VELOCIDADE_MEDIA_MS = (VELOCIDADE_MEDIA_KMH * 1000) / 3600;
+    const distanciaPercorrida = VELOCIDADE_MEDIA_MS * (tempoDecorridoMs / 1000); // metros
+
+    let pontoAtual = pos.pontoAtualIndex || 0;
+    let direcao = pos.direcaoIda !== false;
+    let progresso = pos.progresso || 0;
+    let distanciaRestante = distanciaPercorrida;
+
+    // Simular movimento até consumir toda a distância
+    while (distanciaRestante > 0 && linha.rota.length > 1) {
+      const pontoBase = linha.rota[pontoAtual];
+      const proximoIndex = direcao 
+        ? Math.min(pontoAtual + 1, linha.rota.length - 1)
+        : Math.max(pontoAtual - 1, 0);
+      const proximoPonto = linha.rota[proximoIndex];
+
+      if (!pontoBase || !proximoPonto) break;
+
+      const latDiff = proximoPonto.lat - pontoBase.lat;
+      const lngDiff = proximoPonto.lng - pontoBase.lng;
+      const distanciaGraus = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
+      const distanciaSegmento = distanciaGraus * 111000;
+
+      const distanciaAteProximo = distanciaSegmento * (1 - progresso);
+
+      if (distanciaRestante >= distanciaAteProximo) {
+        // Completa este segmento e vai para o próximo
+        distanciaRestante -= distanciaAteProximo;
+        progresso = 0;
+        
+        if (direcao) {
+          if (proximoIndex >= linha.rota.length - 1) {
+            direcao = false;
+            pontoAtual = linha.rota.length - 1;
+          } else {
+            pontoAtual = proximoIndex;
+          }
+        } else {
+          if (proximoIndex <= 0) {
+            direcao = true;
+            pontoAtual = 0;
+          } else {
+            pontoAtual = proximoIndex;
+          }
+        }
+      } else {
+        // Para no meio deste segmento
+        progresso += distanciaRestante / distanciaSegmento;
+        distanciaRestante = 0;
+      }
+    }
+
+    // Calcular coordenadas interpoladas
+    const pontoBase = linha.rota[pontoAtual];
+    const proximoIndex = direcao 
+      ? Math.min(pontoAtual + 1, linha.rota.length - 1)
+      : Math.max(pontoAtual - 1, 0);
+    const proximoPonto = linha.rota[proximoIndex];
+
+    const latInterpolada = pontoBase.lat + (proximoPonto.lat - pontoBase.lat) * progresso;
+    const lngInterpolada = pontoBase.lng + (proximoPonto.lng - pontoBase.lng) * progresso;
+
+    return {
+      ...pos,
+      coordenadas: { lat: latInterpolada, lng: lngInterpolada },
+      pontoAtualIndex: pontoAtual,
+      direcaoIda: direcao,
+      progresso: progresso,
+      sentido: direcao ? 'ida' : 'volta',
+      ultimaAtualizacao: new Date()
+    };
+  };
 
   useEffect(() => {
     // Buscar linhas da API
@@ -79,31 +184,51 @@ export default function Home() {
 
           setLinhas(linhasFormatadas);
 
-          // Simular posições de ônibus
-          const posicoesSimuladas: BusPosition[] = [];
-          linhasFormatadas.forEach(linha => {
-            if (linha.rota.length > 0) {
-              // Criar 2-3 ônibus por linha em posições diferentes
-              const numOnibus = Math.floor(Math.random() * 2) + 2;
-              for (let i = 0; i < numOnibus; i++) {
-                const pontoIndex = Math.floor((linha.rota.length / numOnibus) * i);
-                const ponto = linha.rota[pontoIndex];
-                if (ponto) {
+          // Tentar carregar posições salvas
+          const posicoesSalvas = carregarPosicoesSalvas();
+          
+          if (posicoesSalvas && posicoesSalvas.length > 0) {
+            console.log('📍 Carregando posições salvas e calculando posição atual...');
+            
+            // Calcular onde os ônibus deveriam estar agora
+            const agora = new Date();
+            const posicoesAtualizadas = posicoesSalvas.map(pos => {
+              const linha = linhasFormatadas.find(l => l.id === pos.linhaId);
+              if (!linha) return pos;
+              
+              const tempoDecorrido = agora.getTime() - pos.ultimaAtualizacao.getTime();
+              return calcularPosicaoAtual(pos, linha, tempoDecorrido);
+            });
+            
+            console.log('🚌 Posições restauradas e atualizadas');
+            setPosicoes(posicoesAtualizadas);
+          } else {
+            // Criar posições iniciais (1 por linha)
+            const posicoesSimuladas: BusPosition[] = [];
+            linhasFormatadas.forEach(linha => {
+              if (linha.rota.length > 0) {
+                const pontoInicial = linha.rota[0];
+                if (pontoInicial) {
                   posicoesSimuladas.push({
-                    id: `${linha.id}-bus-${i}`,
+                    id: `${linha.id}-bus`,
                     linhaId: linha.id,
-                    coordenadas: ponto,
-                    velocidade: Math.random() * 30 + 20, // 20-50 km/h
-                    direcao: Math.random() * 360,
+                    coordenadas: pontoInicial,
+                    velocidade: 25,
+                    direcao: 0,
                     timestamp: new Date(),
-                    ultimaAtualizacao: new Date()
+                    ultimaAtualizacao: new Date(),
+                    sentido: 'ida',
+                    pontoAtualIndex: 0,
+                    direcaoIda: true,
+                    progresso: 0
                   });
                 }
               }
-            }
-          });
+            });
 
-          setPosicoes(posicoesSimuladas);
+            console.log('🚌 Criando posições iniciais:', posicoesSimuladas.length, 'ônibus');
+            setPosicoes(posicoesSimuladas);
+          }
           setLoading(false);
         }
       })
@@ -113,44 +238,108 @@ export default function Home() {
       });
   }, []);
 
-  // Simular movimento dos ônibus
+  // Simular movimento dos ônibus com interpolação suave
   useEffect(() => {
     if (posicoes.length === 0 || linhas.length === 0) return;
 
+    const VELOCIDADE_MEDIA_KMH = 25; // km/h
+    const VELOCIDADE_MEDIA_MS = (VELOCIDADE_MEDIA_KMH * 1000) / 3600; // m/s
+    const INTERVALO_MS = 100; // Atualizar a cada 100ms para movimento suave
+    const DISTANCIA_POR_FRAME = VELOCIDADE_MEDIA_MS * (INTERVALO_MS / 1000); // metros por frame
+
+    let frameCount = 0;
+    const SALVAR_A_CADA_FRAMES = 50; // Salvar a cada 5 segundos (50 frames * 100ms)
+
     const interval = setInterval(() => {
-      setPosicoes(prevPosicoes => 
-        prevPosicoes.map(pos => {
+      setPosicoes(prevPosicoes => {
+        const novasPosicoes = prevPosicoes.map(pos => {
           const linha = linhas.find(l => l.id === pos.linhaId);
           if (!linha || linha.rota.length === 0) return pos;
 
-          // Encontrar ponto mais próximo na rota
-          let menorDistancia = Infinity;
-          let indiceMaisProximo = 0;
-          
-          linha.rota.forEach((ponto: any, index: number) => {
-            const distancia = Math.sqrt(
-              Math.pow(ponto.lat - pos.coordenadas.lat, 2) +
-              Math.pow(ponto.lng - pos.coordenadas.lng, 2)
-            );
-            if (distancia < menorDistancia) {
-              menorDistancia = distancia;
-              indiceMaisProximo = index;
-            }
-          });
+          // Estado do ônibus (armazenado no próprio objeto)
+          const pontoAtualIndex = pos.pontoAtualIndex || 0;
+          const direcao = pos.direcaoIda !== false; // true = ida, false = volta
+          const progresso = pos.progresso || 0; // 0 a 1 entre dois pontos
 
-          // Mover para o próximo ponto
-          const proximoIndice = (indiceMaisProximo + 1) % linha.rota.length;
-          const proximoPonto = linha.rota[proximoIndice];
+          const pontoAtual = linha.rota[pontoAtualIndex];
+          const proximoIndex = direcao 
+            ? Math.min(pontoAtualIndex + 1, linha.rota.length - 1)
+            : Math.max(pontoAtualIndex - 1, 0);
+          const proximoPonto = linha.rota[proximoIndex];
+
+          if (!pontoAtual || !proximoPonto) return pos;
+
+          // Calcular distância entre pontos (aproximação simples)
+          const latDiff = proximoPonto.lat - pontoAtual.lat;
+          const lngDiff = proximoPonto.lng - pontoAtual.lng;
+          const distanciaGraus = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
+          const distanciaMetros = distanciaGraus * 111000; // 1 grau ≈ 111km
+
+          // Calcular incremento de progresso
+          const incremento = distanciaMetros > 0 ? DISTANCIA_POR_FRAME / distanciaMetros : 1;
+          let novoProgresso = progresso + incremento;
+
+          let novoPontoIndex = pontoAtualIndex;
+          let novaDirecao = direcao;
+
+          // Se completou o segmento
+          if (novoProgresso >= 1) {
+            novoProgresso = 0;
+            
+            if (direcao) {
+              // Indo
+              if (proximoIndex >= linha.rota.length - 1) {
+                // Chegou no fim, inverte direção
+                novaDirecao = false;
+                novoPontoIndex = linha.rota.length - 1;
+              } else {
+                novoPontoIndex = proximoIndex;
+              }
+            } else {
+              // Voltando
+              if (proximoIndex <= 0) {
+                // Chegou no início, inverte direção
+                novaDirecao = true;
+                novoPontoIndex = 0;
+              } else {
+                novoPontoIndex = proximoIndex;
+              }
+            }
+          }
+
+          // Interpolar posição entre pontos
+          const pontoBase = linha.rota[novoPontoIndex];
+          const pontoDestino = linha.rota[novaDirecao 
+            ? Math.min(novoPontoIndex + 1, linha.rota.length - 1)
+            : Math.max(novoPontoIndex - 1, 0)
+          ];
+
+          const latInterpolada = pontoBase.lat + (pontoDestino.lat - pontoBase.lat) * novoProgresso;
+          const lngInterpolada = pontoBase.lng + (pontoDestino.lng - pontoBase.lng) * novoProgresso;
 
           return {
             ...pos,
-            coordenadas: proximoPonto,
+            coordenadas: { lat: latInterpolada, lng: lngInterpolada },
+            pontoAtualIndex: novoPontoIndex,
+            direcaoIda: novaDirecao,
+            progresso: novoProgresso,
+            velocidade: VELOCIDADE_MEDIA_KMH,
+            sentido: novaDirecao ? 'ida' : 'volta',
             timestamp: new Date(),
             ultimaAtualizacao: new Date()
           };
-        })
-      );
-    }, 3000); // Atualizar a cada 3 segundos
+        });
+
+        // Salvar posições periodicamente
+        frameCount++;
+        if (frameCount >= SALVAR_A_CADA_FRAMES) {
+          salvarPosicoes(novasPosicoes);
+          frameCount = 0;
+        }
+
+        return novasPosicoes;
+      });
+    }, INTERVALO_MS);
 
     return () => clearInterval(interval);
   }, [posicoes.length, linhas]);
@@ -173,7 +362,7 @@ export default function Home() {
         <BusMap 
           linhas={linhas} 
           posicoes={posicoes}
-          isMobile={true}
+          isMobile={false}
         />
       </div>
     </div>

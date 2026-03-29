@@ -27,11 +27,18 @@ model User {
   badges        String[] // array de badges conquistados
   streak        Int      @default(0) // dias consecutivos contribuindo
   lastActive    DateTime @default(now())
+  acceptedTerms Boolean  @default(false) // LGPD
+  acceptedTermsDate DateTime? // quando aceitou
+  isOnline      Boolean  @default(false) // está online agora
+  currentLat    Float? // localização atual (se online)
+  currentLng    Float? // localização atual (se online)
+  isTracking    Boolean  @default(false) // está contribuindo agora
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@index([points])
   @@index([totalPoints])
+  @@index([isOnline])
   @@map("users")
 }
 
