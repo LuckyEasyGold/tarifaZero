@@ -1,4 +1,4 @@
-# TaraifaZero - Rastreamento de Ônibus
+# TarifaZero - Rastreamento de Ônibus
 
 Sistema web de rastreamento de ônibus em tempo real, inspirado no Uber. Permite aos usuários acompanhar a localização dos ônibus, ver rotas, paradas e tempos estimados de chegada.
 
