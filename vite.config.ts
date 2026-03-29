@@ -6,6 +6,15 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   base: '/', // Base path absoluto para Vercel
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://project-btoew.vercel.app',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
