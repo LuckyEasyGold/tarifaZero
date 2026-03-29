@@ -391,6 +391,34 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 3. Limite de execução do Vercel (10s por função)
 4. Custo com escala de usuários
 
+### ⚠️ Problemas Conhecidos (29/03/2026)
+
+#### 1. Desenvolvimento Local
+- **Problema:** Localhost não carrega dados do Neon
+- **Causa:** DATABASE_URL do Neon não está no `.env` local (apenas no Vercel)
+- **Impacto:** Mapa abre em São Paulo, linhas não carregam, parece banco vazio
+- **Solução Temporária:** Testar apenas em produção (Vercel)
+- **Solução Definitiva:** Copiar DATABASE_URL do Vercel para `.env` local
+
+#### 2. Cache do Vercel
+- **Problema:** Mudanças não aparecem imediatamente após deploy
+- **Causa:** CDN do Vercel cacheia assets por até 5 minutos
+- **Solução:** 
+  - Abrir em modo anônimo (Ctrl+Shift+N)
+  - Hard refresh (Ctrl+F5)
+  - Aguardar 5 minutos após deploy
+
+#### 3. GitHub Actions Build
+- **Status:** Ainda falhando
+- **Causa:** A investigar (TypeScript ou Gradle)
+- **Impacto:** APK não é gerado automaticamente
+- **Workaround:** Build local com `npm run android:build`
+
+#### 4. APK Local
+- **Problema:** APK buildado localmente não carrega dados
+- **Causa:** Capacitor aponta para localhost, não para API Vercel
+- **Solução:** Configurar `capacitor.config.ts` com URL de produção
+
 ---
 
 ## 🔄 Log de Alterações
@@ -407,7 +435,9 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 | 29/03/2026 | 4 | Tela splash com vídeo adicionada ✅ |
 | 29/03/2026 | 4 | Capacitor configurado + plugin Wi-Fi nativo ✅ |
 | 29/03/2026 | 4 | Corrigido build do GitHub Actions (TypeScript) ✅ |
-| 29/03/2026 | - | Plano atualizado com progresso real (53%) ✅ |
+| 29/03/2026 | 4 | Splash sempre ativo, simulação ônibus, navegação corrigida ✅ |
+| 29/03/2026 | - | Identificado: localhost não acessa Neon, APK precisa URL produção ⚠️ |
+| 29/03/2026 | - | Plano atualizado com problemas conhecidos e soluções ✅ |
 
 ---
 
