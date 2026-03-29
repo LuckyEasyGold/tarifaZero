@@ -20,16 +20,19 @@ export default function Linhas() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔍 Carregando linhas...');
     fetch('/api/lines')
       .then(res => res.json())
       .then(data => {
+        console.log('📦 Linhas recebidas:', data);
         if (data.success) {
           setLinhas(data.data);
+          console.log('✅ Primeira linha ID:', data.data[0]?.id);
         }
         setLoading(false);
       })
       .catch(err => {
-        console.error('Erro ao carregar linhas:', err);
+        console.error('❌ Erro ao carregar linhas:', err);
         setLoading(false);
       });
   }, []);

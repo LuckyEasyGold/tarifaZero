@@ -46,16 +46,24 @@ export default function LinhaDetalhes() {
   useEffect(() => {
     if (!id) return;
 
+    console.log('🔍 Buscando linha com ID:', id);
+    
     fetch(`/api/lines/${id}`)
-      .then(res => res.json())
+      .then(res => {
+        console.log('📡 Response status:', res.status);
+        return res.json();
+      })
       .then(data => {
+        console.log('📦 Data recebido:', data);
         if (data.success) {
           setLinha(data.data);
+        } else {
+          console.error('❌ API retornou success: false', data.error);
         }
         setLoading(false);
       })
       .catch(err => {
-        console.error('Erro ao carregar linha:', err);
+        console.error('❌ Erro ao carregar linha:', err);
         setLoading(false);
       });
   }, [id]);
