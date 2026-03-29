@@ -25,6 +25,9 @@ export default function Contribuir() {
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   const [trackingPath, setTrackingPath] = useState<Array<{ lat: number; lng: number }>>([]);
   const [showMap, setShowMap] = useState(false);
+  const [wifiValidated, setWifiValidated] = useState(false);
+  const [identifiedLine, setIdentifiedLine] = useState<Linha | null>(null);
+  const [wifiCheckInProgress, setWifiCheckInProgress] = useState(false);
   
   const geolocation = useGeolocation();
   const wifiInfo = useWifiDetection();
@@ -41,6 +44,44 @@ export default function Contribuir() {
       })
       .catch(err => console.error('Erro ao carregar linhas:', err));
   }, []);
+
+  // Verificar Wi-Fi automaticamente quando redes forem detectadas
+  useEffect(() => {
+    if (wifiScanner.networks.length > 0 && !wifiValidated && !isTracking) {
+      checkWifiAndIdentifyLine();
+    }
+  }, [wifiScanner.networks]);
+
+  const checkWifiAndIdentifyLine = async () => {
+    if (wifiCheckInProgress) return;
+    
+    setWifiCheckInProgress(true);
+    
+    try {
+      const response = await fetch('/api/wifi/identify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ networks: wifiScanner.networks }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success && result.identified) {
+        setWifiValidated(true);
+        setIdentifiedLine(result.line);
+        setSelectedLineId(result.line.id);
+        
+        toast.success(
+          `Wi-Fi do ônibus detectado! Linha ${result.line.code} identificada automaticamente 🚌`,
+          { duration: 5000 }
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao verificar Wi-Fi:', error);
+    } finally {
+      setWifiCheckInProgress(false);
+    }
+  };
 
   // Adicionar ponto ao caminho quando localização mudar
   useEffect(() => {
@@ -78,6 +119,17 @@ export default function Contribuir() {
   const handleStartTracking = async () => {
     if (!selectedLineId) {
       toast.error('Selecione uma linha primeiro');
+      return;
+    }
+
+    // Verificar Wi-Fi se estiver no app nativo
+    if (wifiScanner.isNative && !wifiValidated) {
+      toast.error('Wi-Fi do ônibus não detectado. Você precisa estar no ônibus para contribuir.', {
+        duration: 5000
+      });
+      
+      // Tentar escanear novamente
+      await wifiScanner.scan();
       return;
     }
 
@@ -238,13 +290,40 @@ export default function Contribuir() {
           
           {!isTracking ? (
             <>
+              {/* Indicador de Wi-Fi Validado */}
+              {wifiScanner.isNative && identifiedLine && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+                  <CheckCircle size={20} className="text-green-600" />
+                  <div className="flex-1">
+                    <div className="font-medium text-green-900">Wi-Fi do ônibus detectado!</div>
+                    <div className="text-sm text-green-700">
+                      Linha {identifiedLine.code} identificada automaticamente
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Aviso se não detectou Wi-Fi no app nativo */}
+              {wifiScanner.isNative && !wifiValidated && wifiScanner.networks.length > 0 && (
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
+                  <AlertCircle size={20} className="text-yellow-600" />
+                  <div className="flex-1">
+                    <div className="font-medium text-yellow-900">Wi-Fi do ônibus não detectado</div>
+                    <div className="text-sm text-yellow-700">
+                      Você precisa estar no ônibus para contribuir
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Selecione a linha que você está
               </label>
               <select
                 value={selectedLineId}
                 onChange={(e) => setSelectedLineId(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+                disabled={wifiScanner.isNative && wifiValidated}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4 disabled:bg-gray-100"
               >
                 <option value="">Escolha uma linha...</option>
                 {linhas.map((linha) => (
@@ -256,12 +335,18 @@ export default function Contribuir() {
 
               <button
                 onClick={handleStartTracking}
-                disabled={!selectedLineId}
+                disabled={!selectedLineId || (wifiScanner.isNative && !wifiValidated)}
                 className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
               >
                 <Play size={20} />
                 Estou no Ônibus - Iniciar Tracking
               </button>
+
+              {wifiScanner.isNative && !wifiValidated && (
+                <p className="mt-2 text-xs text-center text-gray-600">
+                  Conecte-se ao Wi-Fi do ônibus para habilitar o tracking
+                </p>
+              )}
             </>
           ) : (
             <button
