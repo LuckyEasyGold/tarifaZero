@@ -13,6 +13,29 @@ datasource db {
 }
 
 // ============================================================
+// USUÁRIOS E GAMIFICAÇÃO
+// ============================================================
+model User {
+  id            String   @id @default(cuid())
+  anonymousId   String   @unique // ID anônimo gerado no frontend
+  nickname      String? // apelido opcional
+  points        Int      @default(0)
+  level         Int      @default(1)
+  totalTrips    Int      @default(0)
+  totalPoints   Int      @default(0) // pontos GPS coletados
+  totalMinutes  Int      @default(0)
+  badges        String[] // array de badges conquistados
+  streak        Int      @default(0) // dias consecutivos contribuindo
+  lastActive    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([points])
+  @@index([totalPoints])
+  @@map("users")
+}
+
+// ============================================================
 // LINHAS DE ÔNIBUS
 // ============================================================
 model Line {

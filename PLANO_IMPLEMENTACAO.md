@@ -1,38 +1,41 @@
 # 🚌 Plano de Implementação - Tarifa Zero v2.0
 
 **Data de Início:** 28/03/2026  
-**Status Atual:** ⏸️ Planejamento  
-**Última Atualização:** 28/03/2026
+**Status Atual:** 🔄 Em Desenvolvimento Ativo  
+**Última Atualização:** 29/03/2026
 
 ---
 
 ## 📋 Visão Geral
 
 Migração do projeto Tarifa Zero de simulação estática para sistema real com:
-- Backend API completo (Node.js/TypeScript)
-- Banco de dados PostgreSQL (Neon)
-- Sistema de crowdsourcing
+- Backend API completo (Node.js/JavaScript - Vercel Serverless)
+- Banco de dados PostgreSQL com PostGIS (Neon)
+- Sistema de crowdsourcing com GPS em tempo real
+- Interface mobile-first com navegação multi-tela
+- Sistema de gamificação e ranking
 - Rastreamento em tempo real
-- Motor de inferência de posição
 
 ---
 
-## 🏗️ Arquitetura Proposta
+## 🏗️ Arquitetura Implementada
 
 ### Frontend
-- **Hospedagem:** Vercel
-- **Stack:** React + TypeScript + Vite (mantido)
-- **Mudanças:** Substituir simulação por API real
+- **Hospedagem:** Vercel ✅
+- **Stack:** React + TypeScript + Vite ✅
+- **Roteamento:** React Router DOM (multi-tela) ✅
+- **Mapa:** Leaflet + React-Leaflet ✅
+- **UI:** Tailwind CSS + Radix UI ✅
 
 ### Backend
-- **Hospedagem:** Vercel Serverless Functions
-- **Stack:** Node.js + TypeScript
-- **Framework:** Express.js (ou Hono para edge)
+- **Hospedagem:** Vercel Serverless Functions ✅
+- **Stack:** Node.js + JavaScript (`.js` por limitação do Vercel) ✅
+- **ORM:** Prisma ✅
 
 ### Banco de Dados
-- **Serviço:** Neon PostgreSQL
-- **Extensões:** PostGIS (geolocalização)
-- **Cache:** Vercel KV (Redis) para posições em tempo real
+- **Serviço:** Neon PostgreSQL ✅
+- **Extensões:** PostGIS (geolocalização) ✅
+- **Tabelas:** 9 tabelas criadas e populadas ✅
 
 ---
 
@@ -79,44 +82,89 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 ---
 
 ### FASE 3: API - Endpoints Básicos
-- [ ] 3.1 - Configurar conexão com Neon (pg/Prisma)
-- [ ] 3.2 - Criar endpoint `GET /api/lines` (listar linhas)
-- [ ] 3.3 - Criar endpoint `GET /api/lines/:id` (detalhes da linha)
-- [ ] 3.4 - Criar endpoint `GET /api/lines/:id/route` (rota completa)
-- [ ] 3.5 - Criar endpoint `GET /api/stops` (listar paradas)
-- [ ] 3.6 - Criar endpoint `GET /api/stops/nearby` (paradas próximas)
-- [ ] 3.7 - Testar todos os endpoints
+- [x] 3.1 - Configurar conexão com Neon (Prisma)
+- [x] 3.2 - Criar endpoint `GET /api/lines` (listar linhas)
+- [x] 3.3 - Criar endpoint `GET /api/lines/:id` (detalhes da linha)
+- [x] 3.4 - Criar endpoint `GET /api/lines/:id/map` (dados otimizados para mapa)
+- [x] 3.5 - Criar endpoint `GET /api/stops/nearby` (paradas próximas com PostGIS)
+- [x] 3.6 - Criar endpoint `GET /api/health` (health check)
+- [x] 3.7 - Testar todos os endpoints em produção
 
 **Tempo Estimado:** 4-5 horas  
-**Status:** ⏸️ Não iniciado
+**Tempo Real:** 6 horas  
+**Status:** ✅ Concluído
 
-**Arquivos a criar:**
-- `api/lines/index.ts`
-- `api/lines/[id].ts`
-- `api/stops/index.ts`
-- `api/stops/nearby.ts`
+**Arquivos criados:**
+- `api/index.js` ✅
+- `api/health.js` ✅
+- `api/lines/index.js` ✅
+- `api/lines/[id].js` ✅
+- `api/lines/[id]/map.js` ✅
+- `api/stops/nearby.js` ✅
+
+**Desafios enfrentados:**
+- TypeScript não compila corretamente no Vercel → Solução: usar `.js`
+- Rewrites causando 404 → Solução: configuração específica no `vercel.json`
+- Cache do domínio → Solução: usar `vercel alias` para forçar atualização
+
+### FASE 3.5: Interface Multi-Tela (Mobile-First)
+- [x] 3.5.1 - Instalar React Router DOM
+- [x] 3.5.2 - Criar estrutura de páginas (Home, Linhas, Buscar, Contribuir)
+- [x] 3.5.3 - Criar componente BottomNav (navegação inferior)
+- [x] 3.5.4 - Implementar página Home (mapa com ônibus)
+- [x] 3.5.5 - Implementar página Linhas (lista de linhas da API)
+- [x] 3.5.6 - Implementar página LinhaDetalhes (detalhes + mapa)
+- [x] 3.5.7 - Implementar página BuscarRota (placeholder FASE 8)
+- [x] 3.5.8 - Implementar página Contribuir (tracking GPS)
+- [x] 3.5.9 - Configurar rewrites no Vercel para SPA
+- [x] 3.5.10 - Testar navegação em produção
+
+**Tempo Estimado:** 4 horas  
+**Tempo Real:** 3 horas  
+**Status:** ✅ Concluído
+
+**Arquivos criados:**
+- `src/pages/Home.tsx` ✅
+- `src/pages/Linhas.tsx` ✅
+- `src/pages/LinhaDetalhes.tsx` ✅
+- `src/pages/BuscarRota.tsx` ✅
+- `src/pages/Contribuir.tsx` ✅
+- `src/components/BottomNav.tsx` ✅
 
 ---
 
-### FASE 4: Sistema de Crowdsourcing
-- [ ] 4.1 - Criar endpoint `POST /api/tracking/start` (iniciar tracking)
-- [ ] 4.2 - Criar endpoint `POST /api/tracking/point` (enviar ponto)
-- [ ] 4.3 - Criar endpoint `POST /api/tracking/stop` (finalizar tracking)
-- [ ] 4.4 - Implementar validação de dados GPS
-- [ ] 4.5 - Implementar detecção de outliers
-- [ ] 4.6 - Criar algoritmo de simplificação de rota (Douglas-Peucker)
-- [ ] 4.7 - Criar processo de agregação de rotas
-- [ ] 4.8 - Testar com dados simulados
+- [x] 4.1 - Criar hooks de geolocalização (`useGeolocation`)
+- [x] 4.2 - Criar hook de detecção de Wi-Fi (`useWifiDetection`)
+- [x] 4.3 - Criar endpoint `POST /api/tracking/session` (iniciar/parar sessão)
+- [x] 4.4 - Criar endpoint `POST /api/tracking/submit` (enviar pontos GPS)
+- [x] 4.5 - Criar serviço de tracking no frontend (`trackingService`)
+- [x] 4.6 - Implementar interface de contribuição com seleção de linha
+- [x] 4.7 - Implementar visualização de tracking em tempo real no mapa
+- [x] 4.8 - Mostrar estatísticas ao vivo (tempo, pontos, precisão, velocidade)
+- [ ] 4.9 - Corrigir erro de sessão (tabela trips)
+- [ ] 4.10 - Implementar validação de dados GPS
+- [ ] 4.11 - Implementar detecção de outliers
+- [ ] 4.12 - Sistema de gamificação e pontuação
+- [ ] 4.13 - Página de ranking de contribuidores
+- [ ] 4.14 - Badges e conquistas
+- [ ] 4.15 - Estatísticas pessoais detalhadas
 
 **Tempo Estimado:** 6-8 horas  
-**Status:** ⏸️ Não iniciado
+**Tempo Real:** 8 horas (em andamento)  
+**Status:** 🔄 Em Progresso (80%)
 
-**Arquivos a criar:**
-- `api/tracking/start.ts`
-- `api/tracking/point.ts`
-- `api/tracking/stop.ts`
-- `lib/gps-validator.ts`
-- `lib/route-simplifier.ts`
+**Arquivos criados:**
+- `src/hooks/useGeolocation.ts` ✅
+- `src/hooks/useWifiDetection.ts` ✅
+- `src/services/trackingService.ts` ✅
+- `api/tracking/session.js` ✅ (com erro)
+- `api/tracking/submit.js` ✅
+- `src/pages/Contribuir.tsx` ✅ (atualizada)
+
+**Próximos passos:**
+1. Corrigir erro na criação de sessão (verificar schema Prisma)
+2. Implementar sistema de gamificação
+3. Criar página de ranking
 
 ---
 
@@ -202,25 +250,22 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 ---
 
 ### FASE 9: Integração Frontend
-- [ ] 9.1 - Criar serviço de API no frontend
-- [ ] 9.2 - Substituir dados mockados por chamadas reais
-- [ ] 9.3 - Implementar hook `useRealTimePosition`
-- [ ] 9.4 - Implementar componente de tracking do usuário
-- [ ] 9.5 - Implementar identificação automática de ônibus
-- [ ] 9.6 - Adicionar indicadores de confiança no mapa
-- [ ] 9.7 - Implementar busca de rotas
-- [ ] 9.8 - Adicionar feedback visual de contribuição
-- [ ] 9.9 - Implementar modo offline
-- [ ] 9.10 - Testar integração completa
+- [x] 9.1 - Criar serviço de API no frontend (`trackingService`)
+- [x] 9.2 - Substituir dados mockados por chamadas reais (página Linhas)
+- [x] 9.3 - Implementar hooks customizados (useGeolocation, useWifiDetection)
+- [x] 9.4 - Implementar componente de tracking do usuário
+- [ ] 9.5 - Implementar hook `useRealTimePosition` para Home
+- [ ] 9.6 - Mostrar usuários ativos no mapa Home
+- [ ] 9.7 - Implementar identificação automática de ônibus
+- [ ] 9.8 - Adicionar indicadores de confiança no mapa
+- [ ] 9.9 - Implementar busca de rotas (FASE 8)
+- [ ] 9.10 - Adicionar feedback visual de contribuição
+- [ ] 9.11 - Implementar modo offline
+- [ ] 9.12 - Testar integração completa
 
 **Tempo Estimado:** 10-12 horas  
-**Status:** ⏸️ Não iniciado
-
-**Arquivos a modificar/criar:**
-- `src/services/api.ts`
-- `src/hooks/useRealTimePosition.ts`
-- `src/components/UserTracker.tsx`
-- `src/components/RouteSearch.tsx`
+**Tempo Real:** 5 horas (em andamento)  
+**Status:** 🔄 Em Progresso (40%)
 
 ---
 
@@ -248,34 +293,68 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 | 1 | Infraestrutura Base | ✅ | 100% |
 | 2 | Modelagem do Banco | ✅ | 100% |
 | 3 | API - Endpoints Básicos | ✅ | 100% |
-| 4 | Sistema de Crowdsourcing | ⏸️ | 0% |
+| 3.5 | Interface Multi-Tela | ✅ | 100% |
+| 4 | Sistema de Crowdsourcing | 🔄 | 80% |
 | 5 | Identificação de Veículos | ⏸️ | 0% |
 | 6 | Rastreamento em Tempo Real | ⏸️ | 0% |
 | 7 | Motor de Inferência | ⏸️ | 0% |
 | 8 | Sistema de Roteamento | ⏸️ | 0% |
-| 9 | Integração Frontend | ⏸️ | 0% |
+| 9 | Integração Frontend | 🔄 | 40% |
 | 10 | Testes e Otimização | ⏸️ | 0% |
 
-**Progresso Total:** 28/100 tarefas (28%)
+**Progresso Total:** 52/115 tarefas (45%)
+
+**Funcionalidades Implementadas:**
+- ✅ Backend API completo com 6 endpoints
+- ✅ Banco de dados com 9 tabelas e 844 pontos GPS
+- ✅ Interface mobile-first com 5 telas
+- ✅ Navegação multi-tela funcional
+- ✅ Sistema de tracking GPS em tempo real
+- ✅ Visualização de tracking no mapa
+- ✅ Coleta e envio de dados para API
+- ⏳ Sistema de gamificação (planejado)
+- ⏳ Ranking de contribuidores (planejado)
 
 ---
 
 ## 🎯 Próximos Passos Imediatos
 
-1. Criar conta no Neon PostgreSQL
-2. Configurar projeto no Vercel
-3. Criar estrutura de pastas do backend
-4. Iniciar FASE 1
+### Prioridade 1 (Agora)
+1. ✅ Atualizar PLANO_IMPLEMENTACAO.md
+2. 🔄 Corrigir erro de sessão (verificar schema Prisma da tabela trips)
+3. 🔄 Implementar sistema de gamificação e pontuação
+4. 🔄 Criar página de ranking de contribuidores
+
+### Prioridade 2 (Próxima)
+5. Implementar visualização de usuários ativos no mapa Home
+6. Adicionar WebSocket/SSE para updates em tempo real
+7. Implementar validação de dados GPS (está realmente no ônibus?)
+
+### Prioridade 3 (Futuro)
+8. Sistema de identificação por Wi-Fi
+9. Motor de inferência de posição
+10. Sistema de busca de rotas
 
 ---
 
 ## 📝 Notas e Decisões
 
 ### Decisões Técnicas
-- **ORM:** Prisma (melhor DX com TypeScript + PostGIS)
-- **Cache:** Vercel KV (integração nativa)
-- **Real-time:** Server-Sent Events (mais simples que WebSocket no Vercel)
-- **Validação:** Zod (type-safe)
+- **ORM:** Prisma (melhor DX com TypeScript + PostGIS) ✅
+- **Linguagem Backend:** JavaScript (`.js`) - TypeScript não compila no Vercel
+- **Cache:** Vercel KV (planejado para FASE 6)
+- **Real-time:** Server-Sent Events ou WebSocket (planejado)
+- **Validação:** Zod (planejado)
+- **Roteamento Frontend:** React Router DOM ✅
+- **Geolocalização:** Navigator.geolocation API ✅
+- **Mapa:** Leaflet + React-Leaflet ✅
+
+### Desafios Superados
+1. ✅ TypeScript no Vercel → Solução: usar JavaScript puro
+2. ✅ Rewrites causando 404 → Solução: configuração específica para SPA
+3. ✅ Cache do domínio → Solução: `vercel alias` para forçar atualização
+4. ✅ Navegação SPA no Vercel → Solução: rewrites com exceção para `/api/*`
+5. ⏳ Erro na criação de sessão → Em investigação
 
 ### Custos Estimados (Mensal)
 - Neon PostgreSQL: Gratuito até 0.5GB (depois ~$19/mês)
@@ -296,8 +375,15 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 | Data | Fase | Descrição |
 |------|------|-----------|
 | 28/03/2026 | - | Plano criado |
-| 28/03/2026 | 1 | Estrutura backend criada (60% completo) |
-| 28/03/2026 | 1 | FASE 1 CONCLUÍDA - Banco configurado e funcionando ✅ |
+| 28/03/2026 | 1 | FASE 1 CONCLUÍDA - Infraestrutura base ✅ |
+| 28/03/2026 | 2 | FASE 2 CONCLUÍDA - Banco populado com 5 linhas ✅ |
+| 28/03/2026 | 3 | FASE 3 CONCLUÍDA - 6 endpoints API funcionando ✅ |
+| 29/03/2026 | 3.5 | FASE 3.5 CONCLUÍDA - Interface multi-tela mobile ✅ |
+| 29/03/2026 | 4 | FASE 4 80% - Sistema de tracking GPS implementado 🔄 |
+| 29/03/2026 | 4 | Hooks de geolocalização e Wi-Fi criados ✅ |
+| 29/03/2026 | 4 | Visualização de tracking em tempo real no mapa ✅ |
+| 29/03/2026 | 4 | Identificado erro na criação de sessão ⚠️ |
+| 29/03/2026 | - | Plano atualizado com progresso real ✅ |
 
 ---
 

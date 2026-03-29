@@ -6,7 +6,7 @@ export default function Home() {
   const [linhasSelecionadas] = useState(todasLinhas);
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col pb-16">
       {/* Mapa ocupa toda a tela */}
       <div className="flex-1 relative">
         <BusMap 
