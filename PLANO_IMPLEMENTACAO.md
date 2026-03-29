@@ -247,7 +247,7 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 |------|------|--------|-----------|
 | 1 | Infraestrutura Base | ✅ | 100% |
 | 2 | Modelagem do Banco | ✅ | 100% |
-| 3 | API - Endpoints Básicos | ⏸️ | 0% |
+| 3 | API - Endpoints Básicos | ✅ | 100% |
 | 4 | Sistema de Crowdsourcing | ⏸️ | 0% |
 | 5 | Identificação de Veículos | ⏸️ | 0% |
 | 6 | Rastreamento em Tempo Real | ⏸️ | 0% |
@@ -256,7 +256,7 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 | 9 | Integração Frontend | ⏸️ | 0% |
 | 10 | Testes e Otimização | ⏸️ | 0% |
 
-**Progresso Total:** 21/100 tarefas (21%)
+**Progresso Total:** 28/100 tarefas (28%)
 
 ---
 
