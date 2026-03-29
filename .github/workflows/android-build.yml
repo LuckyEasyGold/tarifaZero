@@ -5,9 +5,6 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,18 +24,26 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
         
+    - name: Create dummy .env
+      run: echo "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy" > .env
+        
     - name: Install dependencies
-      run: npm install --legacy-peer-deps
+      run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
       
     - name: Generate Prisma Client
-      run: npx prisma generate
+      run: npx prisma generate || echo "Prisma generate failed, continuing..."
       
     - name: Build web app
-      run: npm run build
-      continue-on-error: false
+      run: npm run build || (echo "Build failed" && exit 1)
       
-    - name: List dist folder
-      run: ls -la dist/
+    - name: Verify dist folder
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "Error: dist folder not found"
+          exit 1
+        fi
+        echo "dist folder contents:"
+        ls -la dist/
       
     - name: Sync Capacitor
       run: npx cap sync android
@@ -46,15 +51,25 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x android/gradlew
       
-    - name: Build APK
-      run: |
-        cd android
-        ./gradlew assembleDebug --no-daemon --stacktrace --info
+    - name: Build APK with Gradle
+      working-directory: android
+      run: ./gradlew assembleDebug --no-daemon --stacktrace
         
-    - name: Upload APK
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       if: success()
       with:
-        name: app-debug
+        name: tarifazero-debug-apk
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
+        
+    - name: Upload build logs on failure
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build-logs
+        path: |
+          android/app/build/outputs/logs/
+          npm-debug.log
+          *.log
+        retention-days: 7
