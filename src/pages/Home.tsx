@@ -95,7 +95,8 @@ export default function Home() {
                     coordenadas: ponto,
                     velocidade: Math.random() * 30 + 20, // 20-50 km/h
                     direcao: Math.random() * 360,
-                    timestamp: new Date()
+                    timestamp: new Date(),
+                    ultimaAtualizacao: new Date()
                   });
                 }
               }
@@ -144,7 +145,8 @@ export default function Home() {
           return {
             ...pos,
             coordenadas: proximoPonto,
-            timestamp: new Date()
+            timestamp: new Date(),
+            ultimaAtualizacao: new Date()
           };
         })
       );

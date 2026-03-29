@@ -93,10 +93,12 @@ const SeletorLinhas = ({ linhas, linhasSelecionadas, onSelecionarLinhas, posicoe
                           <span className="font-semibold">Tempo estimado:</span>
                           <span>{posicao.tempoChegadaMinutos || 'N/A'} min</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="font-semibold">Atualizado:</span>
-                          <span>{posicao.ultimaAtualizacao.toLocaleTimeString()}</span>
-                        </div>
+                        {posicao.ultimaAtualizacao && (
+                          <div className="flex justify-between">
+                            <span className="font-semibold">Atualizado:</span>
+                            <span>{posicao.ultimaAtualizacao.toLocaleTimeString()}</span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

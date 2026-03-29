@@ -218,9 +218,11 @@ const BusMap = ({
                     </p>
                   )}
                   
-                  <p className="text-xs text-gray-500 mt-2">
-                    Atualizado: {posicao.ultimaAtualizacao.toLocaleTimeString()}
-                  </p>
+                  {posicao.ultimaAtualizacao && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Atualizado: {posicao.ultimaAtualizacao.toLocaleTimeString()}
+                    </p>
+                  )}
                 </div>
               </div>
             </Popup>
