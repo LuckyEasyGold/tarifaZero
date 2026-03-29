@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import BusMap from '@/components/map/BusMap';
 import type { PosicaoOnibus } from '@/types';
+import { getActiveUsers, sendHeartbeat, type ActiveUser } from '@/services/userService';
 
 interface RoutePoint {
   lat: number;
@@ -40,9 +42,13 @@ interface BusPosition extends PosicaoOnibus {
 }
 
 export default function Home() {
+  const [searchParams] = useSearchParams();
+  const linhaFiltro = searchParams.get('linha'); // ID da linha para filtrar
+  
   const [linhas, setLinhas] = useState<any[]>([]);
   const [posicoes, setPosicoes] = useState<BusPosition[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeUsers, setActiveUsers] = useState<ActiveUser[]>([]);
 
   // Carregar posições salvas do localStorage
   const carregarPosicoesSalvas = (): BusPosition[] | null => {
@@ -344,6 +350,67 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [posicoes.length, linhas]);
 
+  // Buscar usuários ativos e enviar heartbeat
+  useEffect(() => {
+    const anonymousId = localStorage.getItem('anonymousId');
+    if (!anonymousId) return;
+
+    // Buscar usuários ativos inicialmente
+    getActiveUsers()
+      .then(response => {
+        setActiveUsers(response.users);
+      })
+      .catch(err => console.error('Erro ao buscar usuários ativos:', err));
+
+    // Enviar heartbeat a cada 30 segundos
+    const heartbeatInterval = setInterval(() => {
+      // Pegar localização atual se disponível
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            sendHeartbeat(
+              anonymousId,
+              position.coords.latitude,
+              position.coords.longitude,
+              false // não está tracking na tela Home
+            ).catch(err => console.error('Erro ao enviar heartbeat:', err));
+          },
+          () => {
+            // Se não conseguir localização, envia sem coordenadas
+            sendHeartbeat(anonymousId, undefined, undefined, false)
+              .catch(err => console.error('Erro ao enviar heartbeat:', err));
+          }
+        );
+      } else {
+        sendHeartbeat(anonymousId, undefined, undefined, false)
+          .catch(err => console.error('Erro ao enviar heartbeat:', err));
+      }
+    }, 30000); // 30 segundos
+
+    // Buscar usuários ativos a cada 10 segundos
+    const usersInterval = setInterval(() => {
+      getActiveUsers()
+        .then(response => {
+          setActiveUsers(response.users);
+        })
+        .catch(err => console.error('Erro ao buscar usuários ativos:', err));
+    }, 10000); // 10 segundos
+
+    return () => {
+      clearInterval(heartbeatInterval);
+      clearInterval(usersInterval);
+    };
+  }, []);
+
+  // Filtrar linhas e posições se houver filtro
+  const linhasFiltradas = linhaFiltro 
+    ? linhas.filter(l => l.id === linhaFiltro)
+    : linhas;
+  
+  const posicoesFiltradas = linhaFiltro
+    ? posicoes.filter(p => p.linhaId === linhaFiltro)
+    : posicoes;
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center pb-16">
@@ -360,8 +427,9 @@ export default function Home() {
       {/* Mapa ocupa toda a tela */}
       <div className="flex-1 relative">
         <BusMap 
-          linhas={linhas} 
-          posicoes={posicoes}
+          linhas={linhasFiltradas} 
+          posicoes={posicoesFiltradas}
+          activeUsers={activeUsers}
           isMobile={false}
         />
       </div>

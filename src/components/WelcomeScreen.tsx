@@ -19,8 +19,8 @@ export default function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[10000] bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="fixed inset-0 z-[10000] bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 my-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Header */}
         <div className="text-center mb-6">
           <div className="text-6xl mb-4">🚌</div>
@@ -97,9 +97,6 @@ export default function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline text-xs mt-2 inline-block"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
                 >
                   Ler política completa de privacidade
                 </a>

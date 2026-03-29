@@ -4,10 +4,12 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { LinhaOnibus, PosicaoOnibus } from '@/types';
 import { createBusIcon, createStopIcon } from './icons';
+import { getUserColor, type ActiveUser } from '@/services/userService';
 
 interface BusMapProps {
   linhas: LinhaOnibus[];
   posicoes: PosicaoOnibus[];
+  activeUsers?: ActiveUser[];
   centro?: [number, number];
   zoom?: number;
   isMobile?: boolean;
@@ -34,7 +36,8 @@ const FitBounds = ({ bounds }: { bounds: L.LatLngBoundsExpression }) => {
 
 const BusMap = ({ 
   linhas, 
-  posicoes, 
+  posicoes,
+  activeUsers = [],
   centro = [-23.5505, -46.6333], 
   zoom = 13,
   isMobile = false
@@ -98,6 +101,33 @@ const BusMap = ({
       return { linha, coords };
     });
   }, [linhas, posicoes]);
+  
+  // Criar ícone de usuário
+  const createUserIcon = (color: string) => {
+    return L.divIcon({
+      html: `
+        <div style="
+          width: 24px;
+          height: 24px;
+          background-color: ${color};
+          border: 3px solid white;
+          border-radius: 50%;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+        </div>
+      `,
+      className: 'custom-user-icon',
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+      popupAnchor: [0, -12],
+    });
+  };
   
   return (
     <MapContainer
@@ -223,6 +253,62 @@ const BusMap = ({
                       Atualizado: {posicao.ultimaAtualizacao.toLocaleTimeString()}
                     </p>
                   )}
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
+      
+      {/* Renderizar usuários ativos */}
+      {activeUsers.map((user) => {
+        const userColor = getUserColor(user.anonymousId);
+        const displayName = user.nickname || `Usuário ${user.anonymousId.slice(-4)}`;
+        
+        return (
+          <Marker
+            key={`user-${user.anonymousId}`}
+            position={[user.currentLat, user.currentLng]}
+            icon={createUserIcon(userColor)}
+            zIndexOffset={500}
+          >
+            <Tooltip 
+              direction="top"
+              offset={[0, -12]}
+              className="bg-white rounded-md shadow-md"
+            >
+              <div className="font-semibold text-xs" style={{ color: userColor }}>
+                {displayName}
+              </div>
+            </Tooltip>
+            <Popup>
+              <div className="p-3 min-w-[180px]">
+                <div className="flex items-center gap-2 mb-2">
+                  <div 
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: userColor }}
+                  />
+                  <h3 className="font-bold text-gray-900">{displayName}</h3>
+                </div>
+                
+                <div className="space-y-1 text-sm">
+                  <p className="text-gray-700">
+                    <span className="font-medium">Nível:</span> {user.level}
+                  </p>
+                  
+                  <p className="text-gray-700">
+                    <span className="font-medium">Pontos:</span> {user.points}
+                  </p>
+                  
+                  {user.isTracking && (
+                    <p className="text-green-600 font-semibold text-xs mt-2">
+                      🚌 Contribuindo agora
+                    </p>
+                  )}
+                  
+                  <p className="text-xs text-gray-500 mt-2">
+                    Ativo: {new Date(user.lastActive).toLocaleTimeString()}
+                  </p>
                 </div>
               </div>
             </Popup>
