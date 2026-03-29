@@ -153,12 +153,17 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 - [x] 4.18 - Criar plugin nativo WifiScanner
 - [x] 4.19 - Adicionar permissões Android (Wi-Fi, GPS)
 - [x] 4.20 - Corrigir build do GitHub Actions (TypeScript config)
-- [ ] 4.21 - Testar APK em dispositivo físico
-- [ ] 4.22 - Implementar validação de Wi-Fi (só rastrear se detectar ônibus)
+- [x] 4.21 - Implementar validação de Wi-Fi (só rastrear se detectar ônibus)
+- [x] 4.22 - Criar endpoint /api/wifi/identify
+- [x] 4.23 - Criar wifiService no frontend
+- [x] 4.24 - Adicionar identificação automática de linha pelo BSSID
+- [x] 4.25 - Popular dados de Wi-Fi da Linha L001
+- [ ] 4.26 - Testar APK em dispositivo físico
+- [ ] 4.27 - Adicionar Wi-Fi das outras linhas (L002-L005)
 
 **Tempo Estimado:** 6-8 horas  
-**Tempo Real:** 14 horas (em andamento)  
-**Status:** 🔄 Em Progresso (92%)
+**Tempo Real:** 16 horas (em andamento)  
+**Status:** 🔄 Em Progresso (95%)
 
 **Arquivos criados:**
 - `src/hooks/useGeolocation.ts` ✅
@@ -311,7 +316,7 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 | 2 | Modelagem do Banco | ✅ | 100% |
 | 3 | API - Endpoints Básicos | ✅ | 100% |
 | 3.5 | Interface Multi-Tela | ✅ | 100% |
-| 4 | Sistema de Crowdsourcing | 🔄 | 92% |
+| 4 | Sistema de Crowdsourcing | 🔄 | 95% |
 | 5 | Identificação de Veículos | ⏸️ | 0% |
 | 6 | Rastreamento em Tempo Real | ⏸️ | 0% |
 | 7 | Motor de Inferência | ⏸️ | 0% |
@@ -319,10 +324,10 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 | 9 | Integração Frontend | 🔄 | 40% |
 | 10 | Testes e Otimização | ⏸️ | 0% |
 
-**Progresso Total:** 62/117 tarefas (53%)
+**Progresso Total:** 67/122 tarefas (55%)
 
 **Funcionalidades Implementadas:**
-- ✅ Backend API completo com 9 endpoints
+- ✅ Backend API completo com 11 endpoints
 - ✅ Banco de dados com 10 tabelas e 844 pontos GPS
 - ✅ Interface mobile-first com 6 telas (Home, Linhas, Detalhes, Buscar, Contribuir, Ranking)
 - ✅ Navegação multi-tela funcional
@@ -335,6 +340,8 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 - ✅ Tela splash com vídeo
 - ✅ Configuração Capacitor para Android
 - ✅ Plugin nativo de Wi-Fi Scanner
+- ✅ Validação de Wi-Fi (só rastrear se detectar ônibus)
+- ✅ Identificação automática de linha por BSSID
 - ⏳ Build do APK (em andamento)
 
 ---
@@ -344,14 +351,16 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 ### Prioridade 1 (Agora)
 1. ✅ Atualizar PLANO_IMPLEMENTACAO.md
 2. ✅ Corrigir build do GitHub Actions (TypeScript config)
-3. 🔄 Aguardar conclusão do build local do Gradle
-4. 🔄 Testar APK em dispositivo físico
+3. ✅ Implementar validação de Wi-Fi
+4. ✅ Identificação automática da linha pelo BSSID
+5. 🔄 Testar no Vercel (você está testando)
+6. 🔄 Testar localhost (servidor rodando)
 
 ### Prioridade 2 (Próxima)
-5. Implementar validação de Wi-Fi (só rastrear se detectar ônibus)
-6. Adicionar identificação automática da linha pelo BSSID
-7. Implementar visualização de usuários ativos no mapa Home
-8. Adicionar WebSocket/SSE para updates em tempo real
+7. Testar APK em dispositivo físico
+8. Adicionar Wi-Fi das outras linhas (L002-L005)
+9. Implementar visualização de usuários ativos no mapa Home
+10. Adicionar WebSocket/SSE para updates em tempo real
 
 ### Prioridade 3 (Futuro)
 8. Sistema de identificação por Wi-Fi
@@ -436,8 +445,10 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 | 29/03/2026 | 4 | Capacitor configurado + plugin Wi-Fi nativo ✅ |
 | 29/03/2026 | 4 | Corrigido build do GitHub Actions (TypeScript) ✅ |
 | 29/03/2026 | 4 | Splash sempre ativo, simulação ônibus, navegação corrigida ✅ |
-| 29/03/2026 | - | Identificado: localhost não acessa Neon, APK precisa URL produção ⚠️ |
-| 29/03/2026 | - | Plano atualizado com problemas conhecidos e soluções ✅ |
+| 29/03/2026 | 4 | Validação de Wi-Fi e identificação automática implementada ✅ |
+| 29/03/2026 | 4 | Endpoint /api/wifi/identify criado ✅ |
+| 29/03/2026 | 4 | Wi-Fi da Linha L001 cadastrado no banco ✅ |
+| 29/03/2026 | - | Plano atualizado com progresso real (55%) ✅ |
 
 ---
 
