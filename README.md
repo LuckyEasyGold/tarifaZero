@@ -3,10 +3,10 @@
 <div align="center">
 
 ![Tarifa Zero](https://img.shields.io/badge/Tarifa-Zero-blue?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-2.0.0-green?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-2.1.0-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-orange?style=for-the-badge)
 
-**Sistema de rastreamento de transporte público em tempo real com crowdsourcing**
+**Sistema colaborativo de rastreamento de transporte público em tempo real**
 
 [Demo](https://tarifazero.vercel.app) · [Documentação](./PLANO_IMPLEMENTACAO.md) · [Reportar Bug](https://github.com/LuckyEasyGold/tarifaZero/issues)
 
@@ -16,17 +16,19 @@
 
 ## 📋 Sobre o Projeto
 
-Tarifa Zero é uma plataforma completa de rastreamento de ônibus em tempo real que utiliza **crowdsourcing** para mapear rotas e posições dos veículos. O sistema permite que usuários contribuam com dados GPS enquanto estão no ônibus, criando um mapa colaborativo e preciso do transporte público.
+Tarifa Zero é uma plataforma completa de rastreamento de ônibus em tempo real que utiliza **crowdsourcing** para mapear rotas e posições dos veículos. O sistema permite que usuários contribuam com dados GPS enquanto estão no ônibus, criando um mapa colaborativo e preciso do transporte público de Palmas - TO.
 
 ### ✨ Diferenciais
 
 - 🎯 **Crowdsourcing Inteligente**: Usuários contribuem com dados GPS em tempo real
 - 📱 **App Nativo Android**: Scanner de Wi-Fi para identificação automática do ônibus
 - 🎮 **Gamificação**: Sistema de pontos, níveis, badges e ranking de contribuidores
-- 🗺️ **Visualização em Tempo Real**: Acompanhe ônibus e contribuidores no mapa
+- 🗺️ **Visualização em Tempo Real**: Acompanhe ônibus e colaboradores no mapa
 - 🔒 **Validação por Wi-Fi**: Garante que dados são coletados apenas dentro do ônibus
 - 📊 **API RESTful Completa**: Backend robusto com PostgreSQL + PostGIS
 - 🎨 **Interface Mobile-First**: Design responsivo e intuitivo
+- 🔐 **Conformidade LGPD**: Sistema completo de consentimento e privacidade
+- 👥 **Usuários Online**: Veja colaboradores ativos no mapa em tempo real
 
 ---
 
@@ -37,10 +39,14 @@ Tarifa Zero é uma plataforma completa de rastreamento de ônibus em tempo real 
 - ✅ Visualizar todas as linhas de ônibus disponíveis
 - ✅ Ver rotas completas com paradas no mapa
 - ✅ Acompanhar ônibus em tempo real
-- ✅ Buscar rotas entre origem e destino (em breve)
+- ✅ Ver informações detalhadas de cada linha
+- ✅ Calcular distância até parada mais próxima
+- ✅ Ver tempo estimado de chegada do ônibus
 - ✅ Contribuir com tracking GPS
 - ✅ Ganhar pontos e badges por contribuições
 - ✅ Competir no ranking de contribuidores
+- ✅ Ver colaboradores ativos no mapa
+- 🔄 Buscar rotas entre origem e destino (em desenvolvimento)
 
 ### Para Desenvolvedores
 
@@ -49,7 +55,9 @@ Tarifa Zero é uma plataforma completa de rastreamento de ônibus em tempo real 
 - ✅ Sistema de inferência de posição
 - ✅ Detecção automática de outliers
 - ✅ Agregação de dados de múltiplos usuários
-- ✅ WebSocket para updates em tempo real (planejado)
+- ✅ Sistema de usuários online
+- ✅ Endpoints de gamificação
+- 🔄 WebSocket para updates em tempo real (planejado)
 
 ---
 
@@ -262,7 +270,47 @@ GET /api/gamification/user?anonymousId=xxx
 POST /api/gamification/user
 ```
 
+### Usuários Online
+
+```http
+GET /api/users/active
+POST /api/users/heartbeat
+```
+
+### Wi-Fi
+
+```http
+POST /api/wifi/identify
+POST /api/admin/seed-wifi
+```
+
 📖 [Documentação completa da API](./README_API.md)
+
+---
+
+## 🎨 Funcionalidades Recentes
+
+### Tela de Boas-Vindas e LGPD ✅
+- Splash screen com vídeo animado
+- Consentimento obrigatório conforme LGPD
+- Campo opcional para nome/apelido
+- Página completa de Política de Privacidade, Termos e LGPD
+- Geração de ID anônimo único por dispositivo
+
+### Sistema de Usuários Online ✅
+- Visualização de colaboradores ativos no mapa
+- Cores únicas por usuário
+- Informações de nível e pontos
+- Heartbeat automático a cada 30s
+- Marcadores personalizados no mapa
+
+### Detalhes de Linha Avançados ✅
+- Informações em tempo real do ônibus (posição, sentido, velocidade)
+- Cálculo da parada mais próxima do usuário
+- Distância e tempo caminhando até a parada (5 km/h)
+- Tempo estimado até ônibus chegar na parada do usuário
+- Botão "Ver no Mapa" com filtro de linha
+- Navegação integrada entre telas
 
 ---
 
@@ -289,7 +337,7 @@ Contribuições são bem-vindas! Siga os passos:
 
 ## 📊 Progresso do Projeto
 
-**Status Atual:** 45% Concluído
+**Status Atual:** 60% Concluído
 
 | Fase | Descrição | Status |
 |------|-----------|--------|
@@ -297,13 +345,14 @@ Contribuições são bem-vindas! Siga os passos:
 | 2 | Modelagem do Banco | ✅ 100% |
 | 3 | API Endpoints Básicos | ✅ 100% |
 | 3.5 | Interface Multi-Tela | ✅ 100% |
-| 4 | Sistema de Crowdsourcing | 🔄 80% |
-| 5 | Identificação de Veículos | ⏸️ 0% |
-| 6 | Rastreamento Tempo Real | ⏸️ 0% |
-| 7 | Motor de Inferência | ⏸️ 0% |
-| 8 | Sistema de Roteamento | ⏸️ 0% |
-| 9 | Integração Frontend | 🔄 40% |
-| 10 | Testes e Otimização | ⏸️ 0% |
+| 4 | Sistema de Crowdsourcing | ✅ 100% |
+| 5 | Tela de Boas-Vindas e LGPD | ✅ 100% |
+| 6 | Sistema de Usuários Online | ✅ 100% |
+| 7 | Detalhes de Linha Avançados | ✅ 100% |
+| 8 | Identificação de Veículos | ⏸️ 0% |
+| 9 | Motor de Inferência | ⏸️ 0% |
+| 10 | Sistema de Roteamento | ⏸️ 0% |
+| 11 | Testes e Otimização | ⏸️ 0% |
 
 📖 [Plano completo de implementação](./PLANO_IMPLEMENTACAO.md)
 
