@@ -57,19 +57,19 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 ---
 
 ### FASE 2: Modelagem do Banco de Dados
-- [ ] 2.1 - Criar tabela `lines` (linhas de ônibus)
-- [ ] 2.2 - Criar tabela `routes` (rotas ida/volta)
-- [ ] 2.3 - Criar tabela `route_points` (pontos da rota)
-- [ ] 2.4 - Criar tabela `stops` (paradas)
-- [ ] 2.5 - Criar tabela `trips` (viagens programadas)
-- [ ] 2.6 - Criar tabela `vehicle_positions` (posições em tempo real)
-- [ ] 2.7 - Criar tabela `user_tracks` (tracking de usuários)
-- [ ] 2.8 - Criar tabela `wifi_networks` (redes Wi-Fi dos ônibus)
-- [ ] 2.9 - Criar índices espaciais (PostGIS)
-- [ ] 2.10 - Popular dados iniciais das 5 linhas existentes
+- [x] 2.1 - Criar tabela `lines` (linhas de ônibus)
+- [x] 2.2 - Criar tabela `routes` (rotas ida/volta)
+- [x] 2.3 - Criar tabela `route_points` (pontos da rota)
+- [x] 2.4 - Criar tabela `stops` (paradas)
+- [x] 2.5 - Criar tabela `trips` (viagens programadas)
+- [x] 2.6 - Criar tabela `vehicle_positions` (posições em tempo real)
+- [x] 2.7 - Criar tabela `user_tracks` (tracking de usuários)
+- [x] 2.8 - Criar tabela `wifi_networks` (redes Wi-Fi dos ônibus)
+- [x] 2.9 - Criar índices espaciais (PostGIS)
+- [x] 2.10 - Popular dados iniciais das 5 linhas existentes
 
 **Tempo Estimado:** 3-4 horas  
-**Status:** ⏸️ Não iniciado
+**Status:** ✅ Concluído
 
 **Arquivos a criar:**
 - `database/schema.sql`
@@ -246,7 +246,7 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 | Fase | Nome | Status | Progresso |
 |------|------|--------|-----------|
 | 1 | Infraestrutura Base | ✅ | 100% |
-| 2 | Modelagem do Banco | ⏸️ | 0% |
+| 2 | Modelagem do Banco | ✅ | 100% |
 | 3 | API - Endpoints Básicos | ⏸️ | 0% |
 | 4 | Sistema de Crowdsourcing | ⏸️ | 0% |
 | 5 | Identificação de Veículos | ⏸️ | 0% |
@@ -256,7 +256,7 @@ Migração do projeto Tarifa Zero de simulação estática para sistema real com
 | 9 | Integração Frontend | ⏸️ | 0% |
 | 10 | Testes e Otimização | ⏸️ | 0% |
 
-**Progresso Total:** 11/100 tarefas (11%)
+**Progresso Total:** 21/100 tarefas (21%)
 
 ---
 
