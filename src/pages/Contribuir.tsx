@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Play, Square, AlertCircle, CheckCircle, Map as MapIcon, Trophy, Wifi } from 'lucide-react';
+import { Play, AlertCircle, CheckCircle, Trophy, Wifi } from 'lucide-react';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useWifiScanner } from '@/hooks/useWifiScanner';
 import { trackingService } from '@/services/trackingService';
 import { toast } from 'sonner';
-import BusMap from '@/components/map/BusMap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import DownloadAppModal from '@/components/DownloadAppModal';
 
 interface Linha {
   id: string;
@@ -17,21 +17,15 @@ interface Linha {
 export default function Contribuir() {
   const [linhas, setLinhas] = useState<Linha[]>([]);
   const [selectedLineId, setSelectedLineId] = useState<string>('');
-  const [selectedLine, setSelectedLine] = useState<Linha | null>(null);
-  const [isTracking, setIsTracking] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [pointsCollected, setPointsCollected] = useState(0);
-  const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
-  const [trackingPath, setTrackingPath] = useState<Array<{ lat: number; lng: number }>>([]);
-  const [showMap, setShowMap] = useState(false);
   const [wifiValidated, setWifiValidated] = useState(false);
-  const [identifiedLine, setIdentifiedLine] = useState<Linha | null>(null);
   const [wifiCheckInProgress, setWifiCheckInProgress] = useState(false);
   const [selectedWifi, setSelectedWifi] = useState<{ ssid: string; bssid: string } | null>(null);
   const [showWifiCard, setShowWifiCard] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
   
   const geolocation = useGeolocation();
   const wifiScanner = useWifiScanner();
+  const navigate = useNavigate();
 
   // Carregar linhas disponíveis
   useEffect(() => {
@@ -47,7 +41,7 @@ export default function Contribuir() {
 
   // Mostrar card WiFi automaticamente quando linha for selecionada (apenas no APK)
   useEffect(() => {
-    if (wifiScanner.isNative && selectedLineId && !wifiValidated && !isTracking) {
+    if (wifiScanner.isNative && selectedLineId && !wifiValidated) {
       // Fazer scan automático
       wifiScanner.scan();
       // Mostrar card após 1 segundo (tempo para o scan completar)
@@ -56,14 +50,14 @@ export default function Contribuir() {
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [selectedLineId, wifiScanner.isNative, wifiValidated, isTracking]);
+  }, [selectedLineId, wifiScanner.isNative, wifiValidated]);
 
   // Atualizar card quando redes forem detectadas
   useEffect(() => {
-    if (wifiScanner.isNative && wifiScanner.networks.length > 0 && selectedLineId && !wifiValidated && !isTracking) {
+    if (wifiScanner.isNative && wifiScanner.networks.length > 0 && selectedLineId && !wifiValidated) {
       setShowWifiCard(true);
     }
-  }, [wifiScanner.networks, wifiScanner.isNative, selectedLineId, wifiValidated, isTracking]);
+  }, [wifiScanner.networks, wifiScanner.isNative, selectedLineId, wifiValidated]);
 
   const handleWifiSelection = async (network: { ssid: string; bssid: string }) => {
     setSelectedWifi(network);
@@ -98,42 +92,15 @@ export default function Contribuir() {
     }
   };
 
-  // Adicionar ponto ao caminho quando localização mudar
-  useEffect(() => {
-    if (isTracking && geolocation.latitude && geolocation.longitude) {
-      setTrackingPath(prev => [
-        ...prev,
-        { lat: geolocation.latitude!, lng: geolocation.longitude! }
-      ]);
-    }
-  }, [geolocation.latitude, geolocation.longitude, isTracking]);
-
-  // Enviar dados de localização periodicamente quando tracking está ativo
-  useEffect(() => {
-    if (isTracking && geolocation.latitude && geolocation.longitude && sessionId) {
-      const sendTrackingData = async () => {
-        const result = await trackingService.submitTrackingData({
-          lineId: selectedLineId,
-          latitude: geolocation.latitude!,
-          longitude: geolocation.longitude!,
-          accuracy: geolocation.accuracy,
-          speed: geolocation.speed,
-          heading: geolocation.heading,
-          sessionId,
-        });
-
-        if (result.success) {
-          setPointsCollected(prev => prev + 1);
-        }
-      };
-
-      sendTrackingData();
-    }
-  }, [geolocation.latitude, geolocation.longitude, isTracking, sessionId, selectedLineId]);
-
   const handleStartTracking = async () => {
     if (!selectedLineId) {
       toast.error('Selecione uma linha primeiro');
+      return;
+    }
+
+    // Se não for app nativo, mostrar modal para baixar app
+    if (!wifiScanner.isNative) {
+      setShowDownloadModal(true);
       return;
     }
 
@@ -162,97 +129,10 @@ export default function Contribuir() {
     }
 
     const linha = linhas.find(l => l.id === selectedLineId);
-    setSelectedLine(linha || null);
-    setSessionId(sessionResult.data!.sessionId);
-    setSessionStartTime(new Date());
-    setIsTracking(true);
-    setPointsCollected(0);
-    setTrackingPath([]);
-    setShowMap(true);
     
-    // Iniciar tracking de GPS
-    geolocation.startTracking();
-    
-    toast.success('Obrigado por ajudar! Continue no ônibus e vamos mapear a rota juntos 🚌', {
-      duration: 6000
-    });
+    // Redirecionar para Home em modo gravação
+    navigate(`/?recording=true&lineId=${selectedLineId}&sessionId=${sessionResult.data!.sessionId}&lineName=${encodeURIComponent(linha?.name || '')}&lineColor=${encodeURIComponent(linha?.colorHex || '#3B82F6')}`);
   };
-
-  const handleStopTracking = async () => {
-    if (!sessionId) return;
-
-    // Parar tracking de GPS
-    geolocation.stopTracking();
-    
-    // Finalizar sessão no backend
-    const result = await trackingService.stopSession(sessionId);
-    
-    if (result.success) {
-      toast.success(`Rota salva! ${result.data?.pointsCollected} pontos coletados. Obrigado! 🎉`);
-    }
-
-    setIsTracking(false);
-    setSessionId(null);
-    setSessionStartTime(null);
-    setShowMap(false);
-  };
-
-  const handleMarkBusStop = async () => {
-    if (!isTracking || !geolocation.latitude || !geolocation.longitude) {
-      toast.error('Você precisa estar criando uma rota para marcar paradas');
-      return;
-    }
-
-    // Salvar coordenada como parada
-    try {
-      await fetch('/api/stops/mark', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lineId: selectedLineId,
-          lat: geolocation.latitude,
-          lng: geolocation.longitude,
-          sessionId
-        })
-      });
-
-      toast.success('📍 Ponto de ônibus marcado!', { duration: 3000 });
-    } catch (error) {
-      console.error('Erro ao marcar parada:', error);
-      toast.error('Erro ao marcar parada');
-    }
-  };
-
-  const formatDuration = () => {
-    if (!sessionStartTime) return '00:00';
-    const now = new Date();
-    const diff = Math.floor((now.getTime() - sessionStartTime.getTime()) / 1000);
-    const minutes = Math.floor(diff / 60);
-    const seconds = diff % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  // Criar linha virtual para o mapa com o caminho percorrido
-  const trackingLineForMap = selectedLine && trackingPath.length > 0 ? [{
-    id: 'tracking-' + selectedLine.id,
-    nome: selectedLine.name + ' (Sua Rota)',
-    cor: selectedLine.colorHex,
-    corHex: selectedLine.colorHex,
-    rota: trackingPath,
-    paradas: [],
-    horarioInicio: '00:00',
-    horarioFim: '23:59',
-    intervaloMinutos: 0,
-  }] : [];
-
-  // Posição atual do usuário para mostrar no mapa
-  const currentPosition = geolocation.latitude && geolocation.longitude ? [{
-    linhaId: selectedLineId,
-    coordenadas: { lat: geolocation.latitude, lng: geolocation.longitude },
-    velocidade: geolocation.speed || 0,
-    ultimaAtualizacao: new Date(),
-    sentido: 'ida' as const,
-  }] : [];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -264,72 +144,13 @@ export default function Contribuir() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-4">
-        {/* Status de Criação de Rota Ativo */}
-        {isTracking && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="font-semibold text-green-900">Criando Rota</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2 text-sm mb-3">
-              <div>
-                <div className="text-gray-600">Tempo</div>
-                <div className="font-mono font-semibold">{formatDuration()}</div>
-              </div>
-              <div>
-                <div className="text-gray-600">Pontos</div>
-                <div className="font-mono font-semibold">{pointsCollected}</div>
-              </div>
-              <div>
-                <div className="text-gray-600">Precisão</div>
-                <div className="font-mono font-semibold">
-                  {geolocation.accuracy ? `${Math.round(geolocation.accuracy)}m` : '-'}
-                </div>
-              </div>
-            </div>
-            
-            {/* Botão para marcar parada */}
-            <button
-              onClick={handleMarkBusStop}
-              className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2"
-            >
-              <MapPin size={18} />
-              Marcar Ponto de Ônibus Aqui
-            </button>
-          </div>
-        )}
-
-        {/* Mapa em Tempo Real */}
-        {isTracking && showMap && trackingPath.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MapIcon size={20} className="text-blue-600" />
-                <h3 className="font-semibold text-gray-900">Rota Sendo Criada</h3>
-              </div>
-            </div>
-            <div className="h-[400px]">
-              <BusMap
-                linhas={trackingLineForMap}
-                posicoes={currentPosition}
-                isMobile={true}
-              />
-            </div>
-            <div className="p-3 bg-gray-50 text-xs text-gray-600 text-center">
-              {trackingPath.length} pontos no caminho
-            </div>
-          </div>
-        )}
-
         {/* Seleção de Linha e Controles */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            {isTracking ? 'Criando Rota' : 'Iniciar Criação de Rota'}
+            Iniciar Criação de Rota
           </h2>
           
-          {!isTracking ? (
-            <>
-              {/* Indicador de Wi-Fi Validado (apenas APK) */}
+          {/* Indicador de Wi-Fi Validado (apenas APK) */}
               {wifiScanner.isNative && wifiValidated && selectedWifi && (
                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
                   <CheckCircle size={20} className="text-green-600" />
@@ -382,21 +203,17 @@ export default function Contribuir() {
                 Iniciar Criação de Rota
               </button>
 
-              {wifiScanner.isNative && !wifiValidated && (
+              {wifiScanner.isNative && !wifiValidated && selectedLineId && (
                 <p className="mt-2 text-xs text-center text-gray-600">
                   Primeiro escolha o Wi-Fi do ônibus
                 </p>
               )}
-            </>
-          ) : (
-            <button
-              onClick={handleStopTracking}
-              className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition flex items-center justify-center gap-2"
-            >
-              <Square size={20} />
-              Finalizar e Salvar Rota
-            </button>
-          )}
+              
+              {!wifiScanner.isNative && selectedLineId && (
+                <p className="mt-2 text-xs text-center text-blue-600">
+                  📱 Contribuição disponível apenas no aplicativo Android
+                </p>
+              )}
 
           {geolocation.error && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
@@ -561,6 +378,12 @@ export default function Contribuir() {
           <div className="text-3xl">→</div>
         </Link>
       </div>
+
+      {/* Modal para baixar app */}
+      <DownloadAppModal
+        isOpen={showDownloadModal}
+        onClose={() => setShowDownloadModal(false)}
+      />
     </div>
   );
 }
