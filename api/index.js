@@ -254,6 +254,43 @@ async function handleGamification(req, res, path) {
 
 // Users handlers
 async function handleUsers(req, res, path) {
+  if (path === '/users/create' && req.method === 'POST') {
+    const { anonymousId, nickname, acceptedTerms, acceptedTermsDate } = req.body;
+
+    if (!anonymousId) {
+      return res.status(400).json({ error: 'anonymousId é obrigatório' });
+    }
+
+    const user = await prisma.user.upsert({
+      where: { anonymousId },
+      update: {
+        nickname: nickname || undefined,
+        acceptedTerms: acceptedTerms || undefined,
+        acceptedTermsDate: acceptedTermsDate ? new Date(acceptedTermsDate) : undefined
+      },
+      create: {
+        anonymousId,
+        nickname: nickname || null,
+        acceptedTerms: acceptedTerms || true,
+        acceptedTermsDate: acceptedTermsDate ? new Date(acceptedTermsDate) : new Date(),
+        isOnline: false,
+        points: 0,
+        level: 1,
+        totalTrips: 0
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        anonymousId: user.anonymousId,
+        nickname: user.nickname,
+        level: user.level,
+        points: user.points
+      }
+    });
+  }
+
   if (path === '/users/active' && req.method === 'GET') {
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 

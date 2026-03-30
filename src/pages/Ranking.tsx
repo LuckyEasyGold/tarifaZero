@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trophy, Medal, Award, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Trophy, Medal, Award, TrendingUp, Info } from 'lucide-react';
 
 interface RankingUser {
   position: number;
@@ -31,6 +31,7 @@ export default function Ranking() {
   const [data, setData] = useState<RankingData | null>(null);
   const [period, setPeriod] = useState<'all' | 'month' | 'week'>('all');
   const [loading, setLoading] = useState(true);
+  const [showLegend, setShowLegend] = useState(false);
 
   useEffect(() => {
     fetchRanking();
@@ -76,10 +77,10 @@ export default function Ranking() {
   };
 
   const getMedalIcon = (position: number) => {
-    if (position === 1) return <Trophy className="text-yellow-500" size={24} />;
-    if (position === 2) return <Medal className="text-gray-400" size={24} />;
-    if (position === 3) return <Medal className="text-amber-600" size={24} />;
-    return null;
+    if (position === 1) return <Trophy className="text-yellow-500" size={20} />;
+    if (position === 2) return <Medal className="text-gray-400" size={20} />;
+    if (position === 3) return <Medal className="text-amber-600" size={20} />;
+    return <span className="text-sm font-bold text-gray-400">{position}</span>;
   };
 
   const getBadgeLabel = (badge: string) => {
@@ -116,13 +117,36 @@ export default function Ranking() {
             <span>Voltar</span>
           </button>
           
-          <div className="flex items-center gap-3 mb-4">
-            <Trophy size={32} />
-            <div>
-              <h1 className="text-2xl font-bold">Ranking de Contribuidores</h1>
-              <p className="text-sm text-white/80">Os heróis do transporte público</p>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Trophy size={32} />
+              <div>
+                <h1 className="text-2xl font-bold">Ranking de Contribuidores</h1>
+                <p className="text-sm text-white/80">Os heróis do transporte público</p>
+              </div>
             </div>
+            
+            <button
+              onClick={() => setShowLegend(!showLegend)}
+              className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition"
+              title="Ver legenda"
+            >
+              <Info size={20} />
+            </button>
           </div>
+
+          {/* Legenda */}
+          {showLegend && (
+            <div className="bg-white/10 backdrop-blur rounded-lg p-4 mb-4 text-sm">
+              <h3 className="font-semibold mb-2">Legenda das Colunas:</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <div><strong>Nv:</strong> Nível do usuário</div>
+                <div><strong>Pts:</strong> Pontos totais</div>
+                <div><strong>Viag:</strong> Viagens realizadas</div>
+                <div><strong>GPS:</strong> Pontos GPS coletados</div>
+              </div>
+            </div>
+          )}
 
           {/* Estatísticas Gerais */}
           {data && data.ranking && data.ranking.length > 0 && (
@@ -182,77 +206,96 @@ export default function Ranking() {
         </div>
       </div>
 
-      {/* Lista de Ranking */}
+      {/* Tabela de Ranking */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         {data && data.ranking.length > 0 ? (
-          <div className="space-y-3">
-            {data.ranking.map((user) => (
-              <div
-                key={user.id}
-                className={`bg-white rounded-lg shadow-sm border p-4 ${
-                  user.position <= 3 ? 'border-yellow-300 bg-yellow-50/30' : 'border-gray-200'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  {/* Posição */}
-                  <div className="flex-shrink-0 w-12 text-center">
-                    {getMedalIcon(user.position) || (
-                      <div className="text-2xl font-bold text-gray-400">
-                        {user.position}
-                      </div>
-                    )}
-                  </div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            {/* Header da Tabela */}
+            <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
+              <div className="grid grid-cols-12 gap-2 text-xs font-semibold text-gray-600">
+                <div className="col-span-1 text-center">#</div>
+                <div className="col-span-4">Usuário</div>
+                <div className="col-span-1 text-center">Nv</div>
+                <div className="col-span-2 text-center">Pts</div>
+                <div className="col-span-2 text-center">Viag</div>
+                <div className="col-span-2 text-center">GPS</div>
+              </div>
+            </div>
 
-                  {/* Info do Usuário */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-gray-900 truncate">
+            {/* Linhas da Tabela */}
+            <div className="divide-y divide-gray-200">
+              {data.ranking.map((user) => (
+                <div
+                  key={user.id}
+                  className={`px-4 py-3 hover:bg-gray-50 transition ${
+                    user.position <= 3 ? 'bg-yellow-50/50' : ''
+                  }`}
+                >
+                  <div className="grid grid-cols-12 gap-2 items-center">
+                    {/* Posição */}
+                    <div className="col-span-1 flex justify-center">
+                      {getMedalIcon(user.position)}
+                    </div>
+
+                    {/* Usuário */}
+                    <div className="col-span-4">
+                      <div className="font-semibold text-gray-900 text-sm truncate">
                         {user.nickname}
-                      </h3>
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                        Nível {user.level}
+                      </div>
+                      {user.badges.length > 0 && (
+                        <div className="flex gap-1 mt-1">
+                          {user.badges.slice(0, 2).map((badge) => (
+                            <span
+                              key={badge}
+                              className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded"
+                              title={getBadgeLabel(badge)}
+                            >
+                              {badge === 'first_trip' && '🚌'}
+                              {badge === 'frequent_rider' && '⭐'}
+                              {badge === 'super_rider' && '🌟'}
+                              {badge === 'gps_collector' && '📍'}
+                              {badge === 'gps_master' && '🎯'}
+                              {badge === 'week_streak' && '🔥'}
+                              {badge === 'month_streak' && '💎'}
+                            </span>
+                          ))}
+                          {user.badges.length > 2 && (
+                            <span className="text-xs text-gray-500">
+                              +{user.badges.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Nível */}
+                    <div className="col-span-1 text-center">
+                      <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
+                        {user.level}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <TrendingUp size={14} />
-                        <span>{user.points} pts</span>
+                    {/* Pontos */}
+                    <div className="col-span-2 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <TrendingUp size={14} className="text-green-600" />
+                        <span className="font-semibold text-gray-900">{user.points}</span>
                       </div>
-                      <div>🚌 {user.totalTrips} viagens</div>
-                      <div>📍 {user.totalPoints} GPS</div>
                     </div>
 
-                    {/* Badges */}
-                    {user.badges.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {user.badges.slice(0, 3).map((badge) => (
-                          <span
-                            key={badge}
-                            className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full"
-                          >
-                            {getBadgeLabel(badge)}
-                          </span>
-                        ))}
-                        {user.badges.length > 3 && (
-                          <span className="text-xs text-gray-500">
-                            +{user.badges.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )}
+                    {/* Viagens */}
+                    <div className="col-span-2 text-center">
+                      <span className="text-gray-700">{user.totalTrips}</span>
+                    </div>
+
+                    {/* GPS */}
+                    <div className="col-span-2 text-center">
+                      <span className="text-gray-700">{user.totalPoints}</span>
+                    </div>
                   </div>
-
-                  {/* Streak */}
-                  {user.streak > 0 && (
-                    <div className="flex-shrink-0 text-center">
-                      <div className="text-2xl">🔥</div>
-                      <div className="text-xs text-gray-600">{user.streak}d</div>
-                    </div>
-                  )}
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         ) : (
           <div className="text-center py-12">

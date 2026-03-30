@@ -53,6 +53,25 @@ function App() {
       localStorage.setItem('userNickname', nickname);
     }
 
+    // Criar usuário no banco de dados com nickname
+    fetch('/api/users/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        anonymousId,
+        nickname: nickname || null,
+        acceptedTerms: true,
+        acceptedTermsDate: new Date().toISOString()
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log('✅ Usuário criado no banco:', data);
+      })
+      .catch(err => {
+        console.error('❌ Erro ao criar usuário:', err);
+      });
+
     setShowWelcome(false);
     setUserSetup(true);
   };
