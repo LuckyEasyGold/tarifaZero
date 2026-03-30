@@ -39,3 +39,7 @@ prisma/migrations
 # Build
 api/dist
 .env*.local
+
+# APK files
+*.apk
+TarifaZero.apk
