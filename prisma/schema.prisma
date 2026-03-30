@@ -1,6 +1,3 @@
-// Tarifa Zero - Database Schema
-// PostgreSQL + PostGIS (Neon)
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
@@ -12,29 +9,26 @@ datasource db {
   extensions = [postgis]
 }
 
-// ============================================================
-// USUÁRIOS E GAMIFICAÇÃO
-// ============================================================
 model User {
-  id            String   @id @default(cuid())
-  anonymousId   String   @unique // ID anônimo gerado no frontend
-  nickname      String? // apelido opcional
-  points        Int      @default(0)
-  level         Int      @default(1)
-  totalTrips    Int      @default(0)
-  totalPoints   Int      @default(0) // pontos GPS coletados
-  totalMinutes  Int      @default(0)
-  badges        String[] // array de badges conquistados
-  streak        Int      @default(0) // dias consecutivos contribuindo
-  lastActive    DateTime @default(now())
-  acceptedTerms Boolean  @default(false) // LGPD
-  acceptedTermsDate DateTime? // quando aceitou
-  isOnline      Boolean  @default(false) // está online agora
-  currentLat    Float? // localização atual (se online)
-  currentLng    Float? // localização atual (se online)
-  isTracking    Boolean  @default(false) // está contribuindo agora
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                String    @id @default(cuid())
+  anonymousId       String    @unique
+  nickname          String?
+  points            Int       @default(0)
+  level             Int       @default(1)
+  totalTrips        Int       @default(0)
+  totalPoints       Int       @default(0)
+  totalMinutes      Int       @default(0)
+  badges            String[]
+  streak            Int       @default(0)
+  lastActive        DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  acceptedTerms     Boolean   @default(false)
+  acceptedTermsDate DateTime?
+  currentLat        Float?
+  currentLng        Float?
+  isOnline          Boolean   @default(false)
+  isTracking        Boolean   @default(false)
 
   @@index([points])
   @@index([totalPoints])
@@ -42,157 +36,126 @@ model User {
   @@map("users")
 }
 
-// ============================================================
-// LINHAS DE ÔNIBUS
-// ============================================================
 model Line {
-  id          String   @id @default(cuid())
-  code        String   @unique // L001, L002, etc
-  name        String
-  color       String
-  colorHex    String
-  startTime   String // "05:00"
-  endTime     String // "22:00"
-  intervalMin Int // intervalo em minutos
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  routes          Route[]
-  stops           Stop[]
-  trips           Trip[]
+  id               String            @id @default(cuid())
+  code             String            @unique
+  name             String
+  color            String
+  colorHex         String
+  startTime        String
+  endTime          String
+  intervalMin      Int
+  active           Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  routes           Route[]
+  stops            Stop[]
+  trips            Trip[]
   vehiclePositions VehiclePosition[]
-  wifiNetworks    WifiNetwork[]
+  wifiNetworks     WifiNetwork[]
 
   @@map("lines")
 }
 
-// ============================================================
-// ROTAS (IDA E VOLTA)
-// ============================================================
 model Route {
-  id        String   @id @default(cuid())
+  id        String       @id @default(cuid())
   lineId    String
-  direction String // "outbound" (ida) ou "inbound" (volta)
-  name      String // "Terminal → Centro"
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  line   Line         @relation(fields: [lineId], references: [id], onDelete: Cascade)
-  points RoutePoint[]
-  trips  Trip[]
+  direction String
+  name      String
+  active    Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  points    RoutePoint[]
+  line      Line         @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  trips     Trip[]
 
   @@unique([lineId, direction])
   @@map("routes")
 }
 
-// ============================================================
-// PONTOS DA ROTA (SHAPE)
-// ============================================================
 model RoutePoint {
   id        String   @id @default(cuid())
   routeId   String
-  sequence  Int // ordem do ponto na rota
+  sequence  Int
   lat       Float
   lng       Float
-  // location  Unsupported("geography(Point, 4326)")? // PostGIS point
   createdAt DateTime @default(now())
-
-  route Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  route     Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
 
   @@unique([routeId, sequence])
   @@index([routeId])
   @@map("route_points")
 }
 
-// ============================================================
-// PARADAS
-// ============================================================
 model Stop {
   id          String   @id @default(cuid())
   lineId      String
-  code        String   @unique // P001, P002, etc
+  code        String   @unique
   name        String
   lat         Float
   lng         Float
-  // location    Unsupported("geography(Point, 4326)")? // PostGIS point
   description String?
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  line Line @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  line        Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
 
   @@index([lineId])
   @@map("stops")
 }
 
-// ============================================================
-// VIAGENS PROGRAMADAS
-// ============================================================
 model Trip {
-  id              String   @id @default(cuid())
-  lineId          String
-  routeId         String
-  scheduledStart  DateTime
-  scheduledEnd    DateTime
-  actualStart     DateTime?
-  actualEnd       DateTime?
-  status          String   @default("scheduled") // scheduled, active, completed, cancelled
-  vehicleId       String? // identificador do veículo (se disponível)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  line  Line  @relation(fields: [lineId], references: [id], onDelete: Cascade)
-  route Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  id             String    @id @default(cuid())
+  lineId         String
+  routeId        String
+  scheduledStart DateTime
+  scheduledEnd   DateTime
+  actualStart    DateTime?
+  actualEnd      DateTime?
+  status         String    @default("scheduled")
+  vehicleId      String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  line           Line      @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  route          Route     @relation(fields: [routeId], references: [id], onDelete: Cascade)
 
   @@index([lineId, status])
   @@index([scheduledStart])
   @@map("trips")
 }
 
-// ============================================================
-// POSIÇÕES DOS VEÍCULOS (TEMPO REAL)
-// ============================================================
 model VehiclePosition {
   id         String   @id @default(cuid())
   lineId     String
-  userId     String? // usuário que enviou a posição
+  userId     String?
   lat        Float
   lng        Float
-  // location   Unsupported("geography(Point, 4326)")? // PostGIS point
-  speed      Float? // velocidade em km/h
-  heading    Float? // direção em graus (0-360)
-  accuracy   Float? // precisão em metros
-  confidence Float    @default(1.0) // confiança (0-1)
-  source     String   @default("crowdsource") // crowdsource, gps, inference
+  speed      Float?
+  heading    Float?
+  accuracy   Float?
+  confidence Float    @default(1.0)
+  source     String   @default("crowdsource")
   timestamp  DateTime @default(now())
   createdAt  DateTime @default(now())
-
-  line Line @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  line       Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
 
   @@index([lineId, timestamp])
   @@index([timestamp])
   @@map("vehicle_positions")
 }
 
-// ============================================================
-// TRACKING DE USUÁRIOS (CROWDSOURCING)
-// ============================================================
 model UserTrack {
-  id         String   @id @default(cuid())
-  userId     String
-  sessionId  String // identificador da sessão de tracking
-  lineId     String? // linha identificada (pode ser null no início)
-  lat        Float
-  lng        Float
-  // location   Unsupported("geography(Point, 4326)")? // PostGIS point
-  speed      Float?
-  heading    Float?
-  accuracy   Float?
-  timestamp  DateTime
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  sessionId String
+  lineId    String?
+  lat       Float
+  lng       Float
+  speed     Float?
+  heading   Float?
+  accuracy  Float?
+  timestamp DateTime
+  createdAt DateTime @default(now())
 
   @@index([sessionId])
   @@index([userId, timestamp])
@@ -200,29 +163,22 @@ model UserTrack {
   @@map("user_tracks")
 }
 
-// ============================================================
-// REDES WI-FI DOS ÔNIBUS
-// ============================================================
 model WifiNetwork {
   id          String   @id @default(cuid())
   lineId      String
   ssid        String?
-  bssid       String   @unique // MAC address do roteador (identificador único)
+  bssid       String   @unique
   description String?
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  line Line @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  line        Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
 
   @@index([lineId])
   @@index([ssid])
   @@map("wifi_networks")
 }
 
-// ============================================================
-// PARADAS TEMPORÁRIAS (MARCADAS PELOS USUÁRIOS)
-// ============================================================
 model TempStop {
   id        String   @id @default(cuid())
   lineId    String
@@ -235,24 +191,30 @@ model TempStop {
   @@map("temp_stops")
 }
 
-// ============================================================
-// ESTATÍSTICAS DE VELOCIDADE (APRENDIZADO)
-// ============================================================
 model SpeedStats {
-  id            String   @id @default(cuid())
-  lineId        String
-  segmentStart  String // "lat,lng" do início do segmento
-  segmentEnd    String // "lat,lng" do fim do segmento
-  hourOfDay     Int // 0-23
-  dayOfWeek     Int // 0-6 (0=domingo)
-  avgSpeed      Float // velocidade média em km/h
-  minSpeed      Float
-  maxSpeed      Float
-  sampleCount   Int // número de amostras
-  lastUpdated   DateTime @updatedAt
-  createdAt     DateTime @default(now())
+  id           String   @id @default(cuid())
+  lineId       String
+  segmentStart String
+  segmentEnd   String
+  hourOfDay    Int
+  dayOfWeek    Int
+  avgSpeed     Float
+  minSpeed     Float
+  maxSpeed     Float
+  sampleCount  Int
+  lastUpdated  DateTime @updatedAt
+  createdAt    DateTime @default(now())
 
   @@unique([lineId, segmentStart, segmentEnd, hourOfDay, dayOfWeek])
   @@index([lineId])
   @@map("speed_stats")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spatial_ref_sys {
+  srid      Int     @id
+  auth_name String? @db.VarChar(256)
+  auth_srid Int?
+  srtext    String? @db.VarChar(2048)
+  proj4text String? @db.VarChar(2048)
 }
