@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://project-btoew.vercel.app',
+        target: 'https://tarifazero.vercel.app',
         changeOrigin: true,
         secure: false,
       }
