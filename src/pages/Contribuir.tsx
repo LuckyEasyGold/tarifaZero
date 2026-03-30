@@ -28,6 +28,8 @@ export default function Contribuir() {
   const [wifiValidated, setWifiValidated] = useState(false);
   const [identifiedLine, setIdentifiedLine] = useState<Linha | null>(null);
   const [wifiCheckInProgress, setWifiCheckInProgress] = useState(false);
+  const [selectedWifi, setSelectedWifi] = useState<{ ssid: string; bssid: string } | null>(null);
+  const [showWifiCard, setShowWifiCard] = useState(false);
   
   const geolocation = useGeolocation();
   const wifiInfo = useWifiDetection();
@@ -45,39 +47,52 @@ export default function Contribuir() {
       .catch(err => console.error('Erro ao carregar linhas:', err));
   }, []);
 
-  // Verificar Wi-Fi automaticamente quando redes forem detectadas
+  // Verificar Wi-Fi automaticamente quando redes forem detectadas (apenas no APK)
   useEffect(() => {
-    if (wifiScanner.networks.length > 0 && !wifiValidated && !isTracking) {
-      checkWifiAndIdentifyLine();
+    if (wifiScanner.isNative && wifiScanner.networks.length > 0 && !wifiValidated && !isTracking && !showWifiCard) {
+      // Mostrar card para usuário escolher WiFi
+      setShowWifiCard(true);
     }
-  }, [wifiScanner.networks]);
+  }, [wifiScanner.networks, wifiScanner.isNative]);
 
-  const checkWifiAndIdentifyLine = async () => {
-    if (wifiCheckInProgress) return;
-    
+  const handleWifiSelection = async (network: { ssid: string; bssid: string }) => {
+    setSelectedWifi(network);
     setWifiCheckInProgress(true);
     
     try {
       const response = await fetch('/api/wifi/identify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ networks: wifiScanner.networks }),
+        body: JSON.stringify({ 
+          ssid: network.ssid,
+          bssid: network.bssid 
+        }),
       });
       
       const result = await response.json();
       
-      if (result.success && result.identified) {
+      if (result.success && result.line) {
         setWifiValidated(true);
         setIdentifiedLine(result.line);
         setSelectedLineId(result.line.id);
+        setShowWifiCard(false);
         
         toast.success(
-          `Wi-Fi do ônibus detectado! Linha ${result.line.code} identificada automaticamente 🚌`,
+          `Obrigado! Wi-Fi do ônibus identificado como Linha ${result.line.code} 🚌`,
           { duration: 5000 }
         );
+      } else {
+        // WiFi não identificado, salvar como novo
+        toast.info(
+          `Wi-Fi selecionado! Agora você pode iniciar a criação da rota.`,
+          { duration: 4000 }
+        );
+        setWifiValidated(true);
+        setShowWifiCard(false);
       }
     } catch (error) {
       console.error('Erro ao verificar Wi-Fi:', error);
+      toast.error('Erro ao verificar Wi-Fi');
     } finally {
       setWifiCheckInProgress(false);
     }
@@ -122,14 +137,14 @@ export default function Contribuir() {
       return;
     }
 
-    // Verificar Wi-Fi se estiver no app nativo
+    // No APK, verificar se WiFi foi validado
     if (wifiScanner.isNative && !wifiValidated) {
-      toast.error('Wi-Fi do ônibus não detectado. Você precisa estar no ônibus para contribuir.', {
+      toast.error('Escolha o Wi-Fi do ônibus primeiro', {
         duration: 5000
       });
       
-      // Tentar escanear novamente
-      await wifiScanner.scan();
+      // Mostrar card de WiFi
+      setShowWifiCard(true);
       return;
     }
 
@@ -160,7 +175,9 @@ export default function Contribuir() {
     // Iniciar tracking de GPS
     geolocation.startTracking();
     
-    toast.success('Tracking iniciado! Obrigado por contribuir 🚌');
+    toast.success('Obrigado por ajudar! Continue no ônibus e vamos mapear a rota juntos 🚌', {
+      duration: 6000
+    });
   };
 
   const handleStopTracking = async () => {
@@ -173,13 +190,39 @@ export default function Contribuir() {
     const result = await trackingService.stopSession(sessionId);
     
     if (result.success) {
-      toast.success(`Sessão finalizada! ${result.data?.pointsCollected} pontos coletados 🎉`);
+      toast.success(`Rota salva! ${result.data?.pointsCollected} pontos coletados. Obrigado! 🎉`);
     }
 
     setIsTracking(false);
     setSessionId(null);
     setSessionStartTime(null);
     setShowMap(false);
+  };
+
+  const handleMarkBusStop = async () => {
+    if (!isTracking || !geolocation.latitude || !geolocation.longitude) {
+      toast.error('Você precisa estar criando uma rota para marcar paradas');
+      return;
+    }
+
+    // Salvar coordenada como parada
+    try {
+      await fetch('/api/stops/mark', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lineId: selectedLineId,
+          lat: geolocation.latitude,
+          lng: geolocation.longitude,
+          sessionId
+        })
+      });
+
+      toast.success('📍 Ponto de ônibus marcado!', { duration: 3000 });
+    } catch (error) {
+      console.error('Erro ao marcar parada:', error);
+      toast.error('Erro ao marcar parada');
+    }
   };
 
   const formatDuration = () => {
