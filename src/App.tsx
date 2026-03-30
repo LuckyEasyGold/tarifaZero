@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/sonner';
 import BottomNav from '@/components/BottomNav';
 import SplashScreen from '@/components/SplashScreen';
 import WelcomeScreen from '@/components/WelcomeScreen';
+import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import Home from '@/pages/Home';
 import Linhas from '@/pages/Linhas';
 import LinhaDetalhes from '@/pages/LinhaDetalhes';
@@ -82,6 +83,9 @@ function App() {
         </Routes>
 
         <BottomNav />
+        
+        {/* Prompt de instalação PWA */}
+        <PWAInstallPrompt />
       </div>
     </BrowserRouter>
   );

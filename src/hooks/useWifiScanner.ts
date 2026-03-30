@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { registerPlugin } from '@capacitor/core';
 
 export interface WifiNetwork {
   ssid: string;
@@ -7,6 +8,12 @@ export interface WifiNetwork {
   level: number; // Signal strength
   frequency: number;
 }
+
+interface WifiScannerPlugin {
+  scan(): Promise<{ networks: WifiNetwork[] }>;
+}
+
+const WifiScanner = registerPlugin<WifiScannerPlugin>('WifiScanner');
 
 interface UseWifiScannerReturn {
   networks: WifiNetwork[];
@@ -32,18 +39,20 @@ export function useWifiScanner(): UseWifiScannerReturn {
     setError(null);
 
     try {
-      // Chamar plugin nativo customizado
-      // @ts-ignore - Plugin customizado será criado
-      const result = await window.WifiScanner?.scan();
+      console.log('[WiFi Scanner] Iniciando scan...');
+      const result = await WifiScanner.scan();
+      console.log('[WiFi Scanner] Resultado:', result);
       
       if (result && result.networks) {
         setNetworks(result.networks);
+        console.log('[WiFi Scanner] Redes encontradas:', result.networks.length);
       } else {
         setNetworks([]);
+        console.log('[WiFi Scanner] Nenhuma rede encontrada');
       }
     } catch (err) {
-      console.error('Erro ao escanear Wi-Fi:', err);
-      setError('Erro ao escanear redes Wi-Fi');
+      console.error('[WiFi Scanner] Erro ao escanear:', err);
+      setError('Erro ao escanear redes Wi-Fi. Verifique as permissões.');
       setNetworks([]);
     } finally {
       setIsScanning(false);
@@ -53,9 +62,17 @@ export function useWifiScanner(): UseWifiScannerReturn {
   // Escanear automaticamente ao montar (apenas no app)
   useEffect(() => {
     if (isNative) {
-      scan();
+      console.log('[WiFi Scanner] App nativo detectado, iniciando scan automático');
+      // Aguardar 1 segundo para garantir que o app está pronto
+      const timer = setTimeout(() => {
+        scan();
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    } else {
+      console.log('[WiFi Scanner] Não é app nativo, scanner desabilitado');
     }
-  }, [isNative, scan]);
+  }, [isNative]);
 
   return {
     networks,

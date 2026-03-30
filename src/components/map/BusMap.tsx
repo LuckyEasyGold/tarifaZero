@@ -1,5 +1,5 @@
 import { useEffect, useRef, useMemo } from 'react';
-import { MapContainer, TileLayer, Polyline, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, Marker, Popup, Tooltip, useMap, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { LinhaOnibus, PosicaoOnibus } from '@/types';
@@ -135,14 +135,21 @@ const BusMap = ({
       center={centro}
       zoom={zoom}
       style={{ height: '100%', width: '100%', borderRadius: '12px' }}
-      dragging={!isMobile}
+      zoomControl={false}
+      dragging={true}
       scrollWheelZoom={!isMobile}
-      touchZoom={isMobile}
+      touchZoom={true}
+      doubleClickZoom={true}
+      boxZoom={true}
+      keyboard={true}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+      
+      {/* Controles de zoom sempre visíveis */}
+      <ZoomControl position="bottomright" />
       
       <FitBounds bounds={bounds} />
       
@@ -209,13 +216,13 @@ const BusMap = ({
             zIndexOffset={1000}
           >
             <Tooltip 
-              permanent={true}
+              permanent={false}
               direction="right"
               offset={[10, 0]}
               className="bg-white rounded-md shadow-md"
             >
-              <div className="font-semibold text-sm" style={{ color: linha.corHex }}>
-                {linha.nome}
+              <div className="font-semibold text-xs px-1" style={{ color: linha.corHex }}>
+                {linha.nome.split(' - ')[0]}
               </div>
             </Tooltip>
             <Popup>
@@ -263,7 +270,9 @@ const BusMap = ({
       {/* Renderizar usuários ativos */}
       {activeUsers.map((user) => {
         const userColor = getUserColor(user.anonymousId);
-        const displayName = user.nickname || `Usuário ${user.anonymousId.slice(-4)}`;
+        const currentUserId = localStorage.getItem('anonymousId');
+        const isCurrentUser = user.anonymousId === currentUserId;
+        const displayName = isCurrentUser ? 'Eu' : (user.nickname || `Usuário ${user.anonymousId.slice(-4)}`);
         
         return (
           <Marker

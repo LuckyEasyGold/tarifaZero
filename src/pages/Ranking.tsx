@@ -42,7 +42,31 @@ export default function Ranking() {
       const response = await fetch(`/api/gamification/ranking?period=${period}&limit=50`);
       const result = await response.json();
       if (result.success) {
-        setData(result.data);
+        // A API retorna um array diretamente em result.data
+        // Vamos transformar para o formato esperado
+        const ranking = result.data.map((user: any, index: number) => ({
+          position: index + 1,
+          id: user.anonymousId,
+          nickname: user.nickname || `Usuário${user.anonymousId.slice(0, 3)}`,
+          points: user.points || 0,
+          level: user.level || 1,
+          totalTrips: user.totalTrips || 0,
+          totalPoints: user.points || 0,
+          totalMinutes: 0,
+          badges: user.badges || [],
+          streak: 0
+        }));
+        
+        setData({
+          ranking,
+          stats: {
+            totalUsers: ranking.length,
+            totalPoints: ranking.reduce((sum: number, u: any) => sum + u.totalPoints, 0),
+            totalTrips: ranking.reduce((sum: number, u: any) => sum + u.totalTrips, 0),
+            totalGPSPoints: ranking.reduce((sum: number, u: any) => sum + u.totalPoints, 0)
+          },
+          period
+        });
       }
     } catch (error) {
       console.error('Erro ao carregar ranking:', error);
@@ -101,18 +125,18 @@ export default function Ranking() {
           </div>
 
           {/* Estatísticas Gerais */}
-          {data && data.length > 0 && (
+          {data && data.ranking && data.ranking.length > 0 && (
             <div className="grid grid-cols-3 gap-3 mt-4">
               <div className="bg-white/10 backdrop-blur rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold">{data.length}</div>
+                <div className="text-2xl font-bold">{data.stats.totalUsers}</div>
                 <div className="text-xs text-white/80">Usuários</div>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold">{data.reduce((sum, u) => sum + u.totalTrips, 0)}</div>
+                <div className="text-2xl font-bold">{data.stats.totalTrips}</div>
                 <div className="text-xs text-white/80">Viagens</div>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold">{data.reduce((sum, u) => sum + u.totalPoints, 0)}</div>
+                <div className="text-2xl font-bold">{data.stats.totalGPSPoints}</div>
                 <div className="text-xs text-white/80">Pontos GPS</div>
               </div>
             </div>

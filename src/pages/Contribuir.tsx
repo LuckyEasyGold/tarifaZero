@@ -310,7 +310,7 @@ export default function Contribuir() {
                   <div className="flex-1">
                     <div className="font-medium text-yellow-900">Wi-Fi do ônibus não detectado</div>
                     <div className="text-sm text-yellow-700">
-                      Você precisa estar no ônibus para contribuir
+                      Escolha a rede Wi-Fi do ônibus abaixo para continuar
                     </div>
                   </div>
                 </div>
@@ -344,7 +344,7 @@ export default function Contribuir() {
 
               {wifiScanner.isNative && !wifiValidated && (
                 <p className="mt-2 text-xs text-center text-gray-600">
-                  Conecte-se ao Wi-Fi do ônibus para habilitar o tracking
+                  Primeiro escolha a rede Wi-Fi do ônibus abaixo
                 </p>
               )}
             </>
@@ -419,6 +419,12 @@ export default function Contribuir() {
               </button>
             </div>
 
+            {!isTracking && !wifiValidated && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+                <strong>Primeiro passo:</strong> Escolha a rede Wi-Fi do ônibus abaixo para poder iniciar o tracking
+              </div>
+            )}
+
             {wifiScanner.error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800 mb-3">
                 {wifiScanner.error}
@@ -428,18 +434,37 @@ export default function Contribuir() {
             {wifiScanner.networks.length > 0 ? (
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {wifiScanner.networks.map((network, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <button
+                    key={index}
+                    onClick={() => {
+                      if (!isTracking && !wifiValidated) {
+                        // Simular seleção da rede para validação
+                        checkWifiAndIdentifyLine();
+                      }
+                    }}
+                    disabled={isTracking || wifiValidated}
+                    className={`w-full flex items-center justify-between p-3 rounded-lg transition ${
+                      wifiValidated 
+                        ? 'bg-green-50 border border-green-200' 
+                        : 'bg-gray-50 hover:bg-gray-100 cursor-pointer'
+                    } ${isTracking ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
                     <div className="flex items-center gap-2">
-                      <Wifi size={16} className="text-blue-600" />
-                      <div>
+                      <Wifi size={16} className={wifiValidated ? 'text-green-600' : 'text-blue-600'} />
+                      <div className="text-left">
                         <div className="font-medium text-sm">{network.ssid || 'Rede Oculta'}</div>
                         <div className="text-xs text-gray-500">{network.bssid}</div>
                       </div>
                     </div>
-                    <div className="text-xs text-gray-600">
-                      {network.level} dBm
+                    <div className="flex items-center gap-2">
+                      <div className="text-xs text-gray-600">
+                        {network.level} dBm
+                      </div>
+                      {wifiValidated && (
+                        <CheckCircle size={16} className="text-green-600" />
+                      )}
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             ) : (
@@ -447,6 +472,35 @@ export default function Contribuir() {
                 Nenhuma rede Wi-Fi detectada
               </div>
             )}
+          </div>
+        )}
+
+        {/* Aviso PWA - WiFi não disponível */}
+        {!wifiScanner.isNative && (
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <AlertCircle size={20} className="text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">📱 Usando PWA ou Navegador?</h3>
+                <p className="text-sm text-gray-700 mb-3">
+                  O PWA e navegadores não conseguem detectar redes WiFi por limitações de segurança.
+                </p>
+                <div className="bg-white rounded-lg p-3 mb-3 text-sm">
+                  <strong className="text-gray-900">Para contribuir com o mapeamento:</strong>
+                  <ol className="mt-2 space-y-1 text-gray-700 list-decimal list-inside">
+                    <li>Baixe o APK completo do aplicativo</li>
+                    <li>Instale no seu celular</li>
+                    <li>Use o APK quando estiver no ônibus</li>
+                  </ol>
+                </div>
+                <p className="text-xs text-gray-600">
+                  💡 <strong>Dica:</strong> O PWA é perfeito para visualizar dados (mapa, linhas, ranking), 
+                  mas o APK é necessário para contribuir com tracking!
+                </p>
+              </div>
+            </div>
           </div>
         )}
 

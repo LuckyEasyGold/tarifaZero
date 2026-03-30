@@ -24,6 +24,31 @@ allprojects {
     }
 }
 
+// Force Java 17 for all subprojects
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+        
+        // Force Kotlin JVM target to 17 if Kotlin plugin is applied
+        project.tasks.configureEach { task ->
+            if (task.name.contains('Kotlin')) {
+                try {
+                    task.kotlinOptions.jvmTarget = "17"
+                } catch (Exception ignored) {
+                    // Kotlin not available
+                }
+            }
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

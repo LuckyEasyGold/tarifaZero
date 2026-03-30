@@ -39,12 +39,28 @@ Isso vai:
 
 #### Opção B: Build Local (Manual)
 
+**No Windows (PowerShell):**
+
+```powershell
+cd android
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot"
+$env:ANDROID_HOME = "C:\Users\vinic\AppData\Local\Android\Sdk"
+.\gradlew.bat assembleDebug
+```
+
+**No Linux/Mac:**
+
 ```bash
 cd android
 ./gradlew assembleDebug
 ```
 
 APK gerado em: `android/app/build/outputs/apk/debug/app-debug.apk`
+
+**Requisitos:**
+- Java 17 instalado (você tem em: `C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot`)
+- Android SDK instalado (você tem em: `C:\Users\vinic\AppData\Local\Android\Sdk`)
+- Arquivo `android/local.properties` configurado (já criado)
 
 ---
 
@@ -105,6 +121,14 @@ server: {
 ### Ranking.tsx
 - Removida dependência de `data.stats`
 - Estatísticas calculadas do array de usuários
+
+### Configuração do Java
+- Ajustado de Java 21 para Java 17
+- Arquivos modificados:
+  - `android/app/capacitor.build.gradle`
+  - `android/capacitor-cordova-android-plugins/build.gradle`
+  - `android/build.gradle` (configuração global)
+  - `android/gradle.properties` (JAVA_HOME)
 
 ---
 
