@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { MapPin, Square } from 'lucide-react';
 import BusMap from '@/components/map/BusMap';
+import RecordingBanner from '@/components/RecordingBanner';
+import MarkStopModal from '@/components/MarkStopModal';
+import { useGeolocation } from '@/hooks/useGeolocation';
+import { trackingService } from '@/services/trackingService';
+import { toast } from 'sonner';
 import type { PosicaoOnibus } from '@/types';
 import { getActiveUsers, sendHeartbeat, type ActiveUser } from '@/services/userService';
 
@@ -43,12 +49,125 @@ interface BusPosition extends PosicaoOnibus {
 
 export default function Home() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const linhaFiltro = searchParams.get('linha'); // ID da linha para filtrar
+  
+  // Modo gravação
+  const isRecording = searchParams.get('recording') === 'true';
+  const recordingLineId = searchParams.get('lineId');
+  const recordingSessionId = searchParams.get('sessionId');
+  const recordingLineName = searchParams.get('lineName');
+  const recordingLineColor = searchParams.get('lineColor');
   
   const [linhas, setLinhas] = useState<any[]>([]);
   const [posicoes, setPosicoes] = useState<BusPosition[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeUsers, setActiveUsers] = useState<ActiveUser[]>([]);
+  
+  // Estados do modo gravação
+  const [recordingPath, setRecordingPath] = useState<Array<{ lat: number; lng: number }>>([]);
+  const [pointsCollected, setPointsCollected] = useState(0);
+  const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
+  const [showMarkStopModal, setShowMarkStopModal] = useState(false);
+  
+  const geolocation = useGeolocation();
+
+  // Iniciar gravação quando entrar em modo recording
+  useEffect(() => {
+    if (isRecording && recordingSessionId) {
+      setSessionStartTime(new Date());
+      geolocation.startTracking();
+      toast.success('Gravação iniciada! 🔴', { duration: 3000 });
+    }
+  }, [isRecording, recordingSessionId]);
+
+  // Adicionar ponto ao caminho quando localização mudar
+  useEffect(() => {
+    if (isRecording && geolocation.latitude && geolocation.longitude) {
+      setRecordingPath(prev => [
+        ...prev,
+        { lat: geolocation.latitude!, lng: geolocation.longitude! }
+      ]);
+    }
+  }, [geolocation.latitude, geolocation.longitude, isRecording]);
+
+  // Enviar dados de localização periodicamente quando gravando
+  useEffect(() => {
+    if (isRecording && geolocation.latitude && geolocation.longitude && recordingSessionId && recordingLineId) {
+      const sendTrackingData = async () => {
+        const result = await trackingService.submitTrackingData({
+          lineId: recordingLineId,
+          latitude: geolocation.latitude!,
+          longitude: geolocation.longitude!,
+          accuracy: geolocation.accuracy,
+          speed: geolocation.speed,
+          heading: geolocation.heading,
+          sessionId: recordingSessionId,
+        });
+
+        if (result.success) {
+          setPointsCollected(prev => prev + 1);
+        }
+      };
+
+      sendTrackingData();
+    }
+  }, [geolocation.latitude, geolocation.longitude, isRecording, recordingSessionId, recordingLineId]);
+
+  // Função para formatar duração
+  const formatDuration = () => {
+    if (!sessionStartTime) return '00:00';
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - sessionStartTime.getTime()) / 1000);
+    const minutes = Math.floor(diff / 60);
+    const seconds = diff % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Função para finalizar gravação
+  const handleStopRecording = async () => {
+    if (!recordingSessionId) return;
+
+    // Parar tracking de GPS
+    geolocation.stopTracking();
+    
+    // Finalizar sessão no backend
+    const result = await trackingService.stopSession(recordingSessionId);
+    
+    if (result.success) {
+      toast.success(`Rota salva! ${result.data?.pointsCollected} pontos coletados. Obrigado! 🎉`);
+    }
+
+    // Redirecionar para página Contribuir
+    navigate('/contribuir');
+  };
+
+  // Função para marcar parada
+  const handleMarkStop = async (stopName: string) => {
+    if (!isRecording || !geolocation.latitude || !geolocation.longitude || !recordingLineId) {
+      toast.error('Erro ao marcar parada');
+      return;
+    }
+
+    try {
+      await fetch('/api/stops/mark', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lineId: recordingLineId,
+          lat: geolocation.latitude,
+          lng: geolocation.longitude,
+          sessionId: recordingSessionId,
+          name: stopName
+        })
+      });
+
+      toast.success(`📍 Parada "${stopName}" marcada!`, { duration: 3000 });
+    } catch (error) {
+      console.error('Erro ao marcar parada:', error);
+      toast.error('Erro ao marcar parada');
+    }
+  };
 
   // Carregar posições salvas do localStorage
   const carregarPosicoesSalvas = (): BusPosition[] | null => {
@@ -457,6 +576,16 @@ export default function Home() {
 
   return (
     <div className="h-screen flex flex-col pb-16">
+      {/* Banner de gravação */}
+      {isRecording && recordingLineName && (
+        <RecordingBanner
+          lineName={recordingLineName}
+          duration={formatDuration()}
+          pointsCollected={pointsCollected}
+          accuracy={geolocation.accuracy}
+        />
+      )}
+      
       {/* Mapa ocupa toda a tela */}
       <div className="flex-1 relative">
         <BusMap 
@@ -465,7 +594,37 @@ export default function Home() {
           activeUsers={activeUsers}
           isMobile={false}
         />
+        
+        {/* Botões flutuantes quando gravando */}
+        {isRecording && (
+          <>
+            {/* Botão Marcar Parada */}
+            <button
+              onClick={() => setShowMarkStopModal(true)}
+              className="fixed bottom-24 right-6 w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl hover:bg-blue-700 transition flex items-center justify-center z-10"
+              title="Marcar Parada de Ônibus"
+            >
+              <MapPin size={28} />
+            </button>
+            
+            {/* Botão Finalizar */}
+            <button
+              onClick={handleStopRecording}
+              className="fixed bottom-24 left-6 w-14 h-14 bg-red-600 text-white rounded-full shadow-2xl hover:bg-red-700 transition flex items-center justify-center z-10"
+              title="Finalizar Gravação"
+            >
+              <Square size={24} />
+            </button>
+          </>
+        )}
       </div>
+      
+      {/* Modal para marcar parada */}
+      <MarkStopModal
+        isOpen={showMarkStopModal}
+        onClose={() => setShowMarkStopModal(false)}
+        onSave={handleMarkStop}
+      />
     </div>
   );
 }

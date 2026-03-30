@@ -122,7 +122,7 @@ async function handleLines(req, res, path) {
 async function handleStops(req, res, path) {
   // POST /stops/mark
   if (path === '/stops/mark' && req.method === 'POST') {
-    const { lineId, lat, lng, sessionId } = req.body;
+    const { lineId, lat, lng, sessionId, name } = req.body;
     
     if (!lineId || !lat || !lng) {
       return res.status(400).json({ error: 'lineId, lat e lng são obrigatórios' });
@@ -136,6 +136,7 @@ async function handleStops(req, res, path) {
           lat: parseFloat(lat),
           lng: parseFloat(lng),
           sessionId: sessionId || null,
+          name: name || null,
           createdAt: new Date()
         }
       });
@@ -145,7 +146,8 @@ async function handleStops(req, res, path) {
         stop: {
           id: stop.id,
           lat: stop.lat,
-          lng: stop.lng
+          lng: stop.lng,
+          name: stop.name
         }
       });
     } catch (error) {

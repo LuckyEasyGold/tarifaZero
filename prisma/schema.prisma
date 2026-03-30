@@ -185,6 +185,7 @@ model TempStop {
   lat       Float
   lng       Float
   sessionId String?
+  name      String?
   createdAt DateTime @default(now())
 
   @@index([lineId])
