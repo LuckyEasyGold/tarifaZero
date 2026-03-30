@@ -101,18 +101,18 @@ export default function Ranking() {
           </div>
 
           {/* Estatísticas Gerais */}
-          {data && (
+          {data && data.length > 0 && (
             <div className="grid grid-cols-3 gap-3 mt-4">
               <div className="bg-white/10 backdrop-blur rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold">{data.stats.totalUsers}</div>
+                <div className="text-2xl font-bold">{data.length}</div>
                 <div className="text-xs text-white/80">Usuários</div>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold">{data.stats.totalTrips}</div>
+                <div className="text-2xl font-bold">{data.reduce((sum, u) => sum + u.totalTrips, 0)}</div>
                 <div className="text-xs text-white/80">Viagens</div>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold">{data.stats.totalGPSPoints}</div>
+                <div className="text-2xl font-bold">{data.reduce((sum, u) => sum + u.totalPoints, 0)}</div>
                 <div className="text-xs text-white/80">Pontos GPS</div>
               </div>
             </div>

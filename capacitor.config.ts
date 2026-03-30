@@ -5,7 +5,10 @@ const config: CapacitorConfig = {
   appName: 'Tarifa Zero',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    // URL da API de produção
+    url: 'https://tarifazero.vercel.app',
+    cleartext: true
   },
   plugins: {
     SplashScreen: {
