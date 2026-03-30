@@ -206,8 +206,8 @@ model UserTrack {
 model WifiNetwork {
   id          String   @id @default(cuid())
   lineId      String
-  ssid        String
-  bssid       String? // MAC address do roteador
+  ssid        String?
+  bssid       String   @unique // MAC address do roteador (identificador único)
   description String?
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -215,9 +215,24 @@ model WifiNetwork {
 
   line Line @relation(fields: [lineId], references: [id], onDelete: Cascade)
 
-  @@unique([lineId, ssid])
+  @@index([lineId])
   @@index([ssid])
   @@map("wifi_networks")
+}
+
+// ============================================================
+// PARADAS TEMPORÁRIAS (MARCADAS PELOS USUÁRIOS)
+// ============================================================
+model TempStop {
+  id        String   @id @default(cuid())
+  lineId    String
+  lat       Float
+  lng       Float
+  sessionId String?
+  createdAt DateTime @default(now())
+
+  @@index([lineId])
+  @@map("temp_stops")
 }
 
 // ============================================================
