@@ -120,6 +120,40 @@ async function handleLines(req, res, path) {
 
 // Stops handlers
 async function handleStops(req, res, path) {
+  // POST /stops/mark
+  if (path === '/stops/mark' && req.method === 'POST') {
+    const { lineId, lat, lng, sessionId } = req.body;
+    
+    if (!lineId || !lat || !lng) {
+      return res.status(400).json({ error: 'lineId, lat e lng são obrigatórios' });
+    }
+
+    try {
+      // Criar parada temporária (será processada depois)
+      const stop = await prisma.tempStop.create({
+        data: {
+          lineId,
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
+          sessionId: sessionId || null,
+          createdAt: new Date()
+        }
+      });
+
+      return res.status(200).json({ 
+        success: true,
+        stop: {
+          id: stop.id,
+          lat: stop.lat,
+          lng: stop.lng
+        }
+      });
+    } catch (error) {
+      console.error('Erro ao marcar parada:', error);
+      return res.status(500).json({ error: 'Erro ao marcar parada' });
+    }
+  }
+
   // GET /stops/nearby
   if (path.startsWith('/stops/nearby') && req.method === 'GET') {
     const { lat, lng, radius = 500 } = req.query;
@@ -366,6 +400,43 @@ async function handleUsers(req, res, path) {
 
 // WiFi handlers
 async function handleWifi(req, res, path) {
+  if (path === '/wifi/save' && req.method === 'POST') {
+    const { ssid, bssid, lineId } = req.body;
+
+    if (!bssid || !lineId) {
+      return res.status(400).json({ error: 'BSSID e lineId são obrigatórios' });
+    }
+
+    try {
+      const wifi = await prisma.wifiNetwork.upsert({
+        where: { bssid },
+        update: {
+          ssid: ssid || undefined,
+          lineId,
+          active: true
+        },
+        create: {
+          ssid: ssid || null,
+          bssid,
+          lineId,
+          active: true
+        }
+      });
+
+      return res.status(200).json({
+        success: true,
+        wifi: {
+          id: wifi.id,
+          ssid: wifi.ssid,
+          bssid: wifi.bssid
+        }
+      });
+    } catch (error) {
+      console.error('Erro ao salvar WiFi:', error);
+      return res.status(500).json({ error: 'Erro ao salvar WiFi' });
+    }
+  }
+
   if (path === '/wifi/identify' && req.method === 'POST') {
     const { ssid, bssid } = req.body;
 
