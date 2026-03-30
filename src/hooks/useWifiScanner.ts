@@ -65,6 +65,7 @@ export function useWifiScanner(): UseWifiScannerReturn {
       console.log('[WiFi Scanner] App nativo detectado, iniciando scan automático');
       // Aguardar 1 segundo para garantir que o app está pronto
       const timer = setTimeout(() => {
+        console.log('[WiFi Scanner] Executando scan...');
         scan();
       }, 1000);
       
@@ -72,7 +73,7 @@ export function useWifiScanner(): UseWifiScannerReturn {
     } else {
       console.log('[WiFi Scanner] Não é app nativo, scanner desabilitado');
     }
-  }, [isNative]);
+  }, [isNative, scan]);
 
   return {
     networks,

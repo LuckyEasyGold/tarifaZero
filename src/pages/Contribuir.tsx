@@ -45,12 +45,25 @@ export default function Contribuir() {
       .catch(err => console.error('Erro ao carregar linhas:', err));
   }, []);
 
-  // Verificar Wi-Fi automaticamente quando redes forem detectadas (apenas no APK)
+  // Mostrar card WiFi automaticamente quando linha for selecionada (apenas no APK)
   useEffect(() => {
-    if (wifiScanner.isNative && wifiScanner.networks.length > 0 && !wifiValidated && !isTracking && !showWifiCard) {
+    if (wifiScanner.isNative && selectedLineId && !wifiValidated && !isTracking) {
+      // Fazer scan automático
+      wifiScanner.scan();
+      // Mostrar card após 1 segundo (tempo para o scan completar)
+      const timer = setTimeout(() => {
+        setShowWifiCard(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedLineId, wifiScanner.isNative, wifiValidated, isTracking]);
+
+  // Atualizar card quando redes forem detectadas
+  useEffect(() => {
+    if (wifiScanner.isNative && wifiScanner.networks.length > 0 && selectedLineId && !wifiValidated && !isTracking) {
       setShowWifiCard(true);
     }
-  }, [wifiScanner.networks, wifiScanner.isNative, wifiValidated, isTracking, showWifiCard]);
+  }, [wifiScanner.networks, wifiScanner.isNative, selectedLineId, wifiValidated, isTracking]);
 
   const handleWifiSelection = async (network: { ssid: string; bssid: string }) => {
     setSelectedWifi(network);
@@ -345,6 +358,21 @@ export default function Contribuir() {
                 ))}
               </select>
 
+              {/* Botão para escanear WiFi manualmente (apenas APK) */}
+              {wifiScanner.isNative && selectedLineId && !wifiValidated && (
+                <button
+                  onClick={() => {
+                    wifiScanner.scan();
+                    setShowWifiCard(true);
+                  }}
+                  disabled={wifiScanner.isScanning}
+                  className="w-full mb-4 bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                >
+                  <Wifi size={20} />
+                  {wifiScanner.isScanning ? 'Escaneando...' : 'Escanear Redes Wi-Fi'}
+                </button>
+              )}
+
               <button
                 onClick={handleStartTracking}
                 disabled={!selectedLineId || (wifiScanner.isNative && !wifiValidated)}
@@ -379,38 +407,64 @@ export default function Contribuir() {
         </div>
 
         {/* Card de Seleção de WiFi (apenas APK) */}
-        {wifiScanner.isNative && showWifiCard && wifiScanner.networks.length > 0 && (
+        {wifiScanner.isNative && showWifiCard && (
           <div className="bg-white rounded-lg shadow-lg border-2 border-blue-500 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Wifi size={24} className="text-blue-600" />
               <h2 className="text-lg font-semibold text-gray-900">Escolha o Wi-Fi do Ônibus</h2>
             </div>
             
-            <p className="text-sm text-gray-600 mb-4">
-              Selecione a rede Wi-Fi do ônibus para ajudar a identificar esta linha:
-            </p>
+            {wifiScanner.isScanning ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Escaneando redes Wi-Fi...</p>
+              </div>
+            ) : wifiScanner.networks.length > 0 ? (
+              <>
+                <p className="text-sm text-gray-600 mb-4">
+                  Selecione a rede Wi-Fi do ônibus para ajudar a identificar esta linha:
+                </p>
 
-            <div className="space-y-2 max-h-80 overflow-y-auto">
-              {wifiScanner.networks.map((network, index) => (
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {wifiScanner.networks.map((network, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleWifiSelection(network)}
+                      disabled={wifiCheckInProgress || !selectedLineId}
+                      className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition border border-gray-200 hover:border-blue-300 disabled:opacity-50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Wifi size={16} className="text-blue-600" />
+                        <div className="text-left">
+                          <div className="font-medium text-sm">{network.ssid || 'Rede Oculta'}</div>
+                          <div className="text-xs text-gray-500">{network.bssid}</div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {network.level} dBm
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <Wifi size={48} className="text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">Nenhuma rede Wi-Fi detectada</p>
                 <button
-                  key={index}
-                  onClick={() => handleWifiSelection(network)}
-                  disabled={wifiCheckInProgress || !selectedLineId}
-                  className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition border border-gray-200 hover:border-blue-300 disabled:opacity-50"
+                  onClick={() => wifiScanner.scan()}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
-                  <div className="flex items-center gap-2">
-                    <Wifi size={16} className="text-blue-600" />
-                    <div className="text-left">
-                      <div className="font-medium text-sm">{network.ssid || 'Rede Oculta'}</div>
-                      <div className="text-xs text-gray-500">{network.bssid}</div>
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    {network.level} dBm
-                  </div>
+                  Tentar Novamente
                 </button>
-              ))}
-            </div>
+              </div>
+            )}
+
+            {wifiScanner.error && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800">{wifiScanner.error}</p>
+              </div>
+            )}
 
             {!selectedLineId && (
               <p className="mt-3 text-xs text-center text-red-600">
