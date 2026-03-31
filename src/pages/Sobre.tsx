@@ -64,11 +64,14 @@ export default function Sobre() {
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
       <div className="bg-blue-700 text-white px-4 py-8 text-center">
-        <div className="w-20 h-20 rounded-full bg-white/20 mx-auto mb-3 flex items-center justify-center text-4xl">
-          👨‍💻
-        </div>
-        <h1 className="text-2xl font-bold">Vinícius Ribeiro Ramos</h1>
-        <p className="text-blue-200 text-sm mt-1">Desenvolvedor & Fundador do Tarifa Zero</p>
+        <img 
+          src="/logoTarifaZero.png" 
+          alt="Tarifa Zero" 
+          className="w-24 h-24 mx-auto mb-4 object-contain"
+        />
+        <h1 className="text-2xl font-bold">Tarifa Zero</h1>
+        <p className="text-blue-200 text-sm mt-2">Transporte público colaborativo em tempo real</p>
+        <p className="text-blue-300 text-xs mt-1">Palmas - PR</p>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
@@ -203,7 +206,15 @@ export default function Sobre() {
 
         {/* Contato do Desenvolvedor */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-          <h2 className="font-semibold text-gray-900 mb-3">Contato do Desenvolvedor</h2>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <span className="text-2xl">👨‍💻</span>
+            </div>
+            <div>
+              <h2 className="font-semibold text-gray-900">Vinícius Ribeiro Ramos</h2>
+              <p className="text-xs text-gray-500">Desenvolvedor</p>
+            </div>
+          </div>
           
           <div className="space-y-3">
             <div className="flex items-center gap-3 text-sm">
@@ -232,7 +243,7 @@ export default function Sobre() {
           </div>
 
           <p className="text-xs text-gray-500 mt-4">
-            Entre em contato para reportar bugs, sugerir melhorias ou tirar dúvidas sobre o app.
+            Entre em contato para reportar bugs, sugerir melhorias, tirar dúvidas sobre o app ou contratar.
           </p>
         </div>
 
