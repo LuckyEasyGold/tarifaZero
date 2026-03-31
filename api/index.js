@@ -73,7 +73,7 @@ export default async function handler(req, res) {
           version: "2.2.0",
           versionCode: 3,
           releaseDate: "2026-03-31",
-          downloadUrl: "https://github.com/LuckyEasyGold/tarifaZero/releases/download/v2.2.0/TarifaZero.apk",
+          downloadUrl: "https://tarifazero.vercel.app/TarifaZero.apk",
           changelog: [
             "🔧 Corrigido WiFi Scanner - agora funciona!",
             "✅ Plugin compilado como módulo Gradle",

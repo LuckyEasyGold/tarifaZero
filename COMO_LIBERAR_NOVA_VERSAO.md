@@ -188,25 +188,35 @@ https://github.com/LuckyEasyGold/tarifaZero/releases/download/v2.2.0/TarifaZero.
 
 ### 7. Atualizar URL no version.json
 
-Após criar o release, a URL do APK estará disponível:
+**IMPORTANTE**: Agora o APK fica hospedado no Vercel (pasta public)!
 
+A URL do APK é:
 ```
-https://github.com/LuckyEasyGold/tarifaZero/releases/download/v2.2.0/TarifaZero.apk
+https://tarifazero.vercel.app/TarifaZero.apk
 ```
 
 **Verificar se a URL está correta** em:
-- `public/version.json`
-- `api/index.js` (endpoint /version)
+- `public/version.json` → `"downloadUrl": "https://tarifazero.vercel.app/TarifaZero.apk"`
+- `api/index.js` (endpoint /version) → `downloadUrl: "https://tarifazero.vercel.app/TarifaZero.apk"`
 
-Se precisar corrigir:
+### 8. Commitar APK para o Repositório
 
 ```powershell
-# Editar os arquivos
-# Commitar
-git add .
-git commit -m "fix: atualiza URL do APK no version.json"
+git add public/TarifaZero.apk
+git commit -m "chore: atualiza APK v2.2.0"
 git push origin main
 ```
+
+O Vercel vai fazer deploy automaticamente e o APK estará disponível em:
+```
+https://tarifazero.vercel.app/TarifaZero.apk
+```
+
+**Vantagens**:
+- ✅ Link permanente e estável
+- ✅ Sem necessidade de criar GitHub Release
+- ✅ Pode compartilhar o link diretamente
+- ✅ Vercel serve o arquivo automaticamente
 
 ---
 

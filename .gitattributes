@@ -1,0 +1,3 @@
+# Tratar APK como arquivo binário
+*.apk binary
+*.apk -diff
