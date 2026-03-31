@@ -46,13 +46,30 @@ export function useWifiScanner(): UseWifiScannerReturn {
       if (result && result.networks) {
         setNetworks(result.networks);
         console.log('[WiFi Scanner] Redes encontradas:', result.networks.length);
+        
+        if (result.networks.length === 0) {
+          setError('Nenhuma rede Wi-Fi detectada. Certifique-se de que o WiFi está ligado.');
+        }
       } else {
         setNetworks([]);
+        setError('Nenhuma rede Wi-Fi detectada. Certifique-se de que o WiFi está ligado.');
         console.log('[WiFi Scanner] Nenhuma rede encontrada');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('[WiFi Scanner] Erro ao escanear:', err);
-      setError('Erro ao escanear redes Wi-Fi. Verifique as permissões.');
+      
+      // Mensagens de erro mais específicas
+      let errorMessage = 'Erro ao escanear redes Wi-Fi.';
+      
+      if (err.message && err.message.includes('WiFi está desabilitado')) {
+        errorMessage = 'WiFi está desabilitado. Por favor, habilite o WiFi e tente novamente.';
+      } else if (err.message && err.message.includes('Permissões')) {
+        errorMessage = 'Permissão de localização necessária. Vá em Configurações → Apps → Tarifa Zero → Permissões → Localização (Sempre permitir).';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
       setNetworks([]);
     } finally {
       setIsScanning(false);

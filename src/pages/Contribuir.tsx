@@ -42,12 +42,13 @@ export default function Contribuir() {
   // Mostrar card WiFi automaticamente quando linha for selecionada (apenas no APK)
   useEffect(() => {
     if (wifiScanner.isNative && selectedLineId && !wifiValidated) {
+      console.log('[Contribuir] Linha selecionada, iniciando scan automático');
       // Fazer scan automático
       wifiScanner.scan();
-      // Mostrar card após 1 segundo (tempo para o scan completar)
+      // Mostrar card após 500ms (tempo para o scan iniciar)
       const timer = setTimeout(() => {
         setShowWifiCard(true);
-      }, 1500);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [selectedLineId, wifiScanner.isNative, wifiValidated]);
@@ -150,7 +151,20 @@ export default function Contribuir() {
             Iniciar Criação de Rota
           </h2>
           
-          {/* Indicador de Wi-Fi Validado (apenas APK) */}
+              {/* Indicador de scan em andamento (apenas APK) */}
+              {wifiScanner.isNative && wifiScanner.isScanning && !showWifiCard && selectedLineId && !wifiValidated && (
+                <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
+                  <div className="flex-1">
+                    <div className="font-medium text-purple-900">Escaneando redes Wi-Fi...</div>
+                    <div className="text-sm text-purple-700">
+                      Aguarde enquanto procuramos o Wi-Fi do ônibus
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Indicador de Wi-Fi Validado (apenas APK) */}
               {wifiScanner.isNative && wifiValidated && selectedWifi && (
                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
                   <CheckCircle size={20} className="text-green-600" />

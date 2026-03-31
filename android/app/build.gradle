@@ -21,6 +21,16 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            applicationIdSuffix ""
+        }
+    }
+    
+    // Configurar nome do APK
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "TarifaZero.apk"
+        }
     }
 }
 
