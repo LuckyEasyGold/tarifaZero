@@ -1,4 +1,4 @@
-package com.newsdrop.tarifazero.wifiscanner;
+package com.newsdrop.tarifazero;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -31,39 +31,84 @@ import java.util.List;
     }
 )
 public class WifiScannerPlugin extends Plugin {
-
+    private static final String TAG = "WifiScanner";
     private WifiManager wifiManager;
     private BroadcastReceiver wifiScanReceiver;
 
     @Override
     public void load() {
-        wifiManager = (WifiManager) getContext().getApplicationContext()
-                .getSystemService(Context.WIFI_SERVICE);
-        android.util.Log.d("WifiScanner", "Plugin carregado");
+        android.util.Log.d(TAG, "========================================");
+        android.util.Log.d(TAG, "=== PLUGIN LOAD START ===");
+        android.util.Log.d(TAG, "========================================");
+        android.util.Log.d(TAG, "Class: " + this.getClass().getName());
+        android.util.Log.d(TAG, "Package: " + this.getClass().getPackage().getName());
+        android.util.Log.d(TAG, "ClassLoader: " + this.getClass().getClassLoader());
+        
+        try {
+            Context context = getContext();
+            android.util.Log.d(TAG, "Context: " + (context != null ? context.getClass().getName() : "NULL"));
+            
+            if (context != null) {
+                Context appContext = context.getApplicationContext();
+                android.util.Log.d(TAG, "AppContext: " + (appContext != null ? appContext.getClass().getName() : "NULL"));
+                
+                wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
+                android.util.Log.d(TAG, "WifiManager: " + (wifiManager != null ? wifiManager.getClass().getName() : "NULL"));
+                
+                if (wifiManager != null) {
+                    android.util.Log.d(TAG, "WiFi State: " + (wifiManager.isWifiEnabled() ? "ENABLED" : "DISABLED"));
+                }
+            }
+            
+            android.util.Log.d(TAG, "========================================");
+            android.util.Log.d(TAG, "=== PLUGIN LOADED SUCCESSFULLY ===");
+            android.util.Log.d(TAG, "========================================");
+        } catch (Exception e) {
+            android.util.Log.e(TAG, "========================================");
+            android.util.Log.e(TAG, "=== PLUGIN LOAD FAILED ===");
+            android.util.Log.e(TAG, "========================================");
+            android.util.Log.e(TAG, "Error: " + e.getMessage(), e);
+        }
     }
 
     @PluginMethod
     public void scan(PluginCall call) {
-        android.util.Log.d("WifiScanner", "scan() chamado");
+        android.util.Log.d(TAG, "========================================");
+        android.util.Log.d(TAG, "=== SCAN METHOD CALLED ===");
+        android.util.Log.d(TAG, "========================================");
+        android.util.Log.d(TAG, "Call ID: " + call.getCallbackId());
+        android.util.Log.d(TAG, "Method: scan");
+        android.util.Log.d(TAG, "Thread: " + Thread.currentThread().getName());
+        android.util.Log.d(TAG, "Android Version: " + Build.VERSION.SDK_INT);
+        android.util.Log.d(TAG, "Android Release: " + Build.VERSION.RELEASE);
+        android.util.Log.d(TAG, "Device: " + Build.MANUFACTURER + " " + Build.MODEL);
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+: pedir NEARBY_WIFI_DEVICES
-            android.util.Log.d("WifiScanner", "Android 13+ detectado (API " + Build.VERSION.SDK_INT + ")");
-            if (getPermissionState("nearbyWifi") != com.getcapacitor.PermissionState.GRANTED) {
-                android.util.Log.d("WifiScanner", "Permissão NEARBY_WIFI_DEVICES não concedida, solicitando...");
+            android.util.Log.d(TAG, "Android 13+ detectado (API " + Build.VERSION.SDK_INT + ")");
+            android.util.Log.d(TAG, "Verificando permissão NEARBY_WIFI_DEVICES...");
+            
+            com.getcapacitor.PermissionState state = getPermissionState("nearbyWifi");
+            android.util.Log.d(TAG, "Permission State: " + state);
+            
+            if (state != com.getcapacitor.PermissionState.GRANTED) {
+                android.util.Log.d(TAG, "Permissão NEARBY_WIFI_DEVICES não concedida, solicitando...");
                 requestPermissionForAlias("nearbyWifi", call, "permissionsCallback");
                 return;
             }
-            android.util.Log.d("WifiScanner", "Permissão NEARBY_WIFI_DEVICES OK");
+            android.util.Log.d(TAG, "Permissão NEARBY_WIFI_DEVICES OK");
         } else {
-            // Android < 13: pedir ACCESS_FINE_LOCATION
-            android.util.Log.d("WifiScanner", "Android < 13 detectado (API " + Build.VERSION.SDK_INT + ")");
-            if (getPermissionState("location") != com.getcapacitor.PermissionState.GRANTED) {
-                android.util.Log.d("WifiScanner", "Permissão ACCESS_FINE_LOCATION não concedida, solicitando...");
+            android.util.Log.d(TAG, "Android < 13 detectado (API " + Build.VERSION.SDK_INT + ")");
+            android.util.Log.d(TAG, "Verificando permissão ACCESS_FINE_LOCATION...");
+            
+            com.getcapacitor.PermissionState state = getPermissionState("location");
+            android.util.Log.d(TAG, "Permission State: " + state);
+            
+            if (state != com.getcapacitor.PermissionState.GRANTED) {
+                android.util.Log.d(TAG, "Permissão ACCESS_FINE_LOCATION não concedida, solicitando...");
                 requestPermissionForAlias("location", call, "permissionsCallback");
                 return;
             }
-            android.util.Log.d("WifiScanner", "Permissão ACCESS_FINE_LOCATION OK");
+            android.util.Log.d(TAG, "Permissão ACCESS_FINE_LOCATION OK");
         }
 
         performScan(call);
@@ -71,126 +116,168 @@ public class WifiScannerPlugin extends Plugin {
 
     @PermissionCallback
     private void permissionsCallback(PluginCall call) {
-        android.util.Log.d("WifiScanner", "permissionsCallback() chamado");
+        android.util.Log.d(TAG, "========================================");
+        android.util.Log.d(TAG, "=== PERMISSIONS CALLBACK ===");
+        android.util.Log.d(TAG, "========================================");
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (getPermissionState("nearbyWifi") != com.getcapacitor.PermissionState.GRANTED) {
-                android.util.Log.e("WifiScanner", "Permissão NEARBY_WIFI_DEVICES negada");
+            com.getcapacitor.PermissionState state = getPermissionState("nearbyWifi");
+            android.util.Log.d(TAG, "NEARBY_WIFI_DEVICES State: " + state);
+            
+            if (state != com.getcapacitor.PermissionState.GRANTED) {
+                android.util.Log.e(TAG, "Permissão NEARBY_WIFI_DEVICES NEGADA pelo usuário");
                 call.reject("Permissão 'Dispositivos próximos' necessária para escanear redes Wi-Fi");
                 return;
             }
-            android.util.Log.d("WifiScanner", "Permissão NEARBY_WIFI_DEVICES concedida");
+            android.util.Log.d(TAG, "Permissão NEARBY_WIFI_DEVICES CONCEDIDA");
         } else {
-            if (getPermissionState("location") != com.getcapacitor.PermissionState.GRANTED) {
-                android.util.Log.e("WifiScanner", "Permissão ACCESS_FINE_LOCATION negada");
+            com.getcapacitor.PermissionState state = getPermissionState("location");
+            android.util.Log.d(TAG, "ACCESS_FINE_LOCATION State: " + state);
+            
+            if (state != com.getcapacitor.PermissionState.GRANTED) {
+                android.util.Log.e(TAG, "Permissão ACCESS_FINE_LOCATION NEGADA pelo usuário");
                 call.reject("Permissão de localização necessária para escanear redes Wi-Fi");
                 return;
             }
-            android.util.Log.d("WifiScanner", "Permissão ACCESS_FINE_LOCATION concedida");
+            android.util.Log.d(TAG, "Permissão ACCESS_FINE_LOCATION CONCEDIDA");
         }
+        
         performScan(call);
     }
 
     private void performScan(final PluginCall call) {
-        android.util.Log.d("WifiScanner", "performScan() iniciado");
+        android.util.Log.d(TAG, "========================================");
+        android.util.Log.d(TAG, "=== PERFORM SCAN START ===");
+        android.util.Log.d(TAG, "========================================");
         
         if (wifiManager == null) {
-            android.util.Log.e("WifiScanner", "WifiManager é null");
+            android.util.Log.e(TAG, "ERRO CRÍTICO: WifiManager é NULL!");
+            android.util.Log.e(TAG, "Plugin não foi inicializado corretamente");
             call.reject("Wi-Fi não disponível neste dispositivo");
             return;
         }
+        
+        android.util.Log.d(TAG, "WifiManager OK: " + wifiManager.getClass().getName());
+        
+        boolean isEnabled = wifiManager.isWifiEnabled();
+        android.util.Log.d(TAG, "WiFi Enabled: " + isEnabled);
 
-        if (!wifiManager.isWifiEnabled()) {
-            android.util.Log.w("WifiScanner", "WiFi está desabilitado, tentando usar cache");
-            // Mesmo com Wi-Fi desligado, getScanResults pode retornar cache
-            // Tentamos retornar o cache antes de rejeitar
+        if (!isEnabled) {
+            android.util.Log.w(TAG, "WiFi está DESABILITADO, tentando usar cache...");
             List<ScanResult> cached = wifiManager.getScanResults();
+            android.util.Log.d(TAG, "Cache results: " + (cached != null ? cached.size() + " redes" : "NULL"));
+            
             if (cached != null && !cached.isEmpty()) {
-                android.util.Log.d("WifiScanner", "Cache encontrado com " + cached.size() + " redes");
+                android.util.Log.d(TAG, "Cache encontrado com " + cached.size() + " redes");
                 resolveNetworks(call, cached);
                 return;
             }
-            android.util.Log.e("WifiScanner", "WiFi desabilitado e sem cache disponível");
+            android.util.Log.e(TAG, "WiFi desabilitado e sem cache disponível");
             call.reject("Wi-Fi está desligado. Ative o Wi-Fi e tente novamente.");
             return;
         }
         
-        android.util.Log.d("WifiScanner", "WiFi está habilitado");
+        android.util.Log.d(TAG, "WiFi está HABILITADO, iniciando scan...");
 
-        // Registrar receiver para capturar resultado do scan
+        // Registrar receiver
         wifiScanReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                android.util.Log.d("WifiScanner", "BroadcastReceiver.onReceive() chamado");
+                android.util.Log.d(TAG, "========================================");
+                android.util.Log.d(TAG, "=== BROADCAST RECEIVER TRIGGERED ===");
+                android.util.Log.d(TAG, "========================================");
+                android.util.Log.d(TAG, "Intent Action: " + intent.getAction());
                 
                 try {
                     context.unregisterReceiver(this);
-                    android.util.Log.d("WifiScanner", "BroadcastReceiver desregistrado");
+                    android.util.Log.d(TAG, "BroadcastReceiver desregistrado com sucesso");
                 } catch (Exception e) {
-                    android.util.Log.e("WifiScanner", "Erro ao desregistrar receiver: " + e.getMessage());
+                    android.util.Log.e(TAG, "Erro ao desregistrar receiver: " + e.getMessage(), e);
                 }
 
                 List<ScanResult> results = wifiManager.getScanResults();
-                android.util.Log.d("WifiScanner", "Scan completado. Redes encontradas: " + (results != null ? results.size() : 0));
+                android.util.Log.d(TAG, "Scan Results: " + (results != null ? results.size() + " redes" : "NULL"));
                 
                 if (results != null && !results.isEmpty()) {
+                    android.util.Log.d(TAG, "Scan SUCESSO! " + results.size() + " redes encontradas");
                     resolveNetworks(call, results);
                 } else {
-                    android.util.Log.w("WifiScanner", "Nenhuma rede encontrada");
+                    android.util.Log.w(TAG, "Scan completou mas NENHUMA rede encontrada");
                     call.reject("Nenhuma rede Wi-Fi encontrada");
                 }
             }
         };
 
         IntentFilter intentFilter = new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        getContext().registerReceiver(wifiScanReceiver, intentFilter);
-        android.util.Log.d("WifiScanner", "BroadcastReceiver registrado");
+        android.util.Log.d(TAG, "IntentFilter criado: " + WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        
+        try {
+            getContext().registerReceiver(wifiScanReceiver, intentFilter);
+            android.util.Log.d(TAG, "BroadcastReceiver REGISTRADO com sucesso");
+        } catch (Exception e) {
+            android.util.Log.e(TAG, "ERRO ao registrar BroadcastReceiver: " + e.getMessage(), e);
+            call.reject("Erro ao configurar scanner: " + e.getMessage());
+            return;
+        }
 
-        // Android 9+ throttle: startScan pode falhar silenciosamente.
-        // Se falhar, retornamos os resultados em cache.
         boolean started = wifiManager.startScan();
-        android.util.Log.d("WifiScanner", "wifiManager.startScan() retornou: " + started);
+        android.util.Log.d(TAG, "wifiManager.startScan() retornou: " + started);
         
         if (!started) {
-            android.util.Log.w("WifiScanner", "startScan() falhou, tentando usar cache");
+            android.util.Log.w(TAG, "startScan() retornou FALSE, tentando usar cache...");
             try {
                 getContext().unregisterReceiver(wifiScanReceiver);
-            } catch (Exception ignored) {}
+                android.util.Log.d(TAG, "Receiver desregistrado após falha");
+            } catch (Exception e) {
+                android.util.Log.e(TAG, "Erro ao desregistrar após falha: " + e.getMessage());
+            }
 
-            // Fallback: usar resultados em cache
             List<ScanResult> cached = wifiManager.getScanResults();
+            android.util.Log.d(TAG, "Tentando cache: " + (cached != null ? cached.size() + " redes" : "NULL"));
+            
             if (cached != null && !cached.isEmpty()) {
-                android.util.Log.d("WifiScanner", "Usando cache com " + cached.size() + " redes");
+                android.util.Log.d(TAG, "Usando cache com " + cached.size() + " redes");
                 resolveNetworks(call, cached);
             } else {
-                android.util.Log.e("WifiScanner", "startScan() falhou e sem cache disponível");
+                android.util.Log.e(TAG, "startScan() falhou E sem cache disponível");
                 call.reject("Não foi possível iniciar o scan. Tente novamente em alguns segundos.");
             }
+        } else {
+            android.util.Log.d(TAG, "startScan() iniciado com SUCESSO, aguardando resultado...");
         }
     }
 
     private void resolveNetworks(PluginCall call, List<ScanResult> results) {
-        android.util.Log.d("WifiScanner", "resolveNetworks() chamado com " + results.size() + " redes");
+        android.util.Log.d(TAG, "========================================");
+        android.util.Log.d(TAG, "=== RESOLVE NETWORKS ===");
+        android.util.Log.d(TAG, "========================================");
+        android.util.Log.d(TAG, "Total de redes: " + results.size());
+        
         JSArray networks = new JSArray();
 
-        for (ScanResult result : results) {
+        for (int i = 0; i < results.size(); i++) {
+            ScanResult result = results.get(i);
             JSObject network = new JSObject();
             String ssid = result.SSID;
-            // Android 13+ pode retornar SSID vazio por privacidade sem permissão adequada
+            
             network.put("ssid", (ssid != null && !ssid.isEmpty()) ? ssid : "");
             network.put("bssid", result.BSSID != null ? result.BSSID : "");
             network.put("level", result.level);
             network.put("frequency", result.frequency);
             networks.put(network);
             
-            android.util.Log.d("WifiScanner", "Rede: " + 
+            android.util.Log.d(TAG, "Rede #" + (i+1) + ": " + 
                 (ssid != null && !ssid.isEmpty() ? ssid : "[SSID vazio]") + 
                 " (" + result.BSSID + ") - " + result.level + " dBm @ " + result.frequency + " MHz");
         }
 
         JSObject ret = new JSObject();
         ret.put("networks", networks);
-        android.util.Log.d("WifiScanner", "Retornando " + networks.length() + " redes para o JavaScript");
+        
+        android.util.Log.d(TAG, "========================================");
+        android.util.Log.d(TAG, "=== RETORNANDO " + networks.length() + " REDES PARA JAVASCRIPT ===");
+        android.util.Log.d(TAG, "========================================");
+        
         call.resolve(ret);
     }
 }

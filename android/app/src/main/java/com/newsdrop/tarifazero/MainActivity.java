@@ -3,7 +3,6 @@ package com.newsdrop.tarifazero;
 import android.os.Bundle;
 import android.util.Log;
 import com.getcapacitor.BridgeActivity;
-import com.newsdrop.tarifazero.wifiscanner.WifiScannerPlugin;
 
 public class MainActivity extends BridgeActivity {
     private static final String TAG = "MainActivity";
@@ -14,7 +13,7 @@ public class MainActivity extends BridgeActivity {
         
         Log.d(TAG, "MainActivity onCreate - Registrando WifiScannerPlugin");
         
-        // Registrar plugin customizado
+        // Registrar plugin customizado (agora no mesmo package)
         try {
             registerPlugin(WifiScannerPlugin.class);
             Log.d(TAG, "WifiScannerPlugin registrado com sucesso!");

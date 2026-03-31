@@ -70,14 +70,14 @@ export default async function handler(req, res) {
       return res.status(200).json({
         success: true,
         data: {
-          version: "2.2.0",
-          versionCode: 3,
+          version: "2.3.0",
+          versionCode: 4,
           releaseDate: "2026-03-31",
           downloadUrl: "https://tarifazero.vercel.app/TarifaZero.apk",
           changelog: [
-            "🔧 Corrigido WiFi Scanner - agora funciona!",
-            "✅ Plugin compilado como módulo Gradle",
-            "✅ Sistema de notificação de atualização",
+            "🔧 WiFi Scanner movido para dentro do app",
+            "📝 Logs detalhados para debug",
+            "✅ Removido módulo Gradle separado",
             "✅ Melhorias de estabilidade"
           ],
           minVersion: "2.0.0",
