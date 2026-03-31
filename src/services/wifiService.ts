@@ -1,4 +1,4 @@
-import { WifiNetwork } from '@/hooks/useWifiScanner';
+import type { WifiNetwork } from '@/hooks/useWifiScanner';
 
 interface IdentifyResult {
   success: boolean;

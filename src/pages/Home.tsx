@@ -326,7 +326,7 @@ export default function Home() {
             });
             
             console.log('🚌 Posições restauradas e atualizadas');
-            setPosicoes(posicoesAtualizadas);
+            setPosicoes(posicoesAtualizadas as BusPosition[]);
           } else {
             // Criar posições iniciais (1 por linha)
             const posicoesSimuladas: BusPosition[] = [];
@@ -462,7 +462,7 @@ export default function Home() {
           frameCount = 0;
         }
 
-        return novasPosicoes;
+        return novasPosicoes as BusPosition[];
       });
     }, INTERVALO_MS);
 
