@@ -3,6 +3,7 @@ import { ExternalLink, Heart, Copy, Check, LogOut, Instagram, User, Eye, FileTex
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 
 interface Supporter {
   id: string;
@@ -53,10 +54,11 @@ export default function Sobre() {
 
   const handleClose = () => {
     if (isNative) {
-      // No app nativo, minimiza para background
-      (window as any).navigator?.app?.exitApp?.();
+      // No app nativo, fecha o app
+      App.exitApp();
     } else {
-      window.close();
+      // No browser, tenta fechar a aba (pode não funcionar por segurança)
+      toast.info('Feche a aba do navegador para sair');
     }
   };
 
