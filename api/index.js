@@ -65,6 +65,28 @@ export default async function handler(req, res) {
       return await handleSupporters(req, res, path);
     }
 
+    // Version check endpoint
+    if (path === '/version' && req.method === 'GET') {
+      return res.status(200).json({
+        success: true,
+        data: {
+          version: "2.1.0",
+          versionCode: 2,
+          releaseDate: "2026-03-30",
+          downloadUrl: "https://github.com/LuckyEasyGold/tarifaZero/releases/download/v2.1.0/TarifaZero.apk",
+          changelog: [
+            "✅ Suporte completo para Android 13+",
+            "✅ Sistema de contribuidores com doações Pix",
+            "✅ Melhorias no WiFi Scanner",
+            "✅ Página Sobre com perfil e apoiadores",
+            "✅ Correções de bugs e melhorias de performance"
+          ],
+          minVersion: "2.0.0",
+          forceUpdate: false
+        }
+      });
+    }
+
     return res.status(404).json({ error: 'Endpoint not found' });
 
   } catch (error) {

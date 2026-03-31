@@ -5,6 +5,7 @@ import BottomNav from '@/components/BottomNav';
 import SplashScreen from '@/components/SplashScreen';
 import WelcomeScreen from '@/components/WelcomeScreen';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
+import UpdateNotification from '@/components/UpdateNotification';
 import Home from '@/pages/Home';
 import Linhas from '@/pages/Linhas';
 import LinhaDetalhes from '@/pages/LinhaDetalhes';
@@ -91,6 +92,9 @@ function App() {
     <BrowserRouter>
       <div className="min-h-screen bg-gray-50">
         <Toaster position="top-center" />
+        
+        {/* Notificação de atualização (apenas no app nativo) */}
+        <UpdateNotification />
         
         <Routes>
           <Route path="/" element={<Home />} />

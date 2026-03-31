@@ -201,9 +201,44 @@ export default function Sobre() {
           </button>
         </div>
 
+        {/* Contato do Desenvolvedor */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+          <h2 className="font-semibold text-gray-900 mb-3">Contato do Desenvolvedor</h2>
+          
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 text-sm">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-blue-600">📧</span>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Email</p>
+                <a href="mailto:viniciusribramos@gmail.com" className="text-blue-600 hover:text-blue-800 font-medium">
+                  viniciusribramos@gmail.com
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 text-sm">
+              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-green-600">📱</span>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">WhatsApp</p>
+                <a href="https://wa.me/5542991066464" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-800 font-medium">
+                  (42) 99106-6464
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-xs text-gray-500 mt-4">
+            Entre em contato para reportar bugs, sugerir melhorias ou tirar dúvidas sobre o app.
+          </p>
+        </div>
+
         {/* Versão */}
         <p className="text-center text-xs text-gray-400 pb-2">
-          Tarifa Zero v2.1 · Palmas/PR · {new Date().getFullYear()}
+          Tarifa Zero v2.1.0 · Palmas/PR · {new Date().getFullYear()}
         </p>
       </div>
     </div>
