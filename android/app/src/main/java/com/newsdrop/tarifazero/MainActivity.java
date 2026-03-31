@@ -3,6 +3,7 @@ package com.newsdrop.tarifazero;
 import android.os.Bundle;
 import android.util.Log;
 import com.getcapacitor.BridgeActivity;
+import com.newsdrop.tarifazero.wifiscanner.WifiScannerPlugin;
 
 public class MainActivity extends BridgeActivity {
     private static final String TAG = "MainActivity";

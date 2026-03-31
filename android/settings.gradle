@@ -2,4 +2,7 @@ include ':app'
 include ':capacitor-cordova-android-plugins'
 project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
 
+include ':capacitor-wifi-scanner'
+project(':capacitor-wifi-scanner').projectDir = new File('./capacitor-wifi-scanner/')
+
 apply from: 'capacitor.settings.gradle'
