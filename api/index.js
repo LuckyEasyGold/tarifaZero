@@ -60,6 +60,11 @@ export default async function handler(req, res) {
       return await handleWifi(req, res, path);
     }
 
+    // Supporters endpoints
+    if (path.startsWith('/supporters')) {
+      return await handleSupporters(req, res, path);
+    }
+
     return res.status(404).json({ error: 'Endpoint not found' });
 
   } catch (error) {
@@ -475,6 +480,32 @@ async function handleWifi(req, res, path) {
         colorHex: wifi.line.colorHex
       }
     });
+  }
+
+  return res.status(404).json({ error: 'Endpoint not found' });
+}
+
+// Supporters handlers
+async function handleSupporters(req, res, path) {
+  // GET /supporters - lista todos os apoiadores ativos
+  if (path === '/supporters' && req.method === 'GET') {
+    const supporters = await prisma.supporter.findMany({
+      where: { active: true },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, name: true, socialUrl: true, socialLabel: true, avatarUrl: true }
+    });
+    return res.status(200).json({ success: true, data: supporters });
+  }
+
+  // POST /supporters - adiciona um apoiador (uso interno/admin)
+  if (path === '/supporters' && req.method === 'POST') {
+    const { name, socialUrl, socialLabel, avatarUrl } = req.body;
+    if (!name) return res.status(400).json({ error: 'name é obrigatório' });
+
+    const supporter = await prisma.supporter.create({
+      data: { name, socialUrl, socialLabel, avatarUrl }
+    });
+    return res.status(201).json({ success: true, data: supporter });
   }
 
   return res.status(404).json({ error: 'Endpoint not found' });

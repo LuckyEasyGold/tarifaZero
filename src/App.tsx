@@ -12,6 +12,7 @@ import BuscarRota from '@/pages/BuscarRota';
 import Contribuir from '@/pages/Contribuir';
 import Ranking from '@/pages/Ranking';
 import PoliticaPrivacidade from '@/pages/PoliticaPrivacidade';
+import Sobre from '@/pages/Sobre';
 import './App.css';
 
 // v2.1 - Splash sempre ativo, simulação de ônibus, navegação corrigida
@@ -99,6 +100,7 @@ function App() {
           <Route path="/contribuir" element={<Contribuir />} />
           <Route path="/ranking" element={<Ranking />} />
           <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
+          <Route path="/sobre" element={<Sobre />} />
         </Routes>
 
         <BottomNav />

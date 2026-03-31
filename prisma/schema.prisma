@@ -192,6 +192,18 @@ model TempStop {
   @@map("temp_stops")
 }
 
+model Supporter {
+  id           String   @id @default(cuid())
+  name         String
+  socialUrl    String?
+  socialLabel  String?
+  avatarUrl    String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  @@map("supporters")
+}
+
 model SpeedStats {
   id           String   @id @default(cuid())
   lineId       String

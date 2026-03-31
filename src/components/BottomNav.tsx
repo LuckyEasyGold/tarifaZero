@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Bus, Search, MapPin } from 'lucide-react';
+import { Home, Bus, Search, MapPin, Info } from 'lucide-react';
 
 export default function BottomNav() {
   const location = useLocation();
@@ -48,6 +48,16 @@ export default function BottomNav() {
           >
             <MapPin size={24} />
             <span className="text-xs mt-1">Contribuir</span>
+          </Link>
+
+          <Link
+            to="/sobre"
+            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+              isActive('/sobre') ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Info size={24} />
+            <span className="text-xs mt-1">Sobre</span>
           </Link>
         </div>
       </div>
