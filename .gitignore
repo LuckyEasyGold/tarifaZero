@@ -43,3 +43,4 @@ api/dist
 # Android/Gradle local config
 local.properties
 android/local.properties
+android/gradle.properties.local

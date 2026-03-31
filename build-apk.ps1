@@ -4,6 +4,23 @@ Write-Host "Gerando APK do Tarifa Zero" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
+# 0. Configurar Java local
+Write-Host "[0/5] Configurando Java local..." -ForegroundColor Yellow
+if (Test-Path "android/gradle.properties.local") {
+    # Fazer backup do gradle.properties original
+    Copy-Item "android/gradle.properties" "android/gradle.properties.backup" -Force
+    
+    # Adicionar configuração local ao gradle.properties
+    $originalContent = Get-Content "android/gradle.properties" -Raw
+    $localConfig = Get-Content "android/gradle.properties.local" -Raw
+    Set-Content "android/gradle.properties" "$originalContent`n$localConfig"
+    
+    Write-Host "Configuração local aplicada" -ForegroundColor Green
+} else {
+    Write-Host "Arquivo gradle.properties.local não encontrado, usando configuração padrão" -ForegroundColor Yellow
+}
+Write-Host ""
+
 # 1. Gerar Prisma Client
 Write-Host "[1/5] Gerando Prisma Client..." -ForegroundColor Yellow
 npm run db:generate
@@ -77,4 +94,10 @@ if (Test-Path $apkSource) {
 } else {
     Write-Host "Erro: APK não encontrado em $apkSource" -ForegroundColor Red
     exit 1
+}
+
+# Restaurar gradle.properties original
+if (Test-Path "android/gradle.properties.backup") {
+    Move-Item "android/gradle.properties.backup" "android/gradle.properties" -Force
+    Write-Host "Configuração original restaurada" -ForegroundColor Gray
 }
