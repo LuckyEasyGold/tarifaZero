@@ -1,136 +1,158 @@
-# 📝 Alterações Recentes - 30/03/2026
-
-## ✅ Correções Implementadas
-
-### 1. Favicon Configurado
-- ✅ Adicionado `<link rel="icon">` no `index.html` apontando para `/logoTarifaZero.png`
-- ✅ Favicon agora aparece nas abas do navegador
-- 📄 Arquivo: `index.html`
-
-### 2. Mensagens da Página Contribuir Corrigidas
-- ✅ Alterado: "Conecte-se ao Wi-Fi do ônibus" → "Primeiro escolha a rede Wi-Fi do ônibus abaixo"
-- ✅ Card de redes WiFi agora é clicável para selecionar a rede
-- ✅ Mensagem de instrução adicionada: "Primeiro passo: Escolha a rede Wi-Fi do ônibus abaixo"
-- ✅ Redes WiFi ficam com fundo verde quando validadas
-- 📄 Arquivo: `src/pages/Contribuir.tsx`
-
-**Fluxo Correto:**
-1. Usuário abre página Contribuir
-2. App escaneia redes WiFi automaticamente
-3. Usuário clica na rede WiFi do ônibus
-4. Sistema valida e identifica a linha
-5. Botão "Iniciar Tracking" é habilitado
-6. Usuário inicia o tracking
-
-### 3. Página de Ranking Corrigida
-- ✅ Corrigido erro: `Cannot read properties of undefined (reading 'totalUsers')`
-- ✅ API retorna array diretamente, componente agora transforma para o formato esperado
-- ✅ Nicknames agora aparecem corretamente
-- ✅ Se usuário não tem nickname, aparece `UsuárioXXX` (primeiros 3 caracteres do anonymousId)
-- 📄 Arquivo: `src/pages/Ranking.tsx`
-
-**Formato de dados corrigido:**
-```javascript
-// Antes (esperado mas não retornado pela API):
-{ ranking: [...], stats: {...} }
-
-// Agora (transformado no frontend):
-const ranking = result.data.map((user, index) => ({
-  position: index + 1,
-  nickname: user.nickname || `Usuário${user.anonymousId.slice(0, 3)}`,
-  // ... outros campos
-}));
-```
-
-### 4. Configuração do Java para Build Android
-- ✅ Ajustado de Java 21 para Java 17
-- ✅ Configuração global no `android/build.gradle`
-- ✅ Configuração do Kotlin JVM target para 17
-- ✅ APK gerado com sucesso (7.5 MB)
-- 📄 Arquivos:
-  - `android/build.gradle`
-  - `android/app/capacitor.build.gradle`
-  - `android/capacitor-cordova-android-plugins/build.gradle`
-  - `android/gradle.properties`
+# Tarifa Zero — Estado Atual do Projeto
+> Atualizado em: 30/03/2026 | Versão: 2.1
 
 ---
 
-## 📱 Ícone do Aplicativo (Pendente)
+## Stack
 
-Para configurar o ícone do app Android usando `logoTarifaZero.png`:
-
-1. Gerar ícones em múltiplos tamanhos usando: https://romannurik.github.io/AndroidAssetStudio/icons-launcher.html
-2. Substituir arquivos em `android/app/src/main/res/mipmap-*/`
-3. Fazer build e sync novamente
-
-📖 Guia completo: `CONFIGURAR_ICONE_APP.md`
+| Camada | Tecnologia |
+|---|---|
+| Frontend | React 18 + TypeScript + Vite 7 + TailwindCSS |
+| Mobile | Capacitor 8 (Android) |
+| Backend | Node.js serverless (Vercel Functions) |
+| Banco | PostgreSQL + PostGIS (Neon) |
+| ORM | Prisma 5 |
+| Deploy Web | Vercel |
+| Deploy APK | GitHub Actions → artifact |
 
 ---
 
-## 🚀 Como Gerar Novo APK
+## Páginas / Rotas
+
+| Rota | Componente | Descrição |
+|---|---|---|
+| `/` | `Home` | Mapa com posições dos ônibus e usuários ativos |
+| `/linhas` | `Linhas` | Lista de linhas disponíveis |
+| `/linha/:id` | `LinhaDetalhes` | Detalhes de uma linha (rota, paradas) |
+| `/buscar` | `BuscarRota` | Busca de rota origem → destino |
+| `/contribuir` | `Contribuir` | Fluxo de tracking + identificação por Wi-Fi |
+| `/ranking` | `Ranking` | Gamificação — ranking de contribuidores |
+| `/sobre` | `Sobre` | Perfil do criador, Pix, apoiadores, LGPD |
+| `/politica-privacidade` | `PoliticaPrivacidade` | Termos e política de privacidade |
+
+---
+
+## API Endpoints (`/api/*`)
+
+### Linhas
+- `GET /api/lines` — lista todas as linhas
+- `GET /api/lines/:id` — detalhes de uma linha (com rotas e paradas)
+
+### Paradas
+- `GET /api/stops/nearby?lat&lng&radius` — paradas próximas (PostGIS)
+- `POST /api/stops/mark` — marcar parada temporária durante tracking
+
+### Tracking
+- `POST /api/tracking/session` — iniciar/encerrar sessão de tracking
+- `POST /api/tracking/submit` — enviar lote de pontos GPS
+
+### Usuários
+- `POST /api/users/create` — criar/atualizar usuário (upsert por anonymousId)
+- `GET /api/users/active` — usuários online nos últimos 5 min
+- `POST /api/users/heartbeat` — atualizar posição e status online
+
+### Wi-Fi
+- `POST /api/wifi/save` — salvar rede Wi-Fi associada a uma linha
+- `POST /api/wifi/identify` — identificar linha pelo SSID/BSSID
+
+### Gamificação
+- `GET /api/gamification/ranking?period&limit` — ranking de usuários
+- `GET /api/gamification/user?anonymousId` — dados de um usuário
+- `POST /api/gamification/user` — atualizar pontos/nickname
+
+### Apoiadores
+- `GET /api/supporters` — lista apoiadores ativos
+- `POST /api/supporters` — adicionar apoiador (uso interno)
+
+---
+
+## Banco de Dados (Prisma + PostGIS)
+
+| Tabela | Descrição |
+|---|---|
+| `users` | Usuários anônimos com pontos, nível, badges, posição atual |
+| `lines` | Linhas de ônibus (código, cor, horários) |
+| `routes` | Rotas ida/volta por linha |
+| `route_points` | Pontos do shape da rota (sequência lat/lng) |
+| `stops` | Paradas oficiais por linha |
+| `trips` | Viagens agendadas/realizadas |
+| `vehicle_positions` | Posições crowdsourced dos ônibus |
+| `user_tracks` | Pontos GPS enviados pelos usuários |
+| `wifi_networks` | Redes Wi-Fi associadas a linhas (SSID/BSSID) |
+| `temp_stops` | Paradas marcadas durante tracking (aguardam validação) |
+| `supporters` | Apoiadores do projeto (exibidos na página Sobre) |
+| `speed_stats` | Velocidade média por trecho/horário (aprendizado) |
+
+---
+
+## Mobile (Capacitor + Android)
+
+- App ID: `com.newsdrop.tarifazero`
+- Plugin nativo customizado: `WifiScannerPlugin.java` — escaneia redes Wi-Fi
+- Permissões: `ACCESS_FINE_LOCATION`, `ACCESS_WIFI_STATE`, `NEARBY_WIFI_DEVICES` (Android 13+)
+- Build: Java 17 + Gradle
+- Servidor: aponta para `https://tarifazero.vercel.app`
+
+---
+
+## CI/CD
+
+### Vercel (web)
+- Deploy automático no push para `main`
+- Build: `npm run build` (Vite)
+- Variáveis necessárias: `DATABASE_URL`
+
+### GitHub Actions (APK)
+- Arquivo: `.github/workflows/android-build.yml`
+- Trigger: push em `main` ou manual (`workflow_dispatch`)
+- Node 24 + Java 17 + Gradle
+- Gera `app-debug.apk` disponível como artifact por 30 dias
+
+---
+
+## Funcionalidades Implementadas
+
+- Splash screen + tela de boas-vindas com aceite de termos (LGPD)
+- Geração de ID anônimo único por usuário
+- Mapa interativo (Leaflet) com posições simuladas dos ônibus
+- Modo gravação de rota com envio de pontos GPS em tempo real
+- Identificação de linha por rede Wi-Fi (SSID/BSSID) no app nativo
+- Ranking de contribuidores com badges e níveis
+- Heartbeat de presença (usuários ativos no mapa)
+- Marcação de paradas temporárias durante tracking
+- Página Sobre com perfil, Pix, apoiadores e LGPD
+- PWA install prompt
+- Favicon configurado
+
+---
+
+## Pendente / Próximos Passos
+
+- Ícone personalizado do app Android (substituir mipmap-*)
+- Motor de inferência de posição quando sem dados recentes
+- Validação e promoção de `temp_stops` para paradas oficiais
+- Endpoint `POST /route/search` (roteador origem → destino)
+- Sistema de velocidade média por trecho (`speed_stats`)
+- Notificações push (chegada do ônibus)
+- Deploy de APK de release assinado (keystore)
+
+---
+
+## Comandos Úteis
 
 ```bash
-# 1. Build do frontend
+# Desenvolvimento local
+npm run dev
+
+# Build web
 npm run build
 
-# 2. Sincronizar com Android
-npx cap sync android
+# Sincronizar e abrir Android Studio
+npm run android:sync
+npm run android:open
 
-# 3. Gerar APK
-cd android
-$env:ANDROID_HOME = "C:\Users\vinic\AppData\Local\Android\Sdk"
-.\gradlew.bat clean assembleDebug
+# Banco de dados
+npm run db:studio      # Prisma Studio
+npm run db:push        # Aplicar schema
+npm run db:seed        # Popular dados iniciais
 ```
-
-APK gerado em: `android/app/build/outputs/apk/debug/app-debug.apk`
-
----
-
-## 🧪 Testes Necessários
-
-Após instalar o novo APK:
-
-### Página Contribuir
-- [ ] Mensagem correta aparece (escolher WiFi, não conectar)
-- [ ] Card de redes WiFi é clicável
-- [ ] Ao clicar em uma rede, ela é validada
-- [ ] Botão "Iniciar Tracking" só habilita após escolher WiFi
-- [ ] Tracking funciona normalmente
-
-### Página Ranking
-- [ ] Página abre sem erro (sem tela branca)
-- [ ] Lista de usuários aparece
-- [ ] Nicknames aparecem corretamente
-- [ ] Usuários sem nickname aparecem como "UsuárioXXX"
-- [ ] Estatísticas aparecem no topo
-
-### Favicon
-- [ ] Favicon aparece na aba do navegador (web)
-- [ ] Ícone do app aparece na tela inicial (após configurar)
-
----
-
-## 📦 Arquivos Modificados
-
-1. `index.html` - Favicon adicionado
-2. `src/pages/Contribuir.tsx` - Mensagens e fluxo WiFi corrigidos
-3. `src/pages/Ranking.tsx` - Transformação de dados da API corrigida
-4. `android/build.gradle` - Configuração Java 17
-5. `android/app/capacitor.build.gradle` - Java 17
-6. `android/capacitor-cordova-android-plugins/build.gradle` - Java 17
-7. `android/gradle.properties` - JAVA_HOME configurado
-
-## 📄 Arquivos Criados
-
-1. `CONFIGURAR_ICONE_APP.md` - Guia para configurar ícone do app
-2. `ALTERACOES_RECENTES.md` - Este arquivo
-
----
-
-## 🎯 Próximos Passos
-
-1. Gerar ícones do app em múltiplos tamanhos
-2. Substituir ícones no projeto Android
-3. Gerar novo APK com ícone personalizado
-4. Testar todas as funcionalidades no celular
-5. Fazer deploy no Vercel (git push)
