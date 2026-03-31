@@ -38,8 +38,21 @@ jobs:
     - name: Check TypeScript types
       run: npx tsc --noEmit || echo "TypeScript check failed, continuing with build..."
 
+    - name: Debug - Show environment
+      run: |
+        echo "Node version: $(node --version)"
+        echo "NPM version: $(npm --version)"
+        echo "Working directory: $(pwd)"
+        echo "Files in root:"
+        ls -la
+        echo "Package.json scripts:"
+        cat package.json | grep -A 10 '"scripts"'
+
     - name: Build web app
       run: npm run build
+      env:
+        NODE_ENV: production
+        CI: true
 
     - name: Verify dist folder
       run: |
@@ -53,12 +66,30 @@ jobs:
     - name: Sync Capacitor
       run: npx cap sync android
 
+    - name: Verify Capacitor sync
+      run: |
+        echo "Checking Android project structure..."
+        if [ ! -d "android/app/src/main/assets/public" ]; then
+          echo "❌ Capacitor sync failed - public assets not found!"
+          exit 1
+        fi
+        echo "✅ Capacitor sync successful"
+        echo "Assets folder contents:"
+        ls -la android/app/src/main/assets/public/ | head -20
+
     - name: Grant execute permission for gradlew
       run: chmod +x android/gradlew
 
     - name: Build APK with Gradle
       working-directory: android
-      run: ./gradlew assembleDebug --no-daemon --stacktrace
+      run: |
+        echo "Starting Gradle build..."
+        ./gradlew assembleDebug --no-daemon --stacktrace --info || {
+          echo "❌ Gradle build failed!"
+          echo "Checking for error logs..."
+          find . -name "*.log" -type f -exec echo "=== {} ===" \; -exec cat {} \;
+          exit 1
+        }
 
     - name: Verify APK was created
       run: |
