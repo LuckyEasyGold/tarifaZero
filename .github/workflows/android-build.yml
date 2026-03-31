@@ -8,40 +8,36 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
-        
+        node-version: '24'
+
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
-        
+
     - name: Create dummy .env
       run: echo "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy" > .env
-        
+
     - name: Install dependencies
       run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
-      
+
     - name: Generate Prisma Client
       run: npx prisma generate || echo "Prisma generate failed, continuing..."
-      
-    - name: Check TypeScript compilation
-      run: npx tsc -b --verbose || echo "TypeScript check completed with warnings"
-      
+
     - name: Build web app
-      run: |
-        echo "Starting Vite build..."
-        npm run build
-        echo "Build completed successfully"
-      
+      run: npm run build
+
     - name: Verify dist folder
       run: |
         if [ ! -d "dist" ]; then
@@ -50,17 +46,17 @@ jobs:
         fi
         echo "dist folder contents:"
         ls -la dist/
-      
+
     - name: Sync Capacitor
       run: npx cap sync android
-      
+
     - name: Grant execute permission for gradlew
       run: chmod +x android/gradlew
-      
+
     - name: Build APK with Gradle
       working-directory: android
       run: ./gradlew assembleDebug --no-daemon --stacktrace
-        
+
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       if: success()
@@ -68,7 +64,7 @@ jobs:
         name: tarifazero-debug-apk
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
-        
+
     - name: Upload build logs on failure
       uses: actions/upload-artifact@v4
       if: failure()
