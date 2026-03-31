@@ -8,6 +8,19 @@
 
 Antes de abrir o Android Studio, execute:
 
+**PowerShell (Windows)**:
+```powershell
+# 1. Limpar build
+Remove-Item -Recurse -Force android/app/build -ErrorAction SilentlyContinue
+
+# 2. Build frontend
+npm run build
+
+# 3. Sincronizar Capacitor
+npx cap sync android
+```
+
+**Bash (Linux/Mac)**:
 ```bash
 # 1. Limpar build
 rm -rf android/app/build
@@ -116,7 +129,8 @@ Se `WifiScannerPlugin.java` não aparecer:
 4. Clicar em "Desinstalar"
 
 **Opção B - Via ADB** (mais rápido):
-```bash
+```powershell
+# PowerShell ou CMD
 adb uninstall com.newsdrop.tarifazero
 ```
 
