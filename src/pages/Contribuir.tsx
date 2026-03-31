@@ -22,6 +22,9 @@ export default function Contribuir() {
   const [selectedWifi, setSelectedWifi] = useState<{ ssid: string; bssid: string } | null>(null);
   const [showWifiCard, setShowWifiCard] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [manualBssid, setManualBssid] = useState('');
+  const [manualSsid, setManualSsid] = useState('');
+  const [showManualInput, setShowManualInput] = useState(false);
   
   const geolocation = useGeolocation();
   const wifiScanner = useWifiScanner();
@@ -91,6 +94,35 @@ export default function Contribuir() {
     } finally {
       setWifiCheckInProgress(false);
     }
+  };
+
+  const handleManualBssidSubmit = async () => {
+    const bssidPattern = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+    
+    if (!manualBssid.trim()) {
+      toast.error('Digite o MAC/BSSID do WiFi');
+      return;
+    }
+    
+    if (!bssidPattern.test(manualBssid.trim())) {
+      toast.error('MAC/BSSID inválido. Formato: AA:BB:CC:DD:EE:FF');
+      return;
+    }
+    
+    await handleWifiSelection({
+      ssid: manualSsid.trim() || 'Manual',
+      bssid: manualBssid.trim().toUpperCase()
+    });
+    
+    setShowManualInput(false);
+    setManualBssid('');
+    setManualSsid('');
+  };
+
+  const handleSkipWifi = () => {
+    setWifiValidated(true);
+    setSelectedWifi({ ssid: 'GPS Only', bssid: 'GPS-BASED' });
+    toast.success('Modo GPS ativado - WiFi não será usado', { duration: 3000 });
   };
 
   const handleStartTracking = async () => {
