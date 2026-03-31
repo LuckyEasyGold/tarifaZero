@@ -57,8 +57,8 @@ export default function Sobre() {
       // No app nativo, fecha o app
       App.exitApp();
     } else {
-      // No browser, tenta fechar a aba (pode não funcionar por segurança)
-      toast.info('Feche a aba do navegador para sair');
+      // No browser, não é possível fechar a aba por segurança
+      toast.success('Feche a aba do navegador para sair');
     }
   };
 
