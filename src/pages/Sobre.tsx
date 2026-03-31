@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useState, useEffect } from 'react';
 import { ExternalLink, Github, Globe, Heart, Copy, Check, LogOut, Instagram, User, Eye, FileText, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
