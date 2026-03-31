@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ExternalLink, Github, Globe, Heart, Copy, Check, LogOut, Instagram, User, Eye, FileText, Pencil } from 'lucide-react';
+import { ExternalLink, Heart, Copy, Check, LogOut, Instagram, User, Eye, FileText, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Capacitor } from '@capacitor/core';
@@ -128,47 +128,7 @@ export default function Sobre() {
           </div>
         </div>
 
-        {/* Bio */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-          <h2 className="font-semibold text-gray-900 mb-3">Sobre o criador</h2>
-          <p className="text-sm text-gray-700 leading-relaxed">
-            Profissional com mais de 15 anos de experiência em gestão de operações, processos e equipes,
-            atuando em ambientes públicos e privados com foco em eficiência e melhoria contínua.
-            Minha trajetória une visão estratégica à execução técnica.
-          </p>
-          <p className="text-sm text-gray-700 leading-relaxed mt-3">
-            🚀 Founder do <span className="font-medium text-blue-700">WhoDo</span>, startup incubada em Palmas/PR,
-            com Fintech, MMN em 4 níveis e desenvolvimento Full-Stack.
-          </p>
-          <p className="text-sm text-gray-700 leading-relaxed mt-3">
-            📊 Ex-Gestor de Frotas em regional com 13 cidades — reduzi o tempo médio de parada de veículos
-            de 25 para 3 dias e gerei economia de 12,5% em manutenção. Unidade premiada com o PNQS.
-          </p>
-          <p className="text-sm text-gray-700 leading-relaxed mt-3">
-            💻 Stack: JavaScript, TypeScript, React, Python, Ruby on Rails.
-          </p>
-        </div>
-
-        {/* Links */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-          <h2 className="font-semibold text-gray-900 mb-3">Portfólio & Redes</h2>
-          <div className="space-y-2">
-            {[
-              { label: 'newsdrop.net.br', url: 'https://newsdrop.net.br', icon: <Globe size={16} /> },
-              { label: 'whodo.newsdrop.net.br', url: 'https://whodo.newsdrop.net.br', icon: <Globe size={16} /> },
-              { label: 'Tarifa Zero Web', url: 'https://newsdrop.net.br/TarifaZero/', icon: <Globe size={16} /> },
-              { label: 'GitHub: LuckyEasyGold', url: 'https://github.com/LuckyEasyGold', icon: <Github size={16} /> },
-            ].map(link => (
-              <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900 py-1">
-                {link.icon}
-                {link.label}
-                <ExternalLink size={12} className="text-gray-400" />
-              </a>
-            ))}
-          </div>
-        </div>
-
+        
         {/* Apoie o projeto */}
         <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200 p-5">
           <div className="flex items-center gap-2 mb-2">
