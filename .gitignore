@@ -43,3 +43,7 @@ api/dist
 # APK files
 *.apk
 TarifaZero.apk
+
+# Android/Gradle local config
+local.properties
+android/local.properties
