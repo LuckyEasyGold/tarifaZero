@@ -35,6 +35,9 @@ jobs:
     - name: Generate Prisma Client
       run: npx prisma generate || echo "Prisma generate failed, continuing..."
 
+    - name: Check TypeScript types
+      run: npx tsc --noEmit || echo "TypeScript check failed, continuing with build..."
+
     - name: Build web app
       run: npm run build
 
@@ -57,12 +60,24 @@ jobs:
       working-directory: android
       run: ./gradlew assembleDebug --no-daemon --stacktrace
 
+    - name: Verify APK was created
+      run: |
+        if [ -f "android/app/build/outputs/apk/debug/TarifaZero.apk" ]; then
+          echo "✅ APK created successfully!"
+          ls -lh android/app/build/outputs/apk/debug/TarifaZero.apk
+        else
+          echo "❌ APK not found!"
+          echo "Checking for any APK files:"
+          find android/app/build/outputs/apk -name "*.apk" || echo "No APK files found"
+          exit 1
+        fi
+
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       if: success()
       with:
         name: tarifazero-debug-apk
-        path: android/app/build/outputs/apk/debug/app-debug.apk
+        path: android/app/build/outputs/apk/debug/TarifaZero.apk
         retention-days: 30
 
     - name: Upload build logs on failure
@@ -75,3 +90,4 @@ jobs:
           npm-debug.log
           *.log
         retention-days: 7
+        if-no-files-found: ignore
