@@ -12,8 +12,8 @@ interface VersionInfo {
   forceUpdate: boolean;
 }
 
-const CURRENT_VERSION = '2.1.0';
-const CURRENT_VERSION_CODE = 2;
+const CURRENT_VERSION = '2.2.0';
+const CURRENT_VERSION_CODE = 3;
 
 export default function UpdateNotification() {
   const [updateAvailable, setUpdateAvailable] = useState(false);

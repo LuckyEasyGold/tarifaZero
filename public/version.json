@@ -1,14 +1,13 @@
 {
-  "version": "2.1.0",
-  "versionCode": 2,
-  "releaseDate": "2026-03-30",
-  "downloadUrl": "https://github.com/LuckyEasyGold/tarifaZero/releases/download/v2.1.0/TarifaZero.apk",
+  "version": "2.2.0",
+  "versionCode": 3,
+  "releaseDate": "2026-03-31",
+  "downloadUrl": "https://github.com/LuckyEasyGold/tarifaZero/releases/download/v2.2.0/TarifaZero.apk",
   "changelog": [
-    "✅ Suporte completo para Android 13+",
-    "✅ Sistema de contribuidores com doações Pix",
-    "✅ Melhorias no WiFi Scanner",
-    "✅ Página Sobre com perfil e apoiadores",
-    "✅ Correções de bugs e melhorias de performance"
+    "🔧 Corrigido WiFi Scanner - agora funciona!",
+    "✅ Plugin compilado como módulo Gradle",
+    "✅ Sistema de notificação de atualização",
+    "✅ Melhorias de estabilidade"
   ],
   "minVersion": "2.0.0",
   "forceUpdate": false
