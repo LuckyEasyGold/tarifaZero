@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ExternalLink, Heart, Copy, Check, LogOut, Instagram, User, Eye, FileText, Pencil } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
