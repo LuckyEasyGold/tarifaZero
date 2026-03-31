@@ -40,10 +40,6 @@ prisma/migrations
 api/dist
 .env*.local
 
-# APK files
-*.apk
-TarifaZero.apk
-
 # Android/Gradle local config
 local.properties
 android/local.properties
