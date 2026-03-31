@@ -16,7 +16,7 @@
 
 ## 📋 Sobre o Projeto
 
-Tarifa Zero é uma plataforma completa de rastreamento de ônibus em tempo real que utiliza **crowdsourcing** para mapear rotas e posições dos veículos. O sistema permite que usuários contribuam com dados GPS enquanto estão no ônibus, criando um mapa colaborativo e preciso do transporte público de Palmas - TO.
+Tarifa Zero é uma plataforma completa de rastreamento de ônibus em tempo real que utiliza **crowdsourcing** para mapear rotas e posições dos veículos. O sistema permite que usuários contribuam com dados GPS enquanto estão no ônibus, criando um mapa colaborativo e preciso do transporte público de Palmas - PR.
 
 ### ✨ Diferenciais
 
