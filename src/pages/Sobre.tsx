@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
+import packageJson from '../../package.json';
 
 interface Supporter {
   id: string;
@@ -251,7 +252,7 @@ export default function Sobre() {
 
         {/* Versão */}
         <p className="text-center text-xs text-gray-400 pb-2">
-          Tarifa Zero v2.1.0 · Palmas/PR · {new Date().getFullYear()}
+          Tarifa Zero v{packageJson.version} · Palmas/PR · {new Date().getFullYear()}
         </p>
       </div>
     </div>

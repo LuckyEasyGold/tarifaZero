@@ -37,6 +37,12 @@ export default function UpdateNotification() {
   const checkForUpdates = async () => {
     try {
       const response = await fetch('/api/version');
+      
+      if (!response.ok) {
+        console.warn('Não foi possível verificar atualizações:', response.status);
+        return;
+      }
+      
       const data = await response.json();
       
       if (data.success && data.data) {
@@ -50,6 +56,7 @@ export default function UpdateNotification() {
       }
     } catch (error) {
       console.error('Erro ao verificar atualizações:', error);
+      // Não faz nada - apenas loga o erro
     }
   };
 

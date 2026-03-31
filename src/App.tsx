@@ -6,6 +6,7 @@ import SplashScreen from '@/components/SplashScreen';
 import WelcomeScreen from '@/components/WelcomeScreen';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import UpdateNotification from '@/components/UpdateNotification';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import Home from '@/pages/Home';
 import Linhas from '@/pages/Linhas';
 import LinhaDetalhes from '@/pages/LinhaDetalhes';
@@ -89,30 +90,32 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-gray-50">
-        <Toaster position="top-center" />
-        
-        {/* Notificação de atualização (apenas no app nativo) */}
-        <UpdateNotification />
-        
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/linhas" element={<Linhas />} />
-          <Route path="/linha/:id" element={<LinhaDetalhes />} />
-          <Route path="/buscar" element={<BuscarRota />} />
-          <Route path="/contribuir" element={<Contribuir />} />
-          <Route path="/ranking" element={<Ranking />} />
-          <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
-          <Route path="/sobre" element={<Sobre />} />
-        </Routes>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <div className="min-h-screen bg-gray-50">
+          <Toaster position="top-center" />
+          
+          {/* Notificação de atualização (apenas no app nativo) */}
+          <UpdateNotification />
+          
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/linhas" element={<Linhas />} />
+            <Route path="/linha/:id" element={<LinhaDetalhes />} />
+            <Route path="/buscar" element={<BuscarRota />} />
+            <Route path="/contribuir" element={<Contribuir />} />
+            <Route path="/ranking" element={<Ranking />} />
+            <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
+            <Route path="/sobre" element={<Sobre />} />
+          </Routes>
 
-        <BottomNav />
-        
-        {/* Prompt de instalação PWA */}
-        <PWAInstallPrompt />
-      </div>
-    </BrowserRouter>
+          <BottomNav />
+          
+          {/* Prompt de instalação PWA */}
+          <PWAInstallPrompt />
+        </div>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
