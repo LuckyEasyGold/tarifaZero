@@ -80,11 +80,11 @@ export function useWifiScanner(): UseWifiScannerReturn {
   useEffect(() => {
     if (isNative) {
       console.log('[WiFi Scanner] App nativo detectado, iniciando scan automático');
-      // Aguardar 1 segundo para garantir que o app está pronto
+      // Aguardar 2 segundos para garantir que o plugin está carregado
       const timer = setTimeout(() => {
         console.log('[WiFi Scanner] Executando scan...');
         scan();
-      }, 1000);
+      }, 2000);
       
       return () => clearTimeout(timer);
     } else {
