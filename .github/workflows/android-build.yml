@@ -107,9 +107,10 @@ jobs:
       uses: actions/upload-artifact@v4
       if: success()
       with:
-        name: tarifazero-debug-apk
+        name: TarifaZero.apk
         path: android/app/build/outputs/apk/debug/TarifaZero.apk
         retention-days: 30
+        compression-level: 0
 
     - name: Upload build logs on failure
       uses: actions/upload-artifact@v4

@@ -124,11 +124,13 @@ git push origin main
 
 ---
 
-### 5. Baixar e Testar APK
+### 5. Baixar e Testar APK do GitHub Actions
+
+**IMPORTANTE**: O GitHub Actions cria um ZIP. Você precisa extrair para testar.
 
 1. No workflow concluído, clicar em "Artifacts"
-2. Baixar "tarifazero-debug-apk"
-3. Extrair o ZIP
+2. Baixar "TarifaZero.apk" (será baixado como ZIP)
+3. **Extrair o ZIP** → Dentro tem o `TarifaZero.apk`
 4. Instalar `TarifaZero.apk` no celular
 5. **TESTAR TUDO NOVAMENTE**
 
@@ -139,11 +141,15 @@ git push origin main
 - [ ] GPS funciona
 - [ ] Sem crashes
 
+**Nota**: O ZIP é apenas para você testar. Os usuários vão baixar o APK direto do GitHub Release (passo 6).
+
 ---
 
 ### 6. Criar Release no GitHub
 
-Só criar release DEPOIS de testar o APK!
+**IMPORTANTE**: Só criar release DEPOIS de testar o APK do Actions!
+
+O GitHub Release é onde os **usuários finais** vão baixar o APK (sem ZIP).
 
 1. Ir em: https://github.com/LuckyEasyGold/tarifaZero/releases
 2. Clicar em "Draft a new release"
@@ -170,8 +176,13 @@ Só criar release DEPOIS de testar o APK!
      - Código: 3
      - Data: 01/04/2026
      ```
-4. **Anexar o APK testado** (arrastar arquivo)
+4. **Anexar o APK testado** (arrastar o arquivo `TarifaZero.apk` extraído do ZIP)
 5. Clicar em "Publish release"
+
+**Resultado**: Usuários vão baixar o APK DIRETO (sem ZIP) do link:
+```
+https://github.com/LuckyEasyGold/tarifaZero/releases/download/v2.2.0/TarifaZero.apk
+```
 
 ---
 
@@ -272,6 +283,26 @@ git push origin main
 ---
 
 ## ⚠️ IMPORTANTE
+
+### GitHub Actions vs GitHub Release
+
+**GitHub Actions** (Artifacts):
+- ✅ Gera APK automaticamente
+- ❌ Cria um ZIP (você precisa extrair)
+- 🎯 Use para: TESTAR antes de liberar
+- ⏰ Expira em 30 dias
+
+**GitHub Release**:
+- ✅ APK direto (sem ZIP)
+- ✅ Link permanente
+- 🎯 Use para: USUÁRIOS FINAIS baixarem
+- ⏰ Nunca expira
+
+**Fluxo correto**:
+1. GitHub Actions gera APK (em ZIP)
+2. Você baixa, extrai e testa
+3. Se OK, cria Release e anexa o APK (sem ZIP)
+4. Usuários baixam do Release (APK direto)
 
 ### Sempre Incremente versionCode
 
