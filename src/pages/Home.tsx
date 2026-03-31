@@ -268,7 +268,7 @@ export default function Home() {
       pontoAtualIndex: pontoAtual,
       direcaoIda: direcao,
       progresso: progresso,
-      sentido: direcao ? 'ida' : 'volta',
+      sentido: (direcao ? 'ida' : 'volta') as 'ida' | 'volta',
       ultimaAtualizacao: new Date()
     };
   };
@@ -377,7 +377,7 @@ export default function Home() {
 
     const interval = setInterval(() => {
       setPosicoes(prevPosicoes => {
-        const novasPosicoes = prevPosicoes.map(pos => {
+        const novasPosicoes: BusPosition[] = prevPosicoes.map((pos): BusPosition => {
           const linha = linhas.find(l => l.id === pos.linhaId);
           if (!linha || linha.rota.length === 0) return pos;
 
@@ -449,7 +449,7 @@ export default function Home() {
             direcaoIda: novaDirecao,
             progresso: novoProgresso,
             velocidade: VELOCIDADE_MEDIA_KMH,
-            sentido: novaDirecao ? 'ida' : 'volta',
+            sentido: (novaDirecao ? 'ida' : 'volta') as 'ida' | 'volta',
             timestamp: new Date(),
             ultimaAtualizacao: new Date()
           };
@@ -462,7 +462,7 @@ export default function Home() {
           frameCount = 0;
         }
 
-        return novasPosicoes as BusPosition[];
+        return novasPosicoes;
       });
     }, INTERVALO_MS);
 
