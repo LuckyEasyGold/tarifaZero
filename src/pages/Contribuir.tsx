@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Play, AlertCircle, CheckCircle, Trophy, Wifi } from 'lucide-react';
 import { useGeolocation } from '@/hooks/useGeolocation';
-import { useWifiScanner } from '@/hooks/useWifiScanner';
+import { useSimpleWifi } from '@/hooks/useSimpleWifi';
 import { trackingService } from '@/services/trackingService';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
@@ -27,7 +27,7 @@ export default function Contribuir() {
   const [showManualInput, setShowManualInput] = useState(false);
   
   const geolocation = useGeolocation();
-  const wifiScanner = useWifiScanner();
+  const wifiScanner = useSimpleWifi();
   const navigate = useNavigate();
 
   // Carregar linhas disponíveis
@@ -47,12 +47,12 @@ export default function Contribuir() {
     if (wifiScanner.isNative && selectedLineId && !wifiValidated) {
       console.log('[Contribuir] Linha selecionada, iniciando scan automático');
       // Fazer scan automático
-      wifiScanner.scan();
-      // Mostrar card após 500ms (tempo para o scan iniciar)
-      const timer = setTimeout(() => {
+      const doScan = async () => {
+        await wifiScanner.scan();
+        // Mostrar card após o scan
         setShowWifiCard(true);
-      }, 500);
-      return () => clearTimeout(timer);
+      };
+      doScan();
     }
   }, [selectedLineId, wifiScanner.isNative, wifiValidated]);
 
@@ -228,8 +228,8 @@ export default function Contribuir() {
               {/* Botão para escanear WiFi manualmente (apenas APK) */}
               {wifiScanner.isNative && selectedLineId && !wifiValidated && (
                 <button
-                  onClick={() => {
-                    wifiScanner.scan();
+                  onClick={async () => {
+                    await wifiScanner.scan();
                     setShowWifiCard(true);
                   }}
                   disabled={wifiScanner.isScanning}
@@ -301,10 +301,16 @@ export default function Contribuir() {
                         <div className="text-left">
                           <div className="font-medium text-sm">{network.ssid || 'Rede Oculta'}</div>
                           <div className="text-xs text-gray-500">{network.bssid}</div>
+                          {network.capabilities && (
+                            <div className="text-xs text-gray-400 mt-0.5">{network.capabilities}</div>
+                          )}
                         </div>
                       </div>
-                      <div className="text-xs text-gray-600">
-                        {network.level} dBm
+                      <div className="text-right">
+                        <div className="text-xs text-gray-600">{network.level} dBm</div>
+                        {network.frequency > 0 && (
+                          <div className="text-xs text-gray-500">{network.frequency} MHz</div>
+                        )}
                       </div>
                     </button>
                   ))}
@@ -315,7 +321,7 @@ export default function Contribuir() {
                 <Wifi size={48} className="text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600 mb-4">Nenhuma rede Wi-Fi detectada</p>
                 <button
-                  onClick={() => wifiScanner.scan()}
+                  onClick={async () => await wifiScanner.scan()}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
                   Tentar Novamente

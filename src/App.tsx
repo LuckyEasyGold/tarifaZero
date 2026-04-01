@@ -15,6 +15,7 @@ import Contribuir from '@/pages/Contribuir';
 import Ranking from '@/pages/Ranking';
 import PoliticaPrivacidade from '@/pages/PoliticaPrivacidade';
 import Sobre from '@/pages/Sobre';
+import TesteWifi from '@/pages/TesteWifi';
 import './App.css';
 
 // v2.1 - Splash sempre ativo, simulação de ônibus, navegação corrigida
@@ -107,6 +108,7 @@ function App() {
             <Route path="/ranking" element={<Ranking />} />
             <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
             <Route path="/sobre" element={<Sobre />} />
+            <Route path="/teste-wifi" element={<TesteWifi />} />
           </Routes>
 
           <BottomNav />

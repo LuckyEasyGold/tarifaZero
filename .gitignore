@@ -44,3 +44,7 @@ api/dist
 local.properties
 android/local.properties
 android/gradle.properties.local
+
+# APK files
+*.apk
+public/*.apk
