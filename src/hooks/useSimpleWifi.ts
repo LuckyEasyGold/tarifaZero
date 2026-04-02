@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { CapacitorWifi } from npm list
+import { CapacitorWifi } from '@capgo/capacitor-wifi';
 
 export interface WifiNetwork {
   ssid: string;
