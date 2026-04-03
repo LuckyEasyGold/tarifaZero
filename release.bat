@@ -1,5 +1,4 @@
 @echo off
-chcp 65001 >nul
 echo ==============================================
 echo [1/3] Iniciando o release (Build e Cap Sync)
 echo ==============================================
@@ -17,7 +16,6 @@ git add .
 echo ==============================================
 echo [3/3] Criando commit oficial
 echo ==============================================
-:: Pega todo o parametro escrito na frente do arquivo bat. Se não houver, usa log automático.
 set COMMIT_MSG=%*
 if "%COMMIT_MSG%"=="" set COMMIT_MSG="Lancamento oficial Apk"
 
