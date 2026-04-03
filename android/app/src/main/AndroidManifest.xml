@@ -46,6 +46,11 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Android 13+ requer NEARBY_WIFI_DEVICES para scan de Wi-Fi -->
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
+    
+    <!-- Permissões para download e instalação de APK -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <uses-feature android:name="android.hardware.wifi" android:required="false" />
 </manifest>

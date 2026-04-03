@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Download, X, AlertCircle } from 'lucide-react';
+import { Download, X, AlertCircle, Loader2 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Browser } from '@capacitor/browser';
 
 interface VersionInfo {
   version: string;
@@ -18,6 +20,8 @@ export default function UpdateNotification() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
   const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
@@ -79,9 +83,66 @@ export default function UpdateNotification() {
     }
   };
 
-  const handleDownload = () => {
-    if (versionInfo?.downloadUrl) {
+  const handleDownload = async () => {
+    if (!versionInfo?.downloadUrl) return;
+
+    setDownloading(true);
+    setDownloadProgress(0);
+
+    try {
+      console.log('[Update] Iniciando download:', versionInfo.downloadUrl);
+
+      // Fazer download do APK
+      const response = await fetch(versionInfo.downloadUrl);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao baixar atualização');
+      }
+
+      const blob = await response.blob();
+      const reader = new FileReader();
+
+      reader.onloadend = async () => {
+        try {
+          const base64Data = (reader.result as string).split(',')[1];
+          
+          // Salvar APK no diretório de cache
+          const fileName = `TarifaZero-${versionInfo.version}.apk`;
+          const result = await Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.Cache
+          });
+
+          console.log('[Update] APK salvo:', result.uri);
+          setDownloadProgress(100);
+
+          // Abrir APK para instalação
+          await Browser.open({ 
+            url: result.uri,
+            presentationStyle: 'popover'
+          });
+
+          // Fechar app após 1 segundo
+          setTimeout(() => {
+            App.exitApp();
+          }, 1000);
+
+        } catch (error) {
+          console.error('[Update] Erro ao salvar APK:', error);
+          // Fallback: abrir no navegador
+          window.open(versionInfo.downloadUrl, '_blank');
+        }
+      };
+
+      reader.readAsDataURL(blob);
+
+    } catch (error) {
+      console.error('[Update] Erro no download:', error);
+      // Fallback: abrir no navegador
       window.open(versionInfo.downloadUrl, '_blank');
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -133,10 +194,20 @@ export default function UpdateNotification() {
             {/* Botão de download */}
             <button
               onClick={handleDownload}
-              className="inline-flex items-center gap-1.5 bg-white text-blue-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-50 transition"
+              disabled={downloading}
+              className="inline-flex items-center gap-1.5 bg-white text-blue-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Download size={14} />
-              Baixar Atualização
+              {downloading ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  Baixando... {downloadProgress}%
+                </>
+              ) : (
+                <>
+                  <Download size={14} />
+                  Baixar e Instalar
+                </>
+              )}
             </button>
           </div>
 
