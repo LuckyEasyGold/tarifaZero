@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, MapPin, Bus, Navigation, Map, User } from 'lucide-react';
+import { useScheduledTimes } from '@/hooks/useScheduledTimes';
 
 interface Stop {
   id: string;
@@ -71,6 +72,9 @@ export default function LinhaDetalhes() {
   const [distanciaUsuarioParada, setDistanciaUsuarioParada] = useState<number | null>(null);
   const [tempoUsuarioParada, setTempoUsuarioParada] = useState<number | null>(null);
   const [tempoOnibusAteUsuario, setTempoOnibusAteUsuario] = useState<number | null>(null);
+
+  // Hook para horários programados
+  const { schedules, nextSchedule } = useScheduledTimes(id);
 
   useEffect(() => {
     if (!id) return;
@@ -433,6 +437,84 @@ export default function LinhaDetalhes() {
             </p>
           </div>
         ) : null}
+
+        {/* Card de Próximo Horário Programado */}
+        {nextSchedule.nextTime && (
+          <div className="bg-yellow-50 rounded-lg border border-yellow-200 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Clock size={20} className="text-yellow-600" />
+              <h2 className="font-semibold text-gray-900">Próximo Horário</h2>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Horário:</span>
+                <span className="font-bold text-yellow-700 text-2xl">
+                  {nextSchedule.nextTime}
+                </span>
+              </div>
+
+              {nextSchedule.minutesUntil !== null && (
+                <div className="flex items-center justify-between pt-2 border-t border-yellow-200">
+                  <span className="text-sm text-gray-600">Falta:</span>
+                  <span className="font-medium text-yellow-600">
+                    {nextSchedule.minutesUntil} minutos
+                  </span>
+                </div>
+              )}
+
+              {nextSchedule.nextStop && (
+                <div className="mt-2 pt-2 border-t border-yellow-200">
+                  <p className="text-xs text-gray-500">Parada:</p>
+                  <p className="text-sm font-medium text-gray-700">{nextSchedule.nextStop}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Card de Todos os Horários */}
+        {schedules.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="font-semibold text-gray-900">Horários de Hoje</h2>
+            </div>
+            
+            <div className="p-4">
+              <div className="grid grid-cols-4 gap-2">
+                {schedules
+                  .filter(s => {
+                    const now = new Date();
+                    const dayOfWeek = now.getDay();
+                    let dayType = 'weekday';
+                    if (dayOfWeek === 0) dayType = 'sunday';
+                    if (dayOfWeek === 6) dayType = 'saturday';
+                    return s.dayOfWeek === dayType;
+                  })
+                  .map((schedule, index) => {
+                    const now = new Date();
+                    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                    const isPast = schedule.time < currentTime;
+                    const isNext = schedule.time === nextSchedule.nextTime;
+
+                    return (
+                      <div
+                        key={index}
+                        className={`
+                          text-center py-2 px-1 rounded text-sm font-medium
+                          ${isNext ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-400' : ''}
+                          ${isPast && !isNext ? 'bg-gray-100 text-gray-400' : ''}
+                          ${!isPast && !isNext ? 'bg-blue-50 text-blue-700' : ''}
+                        `}
+                      >
+                        {schedule.time}
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 2. Card de Próxima Parada */}
         {proximaParada && (
