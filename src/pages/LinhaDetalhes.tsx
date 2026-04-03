@@ -364,71 +364,7 @@ export default function LinhaDetalhes() {
 
       {/* Informações em Tempo Real */}
       <div className="max-w-7xl mx-auto px-4 py-4 space-y-3">
-        {/* Card de Posição Atual */}
-        {busPosition && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Navigation size={20} className="text-blue-600" />
-              <h2 className="font-semibold text-gray-900">Posição Atual</h2>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Sentido:</span>
-                <span className="font-medium text-gray-900">
-                  {busPosition.sentido === 'ida' ? '🚌 Ida' : '🔄 Volta'}
-                </span>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Velocidade:</span>
-                <span className="font-medium text-gray-900">{busPosition.velocidade} km/h</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Card de Próxima Parada */}
-        {proximaParada && (
-          <div className="bg-blue-50 rounded-lg border border-blue-200 p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <MapPin size={20} className="text-blue-600" />
-              <h2 className="font-semibold text-gray-900">Próxima Parada</h2>
-            </div>
-            
-            <div className="space-y-2">
-              <div>
-                <p className="font-medium text-gray-900">{proximaParada.name}</p>
-                {proximaParada.description && (
-                  <p className="text-sm text-gray-600 mt-1">{proximaParada.description}</p>
-                )}
-              </div>
-              
-              {distanciaProximaParada !== null && (
-                <div className="flex items-center justify-between pt-2 border-t border-blue-200">
-                  <span className="text-sm text-gray-600">Distância do ônibus:</span>
-                  <span className="font-medium text-blue-600">
-                    {distanciaProximaParada < 1 
-                      ? `${Math.round(distanciaProximaParada * 1000)} m`
-                      : `${distanciaProximaParada.toFixed(1)} km`
-                    }
-                  </span>
-                </div>
-              )}
-              
-              {tempoEstimado !== null && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Tempo estimado do ônibus:</span>
-                  <span className="font-bold text-blue-600 text-lg">
-                    {tempoEstimado} min
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Card de Distância do Usuário */}
+        {/* 1. Card de Parada Mais Próxima de Você */}
         {paradaMaisProxima ? (
           <div className="bg-green-50 rounded-lg border border-green-200 p-4">
             <div className="flex items-center gap-2 mb-3">
@@ -498,7 +434,80 @@ export default function LinhaDetalhes() {
           </div>
         ) : null}
 
-        {/* Card de Informações da Linha */}
+        {/* 2. Card de Próxima Parada */}
+        {proximaParada && (
+          <div className="bg-blue-50 rounded-lg border border-blue-200 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin size={20} className="text-blue-600" />
+              <h2 className="font-semibold text-gray-900">Próxima Parada</h2>
+            </div>
+            
+            <div className="space-y-2">
+              <div>
+                <p className="font-medium text-gray-900">{proximaParada.name}</p>
+                {proximaParada.description && (
+                  <p className="text-sm text-gray-600 mt-1">{proximaParada.description}</p>
+                )}
+              </div>
+              
+              {distanciaProximaParada !== null && (
+                <div className="flex items-center justify-between pt-2 border-t border-blue-200">
+                  <span className="text-sm text-gray-600">Distância do ônibus:</span>
+                  <span className="font-medium text-blue-600">
+                    {distanciaProximaParada < 1 
+                      ? `${Math.round(distanciaProximaParada * 1000)} m`
+                      : `${distanciaProximaParada.toFixed(1)} km`
+                    }
+                  </span>
+                </div>
+              )}
+              
+              {tempoEstimado !== null && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Tempo estimado do ônibus:</span>
+                  <span className="font-bold text-blue-600 text-lg">
+                    {tempoEstimado} min
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 3. Card de Posição Atual */}
+        {busPosition && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Navigation size={20} className="text-blue-600" />
+              <h2 className="font-semibold text-gray-900">Posição Atual</h2>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Sentido:</span>
+                <span className="font-medium text-gray-900">
+                  {busPosition.sentido === 'ida' ? '🚌 Ida' : '🔄 Volta'}
+                </span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Velocidade:</span>
+                <span className="font-medium text-gray-900">{busPosition.velocidade} km/h</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 4. Botão Ver no Mapa */}
+        <button
+          onClick={() => navigate(`/?linha=${linha.id}`)}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-lg flex items-center justify-center gap-2 transition"
+        >
+          <Map size={20} />
+          Ver no Mapa
+        </button>
+
+        {/* 5. Card de Informações da Linha */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-2 mb-3">
             <Clock size={20} className="text-gray-600" />
@@ -523,16 +532,7 @@ export default function LinhaDetalhes() {
           </div>
         </div>
 
-        {/* Botão Ver no Mapa */}
-        <button
-          onClick={() => navigate(`/?linha=${linha.id}`)}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-lg flex items-center justify-center gap-2 transition"
-        >
-          <Map size={20} />
-          Ver no Mapa
-        </button>
-
-        {/* Lista de Paradas */}
+        {/* 6. Lista de Todas as Paradas */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="p-4 border-b border-gray-200">
             <h2 className="font-semibold text-gray-900">Todas as Paradas</h2>
