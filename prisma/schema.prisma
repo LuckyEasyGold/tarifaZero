@@ -88,20 +88,39 @@ model RoutePoint {
 }
 
 model Stop {
-  id          String   @id @default(cuid())
-  lineId      String
-  code        String   @unique
-  name        String
-  lat         Float
-  lng         Float
-  description String?
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  line        Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  id             String          @id @default(cuid())
+  lineId         String
+  code           String          @unique
+  name           String
+  lat            Float
+  lng            Float
+  description    String?
+  active         Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  line           Line            @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  scheduledTimes ScheduledTime[]
 
+  @@unique([lineId, name])
   @@index([lineId])
   @@map("stops")
+}
+
+model ScheduledTime {
+  id        String   @id @default(cuid())
+  lineId    String
+  stopId    String
+  time      String // Formato HH:MM
+  dayOfWeek String // 'weekday', 'saturday', 'sunday', 'holiday'
+  direction String   @default("ida") // 'ida' ou 'volta'
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  stop      Stop     @relation(fields: [stopId], references: [id], onDelete: Cascade)
+
+  @@index([lineId, dayOfWeek])
+  @@index([stopId])
+  @@map("scheduled_times")
 }
 
 model Trip {

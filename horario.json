@@ -1,0 +1,87 @@
+{
+  "transporte_palmas": {
+    "linhas": [
+      {
+        "id": "001",
+        "nome": "Eldorado / IFPR",
+        "horarios": [
+          {"saida_eldorado": "06:15", "praca": "07:00", "chegada_ifpr": "07:30", "saida_ifpr": "08:00", "chegada_eldorado": "08:45"},
+          {"saida_eldorado": "08:45", "praca": "09:30", "chegada_ifpr": "10:00", "saida_ifpr": "11:00", "chegada_eldorado": "11:45"},
+          {"saida_eldorado": "11:00", "praca": "11:30", "chegada_ifpr": "11:45", "saida_ifpr": "12:00", "chegada_eldorado": "12:45"},
+          {"saida_eldorado": "12:55", "praca": "13:15", "chegada_ifpr": "13:40", "saida_ifpr": "13:40", "chegada_eldorado": "14:25"},
+          {"saida_eldorado": "14:55", "praca": "15:40", "chegada_ifpr": "16:10", "saida_ifpr": "15:55", "chegada_eldorado": "16:40"},
+          {"saida_eldorado": "16:25", "praca": "16:45", "chegada_ifpr": "17:05", "saida_ifpr": "17:30", "chegada_eldorado": "18:15"},
+          {"saida_eldorado": "18:30", "praca": "19:00", "chegada_ifpr": "19:15", "saida_ifpr": "19:30", "chegada_eldorado": "20:15"},
+          {"saida_eldorado": "20:15", "praca": "20:30", "chegada_ifpr": "21:00", "saida_ifpr": "21:30", "chegada_eldorado": "22:15"},
+          {"saida_eldorado": "22:15", "praca": "22:30", "chegada_ifpr": "23:00", "saida_ifpr": "23:00", "chegada_eldorado": "23:45"}
+        ],
+        "itinerario_ida": ["Rua Enos de Paula", "Rua Laurindo Ferreira de Souza", "Rua Bezerra de Menezes", "Presidente Getúlio Vargas", "Rua Henrique José Barbosa", "IFPR Campus Palmas"],
+        "itinerario_volta": ["IFPR", "Rua Henrique José Barbosa", "Presidente Getúlio Vargas", "Rua Bezerra de Menezes", "Rua Laurindo Ferreira de Souza", "Rua Enos de Paula"]
+      },
+      {
+        "id": "002",
+        "nome": "Tia Joana / Terminal Rodoviário",
+        "horarios": [
+          {"saida_tia_joana": "07:00", "chegada_sao_francisco": "07:10", "chegada_rodoviaria": "07:30", "saida_rodoviaria": "08:00", "chegada_tia_joana": "08:45"},
+          {"saida_tia_joana": "09:00", "chegada_sao_francisco": "09:30", "chegada_rodoviaria": "09:50", "saida_rodoviaria": "10:00", "chegada_tia_joana": "10:30"},
+          {"saida_tia_joana": "11:00", "chegada_sao_francisco": "11:10", "chegada_rodoviaria": "11:30", "saida_rodoviaria": "12:00", "chegada_tia_joana": "12:30"},
+          {"saida_tia_joana": "13:00", "chegada_sao_francisco": "13:05", "chegada_rodoviaria": "13:20", "saida_rodoviaria": "14:00", "chegada_tia_joana": "14:30"},
+          {"saida_tia_joana": "15:00", "chegada_sao_francisco": "15:10", "chegada_rodoviaria": "15:30", "saida_rodoviaria": "17:00", "chegada_tia_joana": "17:30"},
+          {"saida_tia_joana": "17:30", "chegada_sao_francisco": "17:40", "chegada_rodoviaria": "18:00", "saida_rodoviaria": "18:30", "chegada_tia_joana": "19:00"},
+          {"saida_tia_joana": "19:30", "chegada_sao_francisco": "19:40", "chegada_rodoviaria": "20:00", "saida_rodoviaria": "21:00", "chegada_tia_joana": "21:30"},
+          {"saida_tia_joana": "22:00", "chegada_sao_francisco": "22:10", "chegada_rodoviaria": "22:30", "saida_rodoviaria": "23:00", "chegada_tia_joana": "23:30"}
+        ],
+        "itinerario_ida": ["Bairro Santa Rita", "Rua Rio Grande do Sul", "Rua das Camélias", "Rua das Flores", "Av. Francisco Ciro de Oliveira", "Rodoviária Municipal"],
+        "itinerario_volta": ["Rodoviária Municipal", "Av. Francisco Ciro de Oliveira", "Rua das Flores", "Rua das Camélias", "Rua Rio Grande do Sul", "Bairro Santa Rita"]
+      },
+      {
+        "id": "003",
+        "nome": "Fortunato / Rodoviária",
+        "horarios": [
+          {"saida_fortunato": "07:00", "chegada_rodoviaria": "07:30", "saida_rodoviaria": "08:00", "chegada_fortunato": "08:30"},
+          {"saida_fortunato": "09:00", "chegada_rodoviaria": "09:30", "saida_rodoviaria": "10:00", "chegada_fortunato": "10:30"},
+          {"saida_fortunato": "11:00", "chegada_rodoviaria": "11:30", "saida_rodoviaria": "12:00", "chegada_fortunato": "12:30"},
+          {"saida_fortunato": "13:00", "chegada_rodoviaria": "13:30", "saida_rodoviaria": "14:00", "chegada_fortunato": "14:30"},
+          {"saida_fortunato": "16:15", "chegada_rodoviaria": "16:45", "saida_rodoviaria": "17:10", "chegada_fortunato": "17:40"},
+          {"saida_fortunato": "17:40", "chegada_rodoviaria": "18:10", "saida_rodoviaria": "18:30", "chegada_fortunato": "19:00"},
+          {"saida_fortunato": "19:10", "chegada_rodoviaria": "19:40", "saida_rodoviaria": "21:00", "chegada_fortunato": "21:30"},
+          {"saida_fortunato": "23:00", "chegada_rodoviaria": "23:30", "saida_rodoviaria": "23:00", "chegada_fortunato": "23:30"}
+        ],
+        "itinerario_ida": ["Rua Francisco Antonio Araújo", "Rua João Bosco", "Av. Capitão Frederico Virmond", "Rodoviária"],
+        "itinerario_volta": ["Rodoviária", "Av. Capitão Frederico Virmond", "Rua João Bosco", "Rua Francisco Antonio Araújo"]
+      },
+      {
+        "id": "004",
+        "nome": "Vila Rural / Rodoviária",
+        "horarios": [
+          {"saida_vila_rural": "07:20", "chegada_rodoviaria": "07:50", "saida_rodoviaria": "08:00", "chegada_vila_rural": "08:30"},
+          {"saida_vila_rural": "09:00", "chegada_rodoviaria": "09:30", "saida_rodoviaria": "10:00", "chegada_vila_rural": "10:30"},
+          {"saida_vila_rural": "11:00", "chegada_rodoviaria": "11:30", "saida_rodoviaria": "13:00", "chegada_vila_rural": "13:30"},
+          {"saida_vila_rural": "13:00", "chegada_rodoviaria": "13:30", "saida_rodoviaria": "14:00", "chegada_vila_rural": "14:30"},
+          {"saida_vila_rural": "16:10", "chegada_rodoviaria": "16:40", "saida_rodoviaria": "17:10", "chegada_vila_rural": "17:40"},
+          {"saida_vila_rural": "17:40", "chegada_rodoviaria": "18:10", "saida_rodoviaria": "18:30", "chegada_vila_rural": "19:00"},
+          {"saida_vila_rural": "19:30", "chegada_rodoviaria": "20:00", "saida_rodoviaria": "21:00", "chegada_vila_rural": "21:30"},
+          {"saida_vila_rural": "23:00", "chegada_rodoviaria": "23:30", "saida_rodoviaria": "23:00", "chegada_vila_rural": "23:30"}
+        ],
+        "itinerario_ida": ["Estrada Rural", "Rua Luiz Hernandez Fuentes", "Rua Sete de Setembro", "Rodoviária"],
+        "itinerario_volta": ["Rodoviária", "Rua Sete de Setembro", "Rua Luiz Hernandez Fuentes", "Estrada Rural"]
+      },
+      {
+        "id": "005",
+        "nome": "Lagoão / Insana",
+        "horarios": [
+          {"saida_lagoao": "07:00", "chegada_rodoviaria": "07:30", "saida_insana": "08:00", "chegada_lagoao": "08:30"},
+          {"saida_lagoao": "09:00", "chegada_rodoviaria": "09:30", "saida_insana": "10:00", "chegada_lagoao": "10:30"},
+          {"saida_lagoao": "11:00", "chegada_rodoviaria": "11:30", "saida_insana": "12:00", "chegada_lagoao": "12:30"},
+          {"saida_lagoao": "13:00", "chegada_rodoviaria": "13:30", "saida_insana": "14:00", "chegada_lagoao": "14:30"},
+          {"saida_lagoao": "14:00", "chegada_rodoviaria": "14:30", "saida_insana": "15:00", "chegada_lagoao": "15:30"},
+          {"saida_lagoao": "16:00", "chegada_rodoviaria": "16:30", "saida_insana": "18:10", "chegada_lagoao": "18:30"},
+          {"saida_lagoao": "18:00", "chegada_rodoviaria": "20:00", "saida_insana": "20:30", "chegada_lagoao": "21:00"},
+          {"saida_lagoao": "22:00", "chegada_rodoviaria": "22:30", "saida_insana": "23:00", "chegada_lagoao": "23:30"}
+        ],
+        "itinerario_ida": ["Rua Atilio Fontana", "Rua José Joaquim Mafra", "Rodoviária", "Indústria Insana"],
+        "itinerario_volta": ["Indústria Insana", "Rodoviária", "Rua José Joaquim Mafra", "Rua Atilio Fontana"]
+      }
+    ]
+  }
+}
