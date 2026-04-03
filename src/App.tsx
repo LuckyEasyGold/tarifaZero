@@ -19,7 +19,7 @@ import Sobre from '@/pages/Sobre';
 import TesteWifi from '@/pages/TesteWifi';
 import './App.css';
 
-// v2.1 - Splash sempre ativo, simulação de ônibus, navegação corrigida
+// v2.4.1 - Splash sempre ativo, simulação de ônibus, navegação corrigida
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);

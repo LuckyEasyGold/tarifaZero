@@ -43,7 +43,7 @@ export default function Sobre() {
           className="w-24 h-24 mx-auto mb-4 object-contain"
         />
         <h1 className="text-2xl font-bold">Tarifa Zero</h1>
-        <p className="text-blue-200 text-sm mt-2">Transporte público colaborativo em tempo real</p>
+        <p className="text-blue-200 text-sm mt-2">Acompanhe o transporte público em tempo real</p>
         <p className="text-blue-300 text-xs mt-1">Palmas - PR</p>
       </div>
 

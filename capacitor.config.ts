@@ -6,7 +6,6 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    // URL da API de produção
     url: 'https://tarifazero.vercel.app',
     cleartext: true
   },

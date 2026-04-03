@@ -53,7 +53,7 @@ export default function GlobalMenu() {
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50" ref={menuRef}>
+    <div className="fixed top-4 right-4 z-[10000]" ref={menuRef}>
       {/* Botão Flutuante (Avatar/X) */}
       <button 
         onClick={() => {

@@ -1,12 +1,12 @@
 {
-  "version": "2.4.1",
-  "versionCode": 6,
+  "version": "2.4.2",
+  "versionCode": 7,
   "releaseDate": "2026-04-03",
   "downloadUrl": "https://tarifazero.vercel.app/TarifaZero.apk",
   "changelog": [
-    "🚀 Nova aba de Busca por Endereços",
-    "🌍 Autocomplete dinâmico e Inteligência Geográfica",
-    "⚡ Identificação de Localização via GPS Nativo"
+    "📡 Scanner WiFi implementado (@capgo/capacitor-wifi)",
+    "👤 GlobalMenu com perfil e botão sair",
+    "🔧 Correções de cache e performance"
   ],
   "minVersion": "2.0.0",
   "forceUpdate": false

@@ -47,6 +47,15 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        "slide-in-bottom": {
+          "0%": { transform: "translateY(-10px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+      },
+      animation: {
+        "slide-in-bottom": "slide-in-bottom 0.2s ease-out",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
