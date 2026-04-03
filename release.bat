@@ -16,7 +16,7 @@ git add .
 echo ==============================================
 echo [3/3] Criando commit oficial
 echo ==============================================
-set COMMIT_MSG=%*
+set COMMIT_MSG=%~1
 if "%COMMIT_MSG%"=="" set COMMIT_MSG="Lancamento oficial Apk"
 
 git commit -m "%COMMIT_MSG%"
