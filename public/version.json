@@ -1,12 +1,12 @@
 {
-  "version": "2.4.0",
-  "versionCode": 5,
+  "version": "2.4.1",
+  "versionCode": 6,
   "releaseDate": "2026-04-03",
   "downloadUrl": "https://tarifazero.vercel.app/TarifaZero.apk",
   "changelog": [
-    "🚀 Automatização das atualizações na base",
-    "✅ Preparação para a tela de buscas",
-    "✅ Melhorias de estabilidade"
+    "🚀 Nova aba de Busca por Endereços",
+    "🌍 Autocomplete dinâmico e Inteligência Geográfica",
+    "⚡ Identificação de Localização via GPS Nativo"
   ],
   "minVersion": "2.0.0",
   "forceUpdate": false

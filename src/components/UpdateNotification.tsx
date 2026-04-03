@@ -50,7 +50,7 @@ export default function UpdateNotification() {
   const checkForUpdates = async (deviceVersionCode: number) => {
     try {
       // Adiciona timestamp param para evitar chache do servidor
-      const response = await fetch('/version.json?t=' + new Date().getTime());
+      const response = await fetch('https://tarifazero.vercel.app/version.json?t=' + new Date().getTime());
       
       if (!response.ok) {
         console.warn('Não foi possível verificar atualizações:', response.status);
