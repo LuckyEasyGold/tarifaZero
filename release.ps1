@@ -64,12 +64,16 @@ Set-Location ..
 
 # 10. Copiar APK com nome versionado
 $apkSource = "android/app/build/outputs/apk/debug/TarifaZero-$newVersion.apk"
-$apkDest = "public/TarifaZero-$newVersion.apk"
-Copy-Item $apkSource $apkDest -Force
-Write-Host "✅ APK copiado para: $apkDest" -ForegroundColor Green
+$apkDestPublic = "public/TarifaZero-$newVersion.apk"
+$apkDestRoot = "TarifaZero-$newVersion.apk"
+
+Copy-Item $apkSource $apkDestPublic -Force
+Copy-Item $apkSource $apkDestRoot -Force
+
+Write-Host "✅ APK copiado para: public/ e raiz" -ForegroundColor Green
 
 # 11. Mostrar tamanho do APK
-$apkSize = (Get-Item $apkDest).Length / 1MB
+$apkSize = (Get-Item $apkDestRoot).Length / 1MB
 Write-Host "📦 Tamanho do APK: $([math]::Round($apkSize, 2)) MB" -ForegroundColor Cyan
 
 # 12. Git commit

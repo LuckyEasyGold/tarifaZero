@@ -17,15 +17,34 @@ import Ranking from '@/pages/Ranking';
 import PoliticaPrivacidade from '@/pages/PoliticaPrivacidade';
 import Sobre from '@/pages/Sobre';
 import TesteWifi from '@/pages/TesteWifi';
+import { Capacitor } from '@capacitor/core';
 import './App.css';
 
-// v2.4.1 - Splash sempre ativo, simulação de ônibus, navegação corrigida
+// v2.4.2.0 - Sistema de versionamento com build number
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
   const [userSetup, setUserSetup] = useState(false);
 
   useEffect(() => {
+    // Limpar cache do WebView no app nativo (evita tela branca)
+    if (Capacitor.isNativePlatform()) {
+      const lastVersion = localStorage.getItem('appVersion');
+      const currentVersion = '2.4.2.0';
+      
+      if (lastVersion !== currentVersion) {
+        console.log('[App] Nova versão detectada, limpando cache...');
+        // Força reload sem cache
+        if ('caches' in window) {
+          caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+          });
+        }
+        localStorage.setItem('appVersion', currentVersion);
+        window.location.reload();
+      }
+    }
+
     // Verificar se usuário já aceitou termos
     const hasAcceptedTerms = localStorage.getItem('acceptedTerms');
     const userNickname = localStorage.getItem('userNickname');
