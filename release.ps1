@@ -62,15 +62,13 @@ Set-Location android
 if ($LASTEXITCODE -ne 0) { Write-Host "❌ Erro ao compilar APK" -ForegroundColor Red; Set-Location ..; exit 1 }
 Set-Location ..
 
-# 10. Copiar APK com nome versionado
+# 10. Copiar APK apenas para raiz (NÃO para public - evita APK dentro do APK)
 $apkSource = "android/app/build/outputs/apk/debug/TarifaZero-$newVersion.apk"
-$apkDestPublic = "public/TarifaZero-$newVersion.apk"
 $apkDestRoot = "TarifaZero-$newVersion.apk"
 
-Copy-Item $apkSource $apkDestPublic -Force
 Copy-Item $apkSource $apkDestRoot -Force
 
-Write-Host "✅ APK copiado para: public/ e raiz" -ForegroundColor Green
+Write-Host "✅ APK copiado para raiz do projeto" -ForegroundColor Green
 
 # 11. Mostrar tamanho do APK
 $apkSize = (Get-Item $apkDestRoot).Length / 1MB

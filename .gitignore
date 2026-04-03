@@ -48,3 +48,4 @@ android/gradle.properties.local
 # APK files
 *.apk
 public/*.apk
+!TarifaZero-*.apk
