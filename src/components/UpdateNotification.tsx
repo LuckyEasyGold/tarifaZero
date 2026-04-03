@@ -3,7 +3,7 @@ import { Download, X, AlertCircle, Loader2 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Browser } from '@capacitor/browser';
+import { FileOpener } from '@capacitor-community/file-opener';
 
 interface VersionInfo {
   version: string;
@@ -117,21 +117,23 @@ export default function UpdateNotification() {
           console.log('[Update] APK salvo:', result.uri);
           setDownloadProgress(100);
 
-          // Abrir APK para instalação
-          await Browser.open({ 
-            url: result.uri,
-            presentationStyle: 'popover'
+          // Abrir APK para instalação usando FileOpener
+          await FileOpener.open({
+            filePath: result.uri,
+            contentType: 'application/vnd.android.package-archive',
+            openWithDefault: true
           });
 
-          // Fechar app após 1 segundo
+          console.log('[Update] Instalador aberto, fechando app...');
+
+          // Fechar app após 500ms para dar tempo do instalador abrir
           setTimeout(() => {
             App.exitApp();
-          }, 1000);
+          }, 500);
 
         } catch (error) {
-          console.error('[Update] Erro ao salvar APK:', error);
-          // Fallback: abrir no navegador
-          window.open(versionInfo.downloadUrl, '_blank');
+          console.error('[Update] Erro ao abrir APK:', error);
+          alert('Erro ao abrir instalador. Baixe manualmente em: ' + versionInfo.downloadUrl);
         }
       };
 
@@ -139,8 +141,7 @@ export default function UpdateNotification() {
 
     } catch (error) {
       console.error('[Update] Erro no download:', error);
-      // Fallback: abrir no navegador
-      window.open(versionInfo.downloadUrl, '_blank');
+      alert('Erro ao baixar atualização. Tente novamente.');
     } finally {
       setDownloading(false);
     }

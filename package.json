@@ -1,6 +1,6 @@
 {
   "name": "tarifazero",
-  "version": "2.4.2.2",
+  "version": "2.4.2.4",
   "private": true,
   "type": "module",
   "scripts": {
@@ -22,6 +22,7 @@
     "release:apk": "npm run android:build && node -e \"const fs=require('fs'); const src='android/app/build/outputs/apk/debug/TarifaZero.apk'; const dest='TarifaZero.apk'; fs.copyFileSync(src, dest); console.log('APK disponível em: ' + dest); console.log('Para atualizar no Vercel: git add TarifaZero.apk && git commit && git push');\""
   },
   "dependencies": {
+    "@capacitor-community/file-opener": "^8.0.0",
     "@capacitor/android": "^8.3.0",
     "@capacitor/app": "^8.1.0",
     "@capacitor/browser": "^8.0.3",
