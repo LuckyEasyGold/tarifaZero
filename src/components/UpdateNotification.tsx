@@ -92,57 +92,121 @@ export default function UpdateNotification() {
     try {
       console.log('[Update] Iniciando download:', versionInfo.downloadUrl);
 
-      // Fazer download do APK
+      // Fazer download do APK com progresso
       const response = await fetch(versionInfo.downloadUrl);
       
       if (!response.ok) {
         throw new Error('Erro ao baixar atualização');
       }
 
-      const blob = await response.blob();
-      const reader = new FileReader();
+      const contentLength = response.headers.get('content-length');
+      const total = contentLength ? parseInt(contentLength, 10) : 0;
+      
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('Não foi possível ler o arquivo');
+      }
 
-      reader.onloadend = async () => {
+      const chunks: Uint8Array[] = [];
+      let receivedLength = 0;
+
+      // Ler o stream com progresso
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+        
+        chunks.push(value);
+        receivedLength += value.length;
+        
+        // Atualizar progresso
+        if (total > 0) {
+          const progress = Math.round((receivedLength / total) * 100);
+          setDownloadProgress(progress);
+          console.log('[Update] Progresso:', progress + '%');
+        }
+      }
+
+      // Combinar chunks em um único array
+      const chunksAll = new Uint8Array(receivedLength);
+      let position = 0;
+      for (const chunk of chunks) {
+        chunksAll.set(chunk, position);
+        position += chunk.length;
+      }
+
+      // Converter para base64
+      const blob = new Blob([chunksAll], { type: 'application/vnd.android.package-archive' });
+      const base64Data = await new Promise<string>((resolve, reject) => {
+        const fileReader = new FileReader();
+        fileReader.onloadend = () => {
+          const result = fileReader.result as string;
+          resolve(result.split(',')[1]);
+        };
+        fileReader.onerror = reject;
+        fileReader.readAsDataURL(blob);
+      });
+
+      console.log('[Update] Download completo, salvando APK...');
+      setDownloadProgress(100);
+
+      // Salvar APK no diretório de cache
+      const fileName = `TarifaZero-${versionInfo.version}.apk`;
+      const result = await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Cache
+      });
+
+      console.log('[Update] APK salvo:', result.uri);
+
+      // Aguardar 500ms para usuário ver que completou
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Abrir APK para instalação usando FileOpener
+      console.log('[Update] Abrindo instalador...');
+      
+      try {
+        await FileOpener.open({
+          filePath: result.uri,
+          contentType: 'application/vnd.android.package-archive',
+          openWithDefault: true
+        });
+
+        console.log('[Update] Instalador aberto com sucesso');
+        
+        // Aguardar 1 segundo e fechar o app
+        setTimeout(() => {
+          console.log('[Update] Fechando aplicativo...');
+          App.exitApp();
+        }, 1000);
+
+      } catch (openError) {
+        console.error('[Update] Erro ao abrir instalador:', openError);
+        
+        // Tentar abrir de forma alternativa (usando URI do Android)
+        const androidUri = result.uri.replace('file://', '');
+        console.log('[Update] Tentando URI alternativa:', androidUri);
+        
         try {
-          const base64Data = (reader.result as string).split(',')[1];
-          
-          // Salvar APK no diretório de cache
-          const fileName = `TarifaZero-${versionInfo.version}.apk`;
-          const result = await Filesystem.writeFile({
-            path: fileName,
-            data: base64Data,
-            directory: Directory.Cache
-          });
-
-          console.log('[Update] APK salvo:', result.uri);
-          setDownloadProgress(100);
-
-          // Abrir APK para instalação usando FileOpener
           await FileOpener.open({
-            filePath: result.uri,
+            filePath: androidUri,
             contentType: 'application/vnd.android.package-archive',
             openWithDefault: true
           });
-
-          console.log('[Update] Instalador aberto, fechando app...');
-
-          // Fechar app após 500ms para dar tempo do instalador abrir
+          
           setTimeout(() => {
             App.exitApp();
-          }, 500);
-
-        } catch (error) {
-          console.error('[Update] Erro ao abrir APK:', error);
-          alert('Erro ao abrir instalador. Baixe manualmente em: ' + versionInfo.downloadUrl);
+          }, 1000);
+        } catch (altError) {
+          console.error('[Update] Erro na tentativa alternativa:', altError);
+          alert('Download completo! Por favor, instale manualmente o arquivo baixado ou acesse: ' + versionInfo.downloadUrl);
         }
-      };
-
-      reader.readAsDataURL(blob);
+      }
 
     } catch (error) {
       console.error('[Update] Erro no download:', error);
-      alert('Erro ao baixar atualização. Tente novamente.');
-    } finally {
+      alert('Erro ao baixar atualização. Verifique sua conexão e tente novamente.');
       setDownloading(false);
     }
   };
@@ -201,7 +265,7 @@ export default function UpdateNotification() {
               {downloading ? (
                 <>
                   <Loader2 size={14} className="animate-spin" />
-                  Baixando... {downloadProgress}%
+                  {downloadProgress < 100 ? `Baixando ${downloadProgress}%` : 'Instalando...'}
                 </>
               ) : (
                 <>
@@ -210,6 +274,27 @@ export default function UpdateNotification() {
                 </>
               )}
             </button>
+
+            {/* Barra de progresso */}
+            {downloading && downloadProgress < 100 && (
+              <div className="mt-2">
+                <div className="w-full bg-blue-200 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="bg-white h-full transition-all duration-300 ease-out"
+                    style={{ width: `${downloadProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-blue-100 mt-1 text-center">
+                  {downloadProgress}% - Aguarde, não feche o app
+                </p>
+              </div>
+            )}
+
+            {downloading && downloadProgress === 100 && (
+              <p className="text-xs text-blue-100 mt-2 text-center animate-pulse">
+                ✅ Download completo! Abrindo instalador...
+              </p>
+            )}
           </div>
 
           {/* Botão fechar (apenas se não for obrigatória) */}

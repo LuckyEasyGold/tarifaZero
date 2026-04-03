@@ -20,28 +20,46 @@ import TesteWifi from '@/pages/TesteWifi';
 import { Capacitor } from '@capacitor/core';
 import './App.css';
 
-// v2.4.2.0 - Sistema de versionamento com build number
+// v2.4.2.5 - Sistema de versionamento com build number
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
   const [userSetup, setUserSetup] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Limpar cache do WebView no app nativo (evita tela branca)
     if (Capacitor.isNativePlatform()) {
       const lastVersion = localStorage.getItem('appVersion');
-      const currentVersion = '2.4.2.5';
+      const currentVersion = '2.4.2.6';
       
       if (lastVersion !== currentVersion) {
         console.log('[App] Nova versão detectada, limpando cache...');
-        // Força reload sem cache
+        
+        // Limpar todos os caches
         if ('caches' in window) {
           caches.keys().then(names => {
-            names.forEach(name => caches.delete(name));
+            names.forEach(name => {
+              console.log('[App] Deletando cache:', name);
+              caches.delete(name);
+            });
           });
         }
+        
+        // Limpar sessionStorage (mas manter localStorage com dados importantes)
+        sessionStorage.clear();
+        
+        // Atualizar versão
         localStorage.setItem('appVersion', currentVersion);
-        window.location.reload();
+        
+        console.log('[App] Cache limpo, recarregando...');
+        
+        // Aguardar um pouco antes de recarregar
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+        
+        return; // Não continuar a execução
       }
     }
 
@@ -52,6 +70,9 @@ function App() {
     if (hasAcceptedTerms) {
       setUserSetup(true);
     }
+    
+    // Marcar como carregado após verificações
+    setIsLoading(false);
   }, []);
 
   const handleSplashComplete = () => {
@@ -105,6 +126,18 @@ function App() {
     return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
+  // Mostrar loading se ainda estiver carregando
+  if (isLoading) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-blue-700">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white mx-auto mb-4"></div>
+          <p className="text-white text-lg">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Mostrar welcome se não aceitou termos
   if (showWelcome) {
     return <WelcomeScreen onComplete={handleWelcomeComplete} />;
@@ -145,6 +178,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
