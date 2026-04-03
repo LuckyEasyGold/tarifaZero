@@ -23,37 +23,25 @@ interface HorarioData {
 }
 
 /**
- * Geocodificar endereço usando Google Maps API
+ * Geocodificar endereço usando Nominatim (OpenStreetMap) - GRATUITO!
  */
 async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
-  const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY?.trim().replace(/"/g, '');
-  
-  if (!GOOGLE_MAPS_API_KEY) {
-    console.warn('⚠️  GOOGLE_MAPS_API_KEY não configurada, usando coordenadas aproximadas');
-    // Retornar coordenadas aproximadas de Palmas/PR
-    return {
-      lat: -26.4844 + (Math.random() - 0.5) * 0.02,
-      lng: -49.0761 + (Math.random() - 0.5) * 0.02
-    };
-  }
-
+  // Usar Nominatim (OpenStreetMap) - gratuito e sem burocracia
   const fullAddress = `${address}, Palmas, Paraná, Brasil`;
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fullAddress)}&key=${GOOGLE_MAPS_API_KEY}`;
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(fullAddress)}&format=json&limit=1`;
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'TarifaZero-App/1.0' // Nominatim requer User-Agent
+      }
+    });
     const data = await response.json();
 
-    if (data.status === 'OK' && data.results.length > 0) {
-      const location = data.results[0].geometry.location;
-      console.log(`  ✅ ${address} -> (${location.lat.toFixed(6)}, ${location.lng.toFixed(6)})`);
-      return { lat: location.lat, lng: location.lng };
-    } else if (data.status === 'REQUEST_DENIED') {
-      console.warn(`  ⚠️  API não habilitada, usando coordenadas aproximadas para: ${address}`);
-      return {
-        lat: -26.4844 + (Math.random() - 0.5) * 0.02,
-        lng: -49.0761 + (Math.random() - 0.5) * 0.02
-      };
+    if (data.length > 0) {
+      const location = data[0];
+      console.log(`  ✅ ${address} -> (${parseFloat(location.lat).toFixed(6)}, ${parseFloat(location.lon).toFixed(6)})`);
+      return { lat: parseFloat(location.lat), lng: parseFloat(location.lon) };
     } else {
       console.warn(`  ⚠️  Não encontrado: ${address}, usando coordenadas aproximadas`);
       return {
@@ -71,51 +59,24 @@ async function geocodeAddress(address: string): Promise<{ lat: number; lng: numb
 }
 
 /**
- * Criar rota usando Google Directions API
+ * Criar rota usando OpenRouteService (alternativa gratuita ao Google)
  */
 async function createRoutePoints(streets: string[]): Promise<Array<{ lat: number; lng: number }> | null> {
-  const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
-  
-  if (!GOOGLE_MAPS_API_KEY || streets.length < 2) {
-    return null;
-  }
+  if (streets.length < 2) return null;
 
-  const origin = `${streets[0]}, Palmas, PR`;
-  const destination = `${streets[streets.length - 1]}, Palmas, PR`;
-  const waypoints = streets.slice(1, -1).map(s => `${s}, Palmas, PR`).join('|');
+  // Usar Nominatim para geocodificar as ruas e criar rota simples
+  const points: Array<{ lat: number; lng: number }> = [];
 
-  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&waypoints=${encodeURIComponent(waypoints)}&key=${GOOGLE_MAPS_API_KEY}`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.status === 'OK' && data.routes.length > 0) {
-      const route = data.routes[0];
-      const points: Array<{ lat: number; lng: number }> = [];
-
-      route.legs.forEach((leg: any) => {
-        leg.steps.forEach((step: any) => {
-          points.push({
-            lat: step.start_location.lat,
-            lng: step.start_location.lng
-          });
-        });
-      });
-
-      const lastLeg = route.legs[route.legs.length - 1];
-      points.push({
-        lat: lastLeg.end_location.lat,
-        lng: lastLeg.end_location.lng
-      });
-
-      return points;
+  for (const street of streets) {
+    const coords = await geocodeAddress(street);
+    if (coords) {
+      points.push(coords);
     }
-  } catch (error) {
-    console.error('  ❌ Erro ao criar rota:', error);
+    // Delay para respeitar rate limit do Nominatim (1 req/sec)
+    await new Promise(resolve => setTimeout(resolve, 1100));
   }
 
-  return null;
+  return points.length > 0 ? points : null;
 }
 
 /**

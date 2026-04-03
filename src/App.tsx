@@ -31,7 +31,7 @@ function App() {
     // Limpar cache do WebView no app nativo (evita tela branca)
     if (Capacitor.isNativePlatform()) {
       const lastVersion = localStorage.getItem('appVersion');
-      const currentVersion = '2.4.2.9';
+      const currentVersion = '2.4.2.10';
       
       if (lastVersion !== currentVersion) {
         console.log('[App] Nova versão detectada, limpando cache...');
@@ -178,6 +178,7 @@ function App() {
 }
 
 export default App;
+
 
 
 

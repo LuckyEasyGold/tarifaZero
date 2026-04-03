@@ -1,8 +1,8 @@
 {
-  "version": "2.4.2.9",
-  "versionCode": 16,
+  "version": "2.4.2.10",
+  "versionCode": 17,
   "releaseDate": "2026-04-03",
-  "downloadUrl": "https://tarifazero.vercel.app/TarifaZero-2.4.2.9.apk",
+  "downloadUrl": "https://tarifazero.vercel.app/TarifaZero-2.4.2.10.apk",
   "changelog": [
     "📡 Scanner WiFi implementado (@capgo/capacitor-wifi)",
     "👤 GlobalMenu com perfil e botão sair",

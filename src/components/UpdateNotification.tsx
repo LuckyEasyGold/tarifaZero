@@ -3,7 +3,13 @@ import { Download, X, AlertCircle, Loader2 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import { FileOpener } from '@capacitor-community/file-opener';
+import { registerPlugin } from '@capacitor/core';
+
+interface ApkInstallerPlugin {
+  installApk(options: { filePath: string }): Promise<{ success: boolean }>;
+}
+
+const ApkInstaller = registerPlugin<ApkInstallerPlugin>('ApkInstaller');
 
 interface VersionInfo {
   version: string;
@@ -163,14 +169,12 @@ export default function UpdateNotification() {
       // Aguardar 500ms para usuário ver que completou
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Abrir APK para instalação usando FileOpener
-      console.log('[Update] Abrindo instalador...');
+      // Instalar APK usando plugin nativo
+      console.log('[Update] Iniciando instalação...');
       
       try {
-        await FileOpener.open({
-          filePath: result.uri,
-          contentType: 'application/vnd.android.package-archive',
-          openWithDefault: true
+        await ApkInstaller.installApk({
+          filePath: result.uri
         });
 
         console.log('[Update] Instalador aberto com sucesso');
@@ -181,27 +185,10 @@ export default function UpdateNotification() {
           App.exitApp();
         }, 1000);
 
-      } catch (openError) {
-        console.error('[Update] Erro ao abrir instalador:', openError);
-        
-        // Tentar abrir de forma alternativa (usando URI do Android)
-        const androidUri = result.uri.replace('file://', '');
-        console.log('[Update] Tentando URI alternativa:', androidUri);
-        
-        try {
-          await FileOpener.open({
-            filePath: androidUri,
-            contentType: 'application/vnd.android.package-archive',
-            openWithDefault: true
-          });
-          
-          setTimeout(() => {
-            App.exitApp();
-          }, 1000);
-        } catch (altError) {
-          console.error('[Update] Erro na tentativa alternativa:', altError);
-          alert('Download completo! Por favor, instale manualmente o arquivo baixado ou acesse: ' + versionInfo.downloadUrl);
-        }
+      } catch (installError) {
+        console.error('[Update] Erro ao instalar:', installError);
+        alert('Erro ao abrir instalador. Por favor, instale manualmente o arquivo baixado.');
+        setDownloading(false);
       }
 
     } catch (error) {
