@@ -60,9 +60,17 @@ export default function BuscarRota() {
 
     debounceRef.current = setTimeout(async () => {
       try {
-        const latParam = origCoords ? `&lat=${origCoords.lat}` : '';
-        const lonParam = origCoords ? `&lon=${origCoords.lng}` : '';
-        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(val)}${latParam}${lonParam}&limit=5`;
+        // Fallback de coordenadas para o centro de Palmas caso não haja GPS originário
+        const latParam = origCoords ? `&lat=${origCoords.lat}` : '&lat=-26.4839';
+        const lonParam = origCoords ? `&lon=${origCoords.lng}` : '&lon=-51.9882';
+        
+        // Caixa de contorno geográfico aproximado de Palmas/PR 
+        const bboxParam = '&bbox=-52.2,-26.6,-51.8,-26.2';
+
+        // Forçar a palavra Palmas se não tiver na busca para aumentar match do Photon
+        const searchQuery = val.toLowerCase().includes('palmas') ? val : `${val} Palmas`;
+        
+        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(searchQuery)}${latParam}${lonParam}${bboxParam}&limit=5`;
         
         const res = await fetch(url);
         const data = await res.json();

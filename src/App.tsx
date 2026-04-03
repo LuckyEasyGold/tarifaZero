@@ -6,6 +6,7 @@ import SplashScreen from '@/components/SplashScreen';
 import WelcomeScreen from '@/components/WelcomeScreen';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import UpdateNotification from '@/components/UpdateNotification';
+import GlobalMenu from '@/components/GlobalMenu';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import Home from '@/pages/Home';
 import Linhas from '@/pages/Linhas';
@@ -96,6 +97,9 @@ function App() {
         <div className="min-h-screen bg-gray-50">
           <Toaster position="top-center" />
           
+          {/* Menu global de Perfil e Botão Sair */}
+          <GlobalMenu />
+
           {/* Notificação de atualização (apenas no app nativo) */}
           <UpdateNotification />
           
