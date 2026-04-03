@@ -1,12 +1,11 @@
 {
-  "version": "2.3.0",
-  "versionCode": 4,
-  "releaseDate": "2026-03-31",
+  "version": "2.4.0",
+  "versionCode": 5,
+  "releaseDate": "2026-04-03",
   "downloadUrl": "https://tarifazero.vercel.app/TarifaZero.apk",
   "changelog": [
-    "🔧 WiFi Scanner movido para dentro do app",
-    "📝 Logs detalhados para debug",
-    "✅ Removido módulo Gradle separado",
+    "🚀 Automatização das atualizações na base",
+    "✅ Preparação para a tela de buscas",
     "✅ Melhorias de estabilidade"
   ],
   "minVersion": "2.0.0",

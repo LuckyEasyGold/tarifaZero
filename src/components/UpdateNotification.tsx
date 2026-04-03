@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Download, X, AlertCircle } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 
 interface VersionInfo {
   version: string;
@@ -12,10 +13,8 @@ interface VersionInfo {
   forceUpdate: boolean;
 }
 
-const CURRENT_VERSION = '2.3.0';
-const CURRENT_VERSION_CODE = 4;
-
 export default function UpdateNotification() {
+  const [currentVersion, setCurrentVersion] = useState<string>('');
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
   const [dismissed, setDismissed] = useState(false);
@@ -25,31 +24,44 @@ export default function UpdateNotification() {
     // Só verifica atualização no app nativo
     if (!isNative) return;
 
-    // Verifica se já foi dispensado nesta sessão
-    const dismissedVersion = sessionStorage.getItem('dismissedUpdateVersion');
-    if (dismissedVersion === CURRENT_VERSION) {
-      return;
-    }
-
-    checkForUpdates();
+    initUpdateCheck();
   }, [isNative]);
 
-  const checkForUpdates = async () => {
+  const initUpdateCheck = async () => {
     try {
-      const response = await fetch('/api/version');
+      const info = await App.getInfo();
+      const deviceVersion = info.version;
+      const deviceVersionCode = parseInt(info.build || '0', 10);
+      
+      setCurrentVersion(deviceVersion);
+
+      // Verifica se já foi dispensado nesta sessão
+      const dismissedVersion = sessionStorage.getItem('dismissedUpdateVersion');
+      if (dismissedVersion === deviceVersion) {
+        return;
+      }
+
+      checkForUpdates(deviceVersionCode);
+    } catch (err) {
+      console.error('Erro ao ler versão nativa:', err);
+    }
+  };
+
+  const checkForUpdates = async (deviceVersionCode: number) => {
+    try {
+      // Adiciona timestamp param para evitar chache do servidor
+      const response = await fetch('/version.json?t=' + new Date().getTime());
       
       if (!response.ok) {
         console.warn('Não foi possível verificar atualizações:', response.status);
         return;
       }
       
-      const data = await response.json();
+      const latestVersion = await response.json();
       
-      if (data.success && data.data) {
-        const latestVersion = data.data;
-        
-        // Compara versionCode (mais confiável que string)
-        if (latestVersion.versionCode > CURRENT_VERSION_CODE) {
+      if (latestVersion && latestVersion.versionCode) {
+        // Compara versionCode
+        if (latestVersion.versionCode > deviceVersionCode) {
           setVersionInfo(latestVersion);
           setUpdateAvailable(true);
         }
@@ -62,7 +74,7 @@ export default function UpdateNotification() {
 
   const handleDismiss = () => {
     if (versionInfo && !versionInfo.forceUpdate) {
-      sessionStorage.setItem('dismissedUpdateVersion', CURRENT_VERSION);
+      sessionStorage.setItem('dismissedUpdateVersion', currentVersion);
       setDismissed(true);
     }
   };

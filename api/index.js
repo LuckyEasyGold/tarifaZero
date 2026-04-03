@@ -65,26 +65,12 @@ export default async function handler(req, res) {
       return await handleSupporters(req, res, path);
     }
 
-    // Version check endpoint
-    if (path === '/version' && req.method === 'GET') {
-      return res.status(200).json({
-        success: true,
-        data: {
-          version: "2.3.0",
-          versionCode: 4,
-          releaseDate: "2026-03-31",
-          downloadUrl: "https://tarifazero.vercel.app/TarifaZero.apk",
-          changelog: [
-            "🔧 WiFi Scanner movido para dentro do app",
-            "📝 Logs detalhados para debug",
-            "✅ Removido módulo Gradle separado",
-            "✅ Melhorias de estabilidade"
-          ],
-          minVersion: "2.0.0",
-          forceUpdate: false
-        }
-      });
+    // Routing endpoints
+    if (path.startsWith('/routing')) {
+      return await handleRouting(req, res, path);
     }
+
+    // Endpoint /version removido para simplificar e ler o estático de public/version.json
 
     return res.status(404).json({ error: 'Endpoint not found' });
 
@@ -529,5 +515,79 @@ async function handleSupporters(req, res, path) {
     return res.status(201).json({ success: true, data: supporter });
   }
 
+  return res.status(404).json({ error: 'Endpoint not found' });
+}
+
+// Routing handlers
+async function handleRouting(req, res, path) {
+  if (path === '/routing/search' && req.method === 'GET') {
+    const { origLat, origLng, destLat, destLng, radius = 1000 } = req.query;
+
+    if (!origLat || !origLng || !destLat || !destLng) {
+      return res.status(400).json({ error: 'Faltam coordenadas' });
+    }
+
+    const oLat = parseFloat(origLat);
+    const oLng = parseFloat(origLng);
+    const dLat = parseFloat(destLat);
+    const dLng = parseFloat(destLng);
+    const r = parseFloat(radius);
+
+    try {
+      // Pega dicionario de linhas que tem paradas proximas da origem
+      const originStops = await prisma.$queryRaw`
+        SELECT DISTINCT "lineId"
+        FROM stops
+        WHERE ST_DWithin(
+          ST_MakePoint(lng, lat)::geography,
+          ST_MakePoint(${oLng}, ${oLat})::geography,
+          ${r}
+        ) AND active = true
+      `;
+      
+      const originLineIds = originStops.map(s => s.lineId);
+      
+      if (originLineIds.length === 0) {
+        return res.status(200).json({ success: true, routes: [], message: 'Não há paradas perto da origem.' });
+      }
+
+      // Procura quais dessas linhas tb tem parada proximo ao destino
+      const lineIdsString = originLineIds.join("','");
+      // Precisa fazer raw query compativel, ou chamar o prisma para a interseção
+      
+      const destinationStops = await prisma.$queryRawUnsafe(`
+        SELECT DISTINCT "lineId"
+        FROM stops
+        WHERE "lineId" IN ('${originLineIds.join("','")}') 
+        AND ST_DWithin(
+          ST_MakePoint(lng, lat)::geography,
+          ST_MakePoint(${dLng}, ${dLat})::geography,
+          ${r}
+        ) AND active = true
+      `);
+
+      const validLineIds = destinationStops.map(s => s.lineId);
+
+      if (validLineIds.length === 0) {
+        return res.status(200).json({ success: true, routes: [], message: 'Nenhuma viagem direta encontrada.' });
+      }
+
+      // Busca dados completos das linhas validas
+      const lines = await prisma.line.findMany({
+        where: {
+          id: { in: validLineIds },
+          active: true
+        }
+      });
+
+      return res.status(200).json({ success: true, routes: lines });
+
+    } catch (error) {
+      console.error('Routing db erro:', error);
+      return res.status(500).json({ error: 'Erro no servidor' });
+    }
+
+  }
+  
   return res.status(404).json({ error: 'Endpoint not found' });
 }
