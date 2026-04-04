@@ -57,7 +57,7 @@ export const trackingService = {
     }
   },
 
-  async stopSession(sessionId: string): Promise<SessionResponse> {
+  async stopSession(sessionId: string, metadata?: { validationMeta?: any }): Promise<SessionResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/tracking/session`, {
         method: 'POST',
@@ -67,6 +67,7 @@ export const trackingService = {
         body: JSON.stringify({
           action: 'stop',
           sessionId,
+          metadata,
         }),
       });
 

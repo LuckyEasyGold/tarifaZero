@@ -4,8 +4,10 @@ import { MapPin, Square } from 'lucide-react';
 import BusMap from '@/components/map/BusMap';
 import RecordingBanner from '@/components/RecordingBanner';
 import MarkStopModal from '@/components/MarkStopModal';
+import ValidationWarningModal from '@/components/ValidationWarningModal';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { trackingService } from '@/services/trackingService';
+import { validateBusPattern, type GPSPoint, type TrackValidationResult } from '@/lib/trackValidator';
 import { toast } from 'sonner';
 import type { PosicaoOnibus } from '@/types';
 import { getActiveUsers, sendHeartbeat, type ActiveUser } from '@/services/userService';
@@ -66,9 +68,12 @@ export default function Home() {
   
   // Estados do modo gravação
   const [recordingPath, setRecordingPath] = useState<Array<{ lat: number; lng: number }>>([]);
+  const [recordedTrack, setRecordedTrack] = useState<GPSPoint[]>([]);
   const [pointsCollected, setPointsCollected] = useState(0);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   const [showMarkStopModal, setShowMarkStopModal] = useState(false);
+  const [showValidationModal, setShowValidationModal] = useState(false);
+  const [validationResult, setValidationResult] = useState<TrackValidationResult | null>(null);
   
   const geolocation = useGeolocation();
 
@@ -87,6 +92,18 @@ export default function Home() {
       setRecordingPath(prev => [
         ...prev,
         { lat: geolocation.latitude!, lng: geolocation.longitude! }
+      ]);
+      
+      // Adicionar ponto com dados completos para validação
+      setRecordedTrack(prev => [
+        ...prev,
+        {
+          lat: geolocation.latitude!,
+          lng: geolocation.longitude!,
+          timestamp: Date.now(),
+          speed: geolocation.speed ?? undefined,
+          accuracy: geolocation.accuracy ?? undefined
+        }
       ]);
     }
   }, [geolocation.latitude, geolocation.longitude, isRecording]);
@@ -128,14 +145,45 @@ export default function Home() {
   const handleStopRecording = async () => {
     if (!recordingSessionId) return;
 
+    // Validar trajetória antes de finalizar
+    console.log('[Validação] Iniciando validação da trajetória...');
+    console.log('[Validação] Total de pontos:', recordedTrack.length);
+    
+    const validation = validateBusPattern(recordedTrack);
+    console.log('[Validação] Resultado:', validation);
+    
+    setValidationResult(validation);
+    setShowValidationModal(true);
+  };
+
+  // Função para confirmar finalização após validação
+  const handleConfirmFinish = async () => {
+    if (!recordingSessionId) return;
+
+    setShowValidationModal(false);
+
     // Parar tracking de GPS
     geolocation.stopTracking();
     
-    // Finalizar sessão no backend
-    const result = await trackingService.stopSession(recordingSessionId);
+    // Finalizar sessão no backend com dados de validação
+    const result = await trackingService.stopSession(recordingSessionId, {
+      validationMeta: {
+        clientConfidence: validationResult?.confidence ?? 0.5,
+        estimatedStops: validationResult?.estimatedStops ?? 0,
+        reasons: validationResult?.reasons ?? [],
+        avgSpeed: validationResult?.avgSpeed ?? 0,
+        maxSpeed: validationResult?.maxSpeed ?? 0,
+        distance: validationResult?.distance ?? 0,
+        duration: validationResult?.duration ?? 0
+      }
+    });
     
     if (result.success) {
-      toast.success(`Rota salva! ${result.data?.pointsCollected} pontos coletados. Obrigado! 🎉`);
+      const confidenceEmoji = validationResult && validationResult.confidence >= 0.7 ? '✅' : '⚠️';
+      toast.success(
+        `${confidenceEmoji} Rota salva! ${result.data?.pointsCollected} pontos coletados. Obrigado! 🎉`,
+        { duration: 5000 }
+      );
     }
 
     // Redirecionar para página Contribuir
@@ -625,6 +673,16 @@ export default function Home() {
         onClose={() => setShowMarkStopModal(false)}
         onSave={handleMarkStop}
       />
+      
+      {/* Modal de validação */}
+      {validationResult && (
+        <ValidationWarningModal
+          isOpen={showValidationModal}
+          onClose={() => setShowValidationModal(false)}
+          onConfirm={handleConfirmFinish}
+          validation={validationResult}
+        />
+      )}
     </div>
   );
 }
