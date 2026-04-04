@@ -75,6 +75,19 @@ function App() {
     setIsLoading(false);
   }, []);
 
+  // Fallback de segurança: detecta tela branca prolongada
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const root = document.getElementById('root');
+      if (root && root.children.length === 0 && !document.querySelector('.hydrated')) {
+        console.warn('[Fallback] Hidratação lenta/falha detectada. Recarregando WebView...');
+        window.location.reload();
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleSplashComplete = () => {
     setShowSplash(false);
     if (!userSetup) {

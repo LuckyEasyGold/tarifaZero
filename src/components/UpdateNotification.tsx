@@ -5,11 +5,11 @@ import { App } from '@capacitor/app';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { registerPlugin } from '@capacitor/core';
 
-interface ApkInstallerPlugin {
-  installApk(options: { filePath: string }): Promise<{ success: boolean }>;
+interface AppUpdaterPlugin {
+  installApk(options: { uri: string }): Promise<{ status: string }>;
 }
 
-const ApkInstaller = registerPlugin<ApkInstallerPlugin>('ApkInstaller');
+const AppUpdater = registerPlugin<AppUpdaterPlugin>('AppUpdater');
 
 interface VersionInfo {
   version: string;
@@ -169,21 +169,24 @@ export default function UpdateNotification() {
       // Aguardar 500ms para usuário ver que completou
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Instalar APK usando plugin nativo
+      // Instalar APK usando plugin nativo AppUpdater
       console.log('[Update] Iniciando instalação...');
       
       try {
-        await ApkInstaller.installApk({
-          filePath: result.uri
+        const installResult = await AppUpdater.installApk({
+          uri: result.uri
         });
 
-        console.log('[Update] Instalador aberto com sucesso');
+        console.log('[Update] Instalador aberto:', installResult.status);
         
-        // Aguardar 1 segundo e fechar o app
-        setTimeout(() => {
-          console.log('[Update] Fechando aplicativo...');
-          App.exitApp();
-        }, 1000);
+        if (installResult.status === 'permission_required') {
+          alert('Por favor, permita a instalação de apps de fontes desconhecidas e tente novamente.');
+          setDownloading(false);
+          return;
+        }
+        
+        // O app será fechado automaticamente pelo plugin após abrir o instalador
+        console.log('[Update] App será fechado automaticamente...');
 
       } catch (installError) {
         console.error('[Update] Erro ao instalar:', installError);
