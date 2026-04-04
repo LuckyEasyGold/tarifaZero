@@ -1,13 +1,14 @@
 {
-  "version": "2.5.0.0",
-  "versionCode": 19,
+  "version": "2.5.0.1",
+  "versionCode": 20,
   "releaseDate": "2026-04-04",
-  "downloadUrl": "https://tarifazero.vercel.app/TarifaZero-2.5.0.0.apk",
+  "downloadUrl": "https://tarifazero.vercel.app/TarifaZero-2.5.0.1.apk",
   "changelog": [
-    "✅ Validação automática de rotas (detecta carro vs ônibus)",
-    "📊 Análise de velocidade e paradas",
-    "🎯 Score de confiança em contribuições",
-    "⚠️ Modal de aviso para padrões atípicos"
+    "🔧 Correção de congelamento na atualização",
+    "🎨 Tela branca corrigida após atualização",
+    "🤖 Versionamento automático no GitHub",
+    "⚡ Cache do Gradle para builds mais rápidos",
+    "✅ Sistema de validação em camadas completo"
   ],
   "minVersion": "2.0.0",
   "forceUpdate": false
