@@ -25,6 +25,10 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '17'
+        cache: 'gradle'
+
+    - name: Export JAVA_HOME
+      run: echo "JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
 
     - name: Create dummy .env
       run: echo "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy" > .env
@@ -107,10 +111,44 @@ jobs:
       uses: actions/upload-artifact@v4
       if: success()
       with:
-        name: TarifaZero.apk
-        path: android/app/build/outputs/apk/debug/TarifaZero.apk
+        name: TarifaZero-${{ github.run_number }}.apk
+        path: android/app/build/outputs/apk/debug/TarifaZero-*.apk
         retention-days: 30
         compression-level: 0
+
+    - name: Get version from build.gradle
+      id: get_version
+      run: |
+        VERSION=$(grep "versionName" android/app/build.gradle | awk -F'"' '{print $2}')
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+
+    - name: Create Release
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: softprops/action-gh-release@v2
+      with:
+        files: android/app/build/outputs/apk/debug/TarifaZero-*.apk
+        tag_name: v${{ steps.get_version.outputs.version }}-build${{ github.run_number }}
+        name: TarifaZero v${{ steps.get_version.outputs.version }} (Build ${{ github.run_number }})
+        body: |
+          ## 🚀 Build Automático #${{ github.run_number }}
+          
+          **Versão:** ${{ steps.get_version.outputs.version }}
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+          
+          ### 📦 Download
+          Baixe o APK abaixo e instale no seu dispositivo Android.
+          
+          ### 🔄 Changelog
+          ${{ github.event.head_commit.message }}
+          
+          ---
+          Build gerado automaticamente pelo GitHub Actions
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload build logs on failure
       uses: actions/upload-artifact@v4
