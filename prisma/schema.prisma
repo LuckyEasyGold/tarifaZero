@@ -10,29 +10,37 @@ datasource db {
 }
 
 model User {
-  id                String    @id @default(cuid())
-  anonymousId       String    @unique
+  id                String        @id @default(cuid())
+  anonymousId       String        @unique
   nickname          String?
-  points            Int       @default(0)
-  level             Int       @default(1)
-  totalTrips        Int       @default(0)
-  totalPoints       Int       @default(0)
-  totalMinutes      Int       @default(0)
+  points            Int           @default(0)
+  level             Int           @default(1)
+  totalTrips        Int           @default(0)
+  totalPoints       Int           @default(0)
+  totalMinutes      Int           @default(0)
   badges            String[]
-  streak            Int       @default(0)
-  lastActive        DateTime  @default(now())
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  acceptedTerms     Boolean   @default(false)
+  streak            Int           @default(0)
+  lastActive        DateTime      @default(now())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  acceptedTerms     Boolean       @default(false)
   acceptedTermsDate DateTime?
   currentLat        Float?
   currentLng        Float?
-  isOnline          Boolean   @default(false)
-  isTracking        Boolean   @default(false)
+  isOnline          Boolean       @default(false)
+  isTracking        Boolean       @default(false)
+  
+  // Trust Score & Reputação
+  trustScore        Float         @default(0.5)
+  contributions     Int           @default(0)
+  
+  // Relações
+  trajectories      Trajectory[]
 
   @@index([points])
   @@index([totalPoints])
   @@index([isOnline])
+  @@index([trustScore])
   @@map("users")
 }
 
@@ -53,6 +61,7 @@ model Line {
   trips            Trip[]
   vehiclePositions VehiclePosition[]
   wifiNetworks     WifiNetwork[]
+  trajectories     Trajectory[]
 
   @@map("lines")
 }
@@ -121,6 +130,35 @@ model ScheduledTime {
   @@index([lineId, dayOfWeek])
   @@index([stopId])
   @@map("scheduled_times")
+}
+
+enum TrackStatus {
+  pending
+  draft
+  verified
+  rejected
+}
+
+model Trajectory {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  lineId          String
+  line            Line        @relation(fields: [lineId], references: [id])
+  direction       String      @default("ida") // ida | volta
+  status          TrackStatus @default(pending)
+  trustScore      Float       @default(0.5)
+  points          Json        // Array de {lat, lng, speed, ts, accuracy}
+  metadata        Json?       // {clientConfidence, reasons, estimatedStops, deviceType, wifiValidated}
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  verifiedAt      DateTime?
+
+  @@index([lineId, status])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("trajectories")
 }
 
 model Trip {
