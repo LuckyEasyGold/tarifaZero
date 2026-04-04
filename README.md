@@ -3,7 +3,7 @@
 <div align="center">
 
 ![Tarifa Zero](https://img.shields.io/badge/Tarifa-Zero-blue?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-2.1.0-green?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-2.5.0.0-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-orange?style=for-the-badge)
 ![Android](https://img.shields.io/badge/Android-13+-brightgreen?style=for-the-badge)
 
@@ -23,13 +23,16 @@ Tarifa Zero é uma plataforma completa de rastreamento de ônibus em tempo real 
 
 - 🎯 **Crowdsourcing Inteligente**: Usuários contribuem com dados GPS em tempo real
 - 📱 **App Nativo Android**: Scanner de Wi-Fi para identificação automática do ônibus
-- 🔒 **Validação por Wi-Fi**: Garante que dados são coletados apenas dentro do ônibus
+- 🔒 **Validação em Camadas**: Sistema de 4 camadas para garantir qualidade dos dados
+- 🛡️ **Validação Client-Side**: Detecta automaticamente padrões atípicos (carro vs ônibus)
+- 🏆 **Sistema de Reputação**: Trust score progressivo baseado em contribuições
+- 🤝 **Consenso Espacial**: Rotas verificadas por múltiplos usuários
 - 🎮 **Gamificação**: Sistema de pontos, níveis, badges e ranking de contribuidores
 - 🗺️ **Visualização em Tempo Real**: Acompanhe ônibus e colaboradores no mapa
 - 📊 **API RESTful Completa**: Backend robusto com PostgreSQL + PostGIS
 - 🎨 **Interface Mobile-First**: Design responsivo e intuitivo
 - 🔐 **Conformidade LGPD**: Sistema completo de consentimento e privacidade
-- 🔔 **Sistema de Atualizações**: Notificação automática de novas versões
+- 🔔 **Sistema de Atualizações**: Notificação automática de novas versões com instalação nativa
 - 💛 **Sistema de Doações**: Apoie o projeto via Pix
 
 ---
@@ -45,22 +48,28 @@ Tarifa Zero é uma plataforma completa de rastreamento de ônibus em tempo real 
 - ✅ Calcular distância até parada mais próxima
 - ✅ Ver tempo estimado de chegada do ônibus
 - ✅ Contribuir com mapeamento de rotas (apenas APK)
+- ✅ Validação automática de trajetórias (detecta carro vs ônibus)
 - ✅ Marcar paradas de ônibus durante gravação
 - ✅ Ganhar pontos e badges por contribuições
+- ✅ Sistema de reputação progressiva (trust score)
 - ✅ Competir no ranking de contribuidores
 - ✅ Ver colaboradores ativos no mapa
-- ✅ Receber notificações de atualizações
+- ✅ Receber notificações de atualizações com instalação automática
 - ✅ Apoiar o projeto com doações Pix
 
 ### Para Desenvolvedores
 
 - ✅ API RESTful documentada
 - ✅ Banco de dados PostgreSQL com PostGIS
-- ✅ Sistema de inferência de posição
+- ✅ Sistema de validação em 4 camadas
+- ✅ Validação client-side de padrão de movimento
+- ✅ Sistema de trust score e reputação
+- ✅ Clustering espacial de trajetórias
 - ✅ Detecção automática de outliers
 - ✅ Agregação de dados de múltiplos usuários
 - ✅ Sistema de usuários online
 - ✅ Endpoints de gamificação
+- ✅ Plugin nativo Android para instalação de APK
 - 🔄 WebSocket para updates em tempo real (planejado)
 
 ---
@@ -200,15 +209,23 @@ APK gerado em: `android/app/build/outputs/apk/debug/TarifaZero.apk`
 ```
 tarifaZero/
 ├── api/                      # Backend consolidado (1 função)
-│   └── index.js             # Todos os endpoints
+│   ├── index.js             # Todos os endpoints
+│   ├── trajectory/          # Endpoints de trajetórias
+│   │   └── submit.ts        # Submissão de contribuições
+│   ├── lines/               # Endpoints de linhas
+│   │   └── [id]/trajectories.ts  # Consulta de trajetórias
+│   └── admin/               # Endpoints administrativos
+│       └── process-clustering.ts # Clustering manual
 ├── src/
 │   ├── components/          # Componentes React
 │   │   ├── map/            # Componentes de mapa
 │   │   ├── ui/             # Componentes UI (Radix)
-│   │   ├── UpdateNotification.tsx  # Notificação de atualização
-│   │   ├── DownloadAppModal.tsx    # Modal para baixar APK
-│   │   ├── RecordingBanner.tsx     # Banner de gravação
-│   │   └── MarkStopModal.tsx       # Modal para marcar paradas
+│   │   ├── UpdateNotification.tsx     # Notificação de atualização
+│   │   ├── DownloadAppModal.tsx       # Modal para baixar APK
+│   │   ├── RecordingBanner.tsx        # Banner de gravação
+│   │   ├── MarkStopModal.tsx          # Modal para marcar paradas
+│   │   ├── ValidationWarningModal.tsx # Modal de validação
+│   │   └── RouteStatusBadge.tsx       # Badges de status
 │   ├── pages/              # Páginas (rotas)
 │   │   ├── Home.tsx        # Mapa principal + modo gravação
 │   │   ├── Linhas.tsx      # Lista de linhas
@@ -219,18 +236,32 @@ tarifaZero/
 │   │   ├── useGeolocation.ts
 │   │   └── useWifiScanner.ts
 │   ├── services/           # Serviços (API calls)
+│   │   ├── trackingService.ts
+│   │   ├── reputation.ts   # Sistema de reputação
+│   │   └── clusterRoutes.ts # Clustering espacial
+│   ├── lib/                # Bibliotecas utilitárias
+│   │   └── trackValidator.ts # Validador de trajetórias
 │   ├── data/               # Dados estáticos
 │   └── types/              # Tipos TypeScript
 ├── prisma/
-│   ├── schema.prisma       # Schema do banco
+│   ├── schema.prisma       # Schema do banco (com Trajectory)
 │   └── seed.ts             # Dados iniciais
 ├── android/                # Projeto Android (Capacitor)
 │   └── app/src/main/java/com/newsdrop/tarifazero/
-│       └── WifiScannerPlugin.java  # Plugin WiFi Scanner
+│       ├── WifiScannerPlugin.java  # Plugin WiFi Scanner
+│       ├── ApkInstallerPlugin.java # Plugin instalador APK
+│       └── MainActivity.java       # Activity principal
 ├── public/                 # Assets estáticos
 │   └── version.json        # Informações de versão
+├── docs/                   # Documentação
+│   ├── ESPECIFICACAO_VALIDACAO_ROTAS_COLABORATIVAS.md
+│   ├── ANALISE_VALIDACAO_ROTAS.md
+│   ├── TAREFAS_IMPLEMENTADAS.md
+│   ├── GOOGLE-MAPS-API.md
+│   └── historico/          # Histórico de implementações
 └── scripts/                # Scripts utilitários
-    └── seed-supporters.js  # Inserir contribuidores
+    ├── seed-supporters.js  # Inserir contribuidores
+    └── update-coordinates.ts # Atualizar coordenadas
 ```
 
 ---
@@ -272,6 +303,7 @@ tarifaZero/
 GET /api/lines
 GET /api/lines/:id
 GET /api/lines/:id/map
+GET /api/lines/:id/trajectories?status=verified&limit=50&offset=0
 ```
 
 ### Paradas
@@ -280,11 +312,12 @@ GET /api/lines/:id/map
 GET /api/stops/nearby?lat=-23.5505&lng=-46.6333&radius=500
 ```
 
-### Tracking
+### Tracking & Trajetórias
 
 ```http
 POST /api/tracking/session
 POST /api/tracking/submit
+POST /api/trajectory/submit
 ```
 
 ### Gamificação
@@ -316,13 +349,44 @@ POST /api/supporters
 GET /api/version
 ```
 
+### Admin (Clustering)
+
+```http
+POST /api/admin/process-clustering
+```
+
 📖 [Documentação completa da API](./README_API.md)
 
 ---
 
 ## 🎨 Funcionalidades Recentes
 
-### v2.1.0 (30/03/2026) - Atual ✅
+### v2.5.0.0 (04/04/2026) - Atual ✅
+
+**Sistema de Validação em Camadas**
+- Validação automática de trajetórias (detecta carro vs ônibus)
+- Análise de velocidade, paradas e padrão de movimento
+- Modal de aviso com estatísticas detalhadas
+- Score de confiança para cada contribuição
+- Sistema de trust score progressivo para usuários
+- Clustering espacial de trajetórias similares
+- Consenso entre múltiplos usuários (≥3) para verificação
+- Status de trajetórias: pending → draft → verified → rejected
+- Badges de status e reputação
+- API completa para consulta e gerenciamento
+
+**Instalação Automática de APK**
+- Plugin nativo Android para instalação
+- Download com barra de progresso em tempo real
+- Instalador abre automaticamente após download
+- Suporte para Android 7.0+ com FileProvider
+
+**Geocodificação com Nominatim**
+- Substituição do Google Maps por OpenStreetMap
+- Gratuito e sem necessidade de API key
+- Atualização automática de coordenadas das paradas
+
+### v2.1.0 (30/03/2026) ✅
 
 **Sistema de Versionamento e Atualizações**
 - Notificação automática de novas versões no app
@@ -427,7 +491,7 @@ Contribuições são bem-vindas! Siga os passos:
 
 ## 📊 Progresso do Projeto
 
-**Status Atual:** 75% Concluído
+**Status Atual:** 85% Concluído
 
 | Fase | Descrição | Status |
 |------|-----------|--------|
@@ -442,10 +506,14 @@ Contribuições são bem-vindas! Siga os passos:
 | 9 | Modo Gravação de Rotas | ✅ 100% |
 | 10 | Sistema de Versionamento | ✅ 100% |
 | 11 | Sistema de Contribuidores | ✅ 100% |
-| 12 | Identificação de Veículos | ⏸️ 0% |
-| 13 | Motor de Inferência Avançado | ⏸️ 0% |
-| 14 | Sistema de Roteamento | ⏸️ 0% |
-| 15 | Testes e Otimização | ⏸️ 0% |
+| 12 | Validação em Camadas | ✅ 100% |
+| 13 | Trust Score e Reputação | ✅ 100% |
+| 14 | Clustering Espacial | ✅ 100% |
+| 15 | Instalação Automática APK | ✅ 100% |
+| 16 | Identificação de Veículos | ⏸️ 0% |
+| 17 | Motor de Inferência Avançado | ⏸️ 0% |
+| 18 | Sistema de Roteamento | ⏸️ 0% |
+| 19 | Testes e Otimização | ⏸️ 0% |
 
 📖 [Documentação completa: DOCUMENTACAO_COMPLETA.md](./DOCUMENTACAO_COMPLETA.md)
 
