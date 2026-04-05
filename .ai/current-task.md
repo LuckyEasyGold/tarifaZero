@@ -6,7 +6,7 @@
 ---
 
 ## 🎯 Objetivo da sessão atual
-Implementar fluxo completo de contribuição com validação por WiFi (BSSID) e validação por trajeto (comparação com rotas já gravadas).
+Implementar fluxo completo de contribuição com validação por WiFi (BSSID) e validação por trajeto (comparação com rotas já gravadas), além de corrigir incremento de versão no release.bat.
 
 ---
 
@@ -26,6 +26,8 @@ Implementar fluxo completo de contribuição com validação por WiFi (BSSID) e 
 5. Implementar endpoint `/wifi/validate-by-trajeto` para validação por trajeto
 6. Implementar validação automática de BSSID contra banco de dados
 7. Atualizar documentação com novo fluxo
+8. Adicionar botão "Pular WiFi" para facilitar testes
+9. Atualizar `release.bat` para incrementar versão automaticamente
 
 ---
 
@@ -49,6 +51,9 @@ Implementar fluxo completo de contribuição com validação por WiFi (BSSID) e 
 - ✅ Implementado serviço `trackingService.validateByTrajectory` no frontend
 - ✅ Validação automática de BSSID contra banco de dados ao selecionar WiFi
 - ✅ Validação por trajeto compara deslocamento com rotas já gravadas
+- ✅ Adicionado botão "Pular WiFi" para facilitar testes
+- ✅ Atualizado `release.bat` para incrementar versão automaticamente
+- ✅ Versão atualizada para 2.5.0.2
 
 ---
 

@@ -274,10 +274,20 @@ export default function Contribuir() {
                     setShowWifiCard(true);
                   }}
                   disabled={wifiScanner.isScanning}
-                  className="w-full mb-4 bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                  className="w-full mb-2 bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
                 >
                   <Wifi size={20} />
                   {wifiScanner.isScanning ? 'Escaneando...' : 'Escanear Redes Wi-Fi'}
+                </button>
+              )}
+
+              {/* Botão para pular WiFi (apenas APK) */}
+              {wifiScanner.isNative && selectedLineId && !wifiValidated && (
+                <button
+                  onClick={handleSkipWifi}
+                  className="w-full mb-4 text-sm text-blue-600 hover:text-blue-800 underline"
+                >
+                  ⚡ Pular validação WiFi (modo GPS)
                 </button>
               )}
 
