@@ -264,3 +264,47 @@ Regras obrigatórias:
 5. Se o projeto tiver estrutura diferente (ex: android/app em vez de android/), adapte os caminhos mantendo a lógica
 6. Ao finalizar, liste os arquivos modificados e o link direto para o workflow no GitHub Actions
 Comece agora pela Tarefa 1. Confirme a conclusão de cada etapa antes de prosseguir.
+
+
+---
+
+## ✅ SOLUÇÃO IMPLEMENTADA
+
+### Problema Identificado:
+O plugin `@capacitor-community/file-opener` versão 8.0.0 contém um arquivo `build.gradle` com configuração obsoleta do ProGuard que não é mais suportada pelo Android Gradle Plugin 9.1.0:
+
+```
+`getDefaultProguardFile('proguard-android.txt')` is no longer supported
+```
+
+### Solução Aplicada:
+
+1. **Criado script de correção automática**: `scripts/fix-file-opener-proguard.cjs`
+   - Substitui `proguard-android.txt` por `proguard-android-optimize.txt` no build.gradle do plugin
+   - Executa automaticamente após `npm install` via hook `postinstall`
+
+2. **Atualizado package.json**:
+   ```json
+   "postinstall": "prisma generate && node scripts/fix-file-opener-proguard.cjs"
+   ```
+
+### Como Testar:
+
+1. Faça commit das alterações:
+```bash
+git add scripts/fix-file-opener-proguard.cjs package.json
+git commit -m "fix: corrige configuração ProGuard do file-opener plugin"
+git push
+```
+
+2. O GitHub Actions executará automaticamente e o script corrigirá o plugin durante `npm ci`
+
+3. O build do APK deve completar com sucesso
+
+### Arquivos Modificados:
+- ✅ `scripts/fix-file-opener-proguard.cjs` (novo)
+- ✅ `package.json` (atualizado postinstall)
+
+### Próximos Passos:
+- Monitorar o próximo build no GitHub Actions
+- Se o erro persistir, considerar atualizar para uma versão mais recente do plugin ou fazer um fork com a correção

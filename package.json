@@ -15,7 +15,7 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && node scripts/fix-file-opener-proguard.cjs",
     "android:sync": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
     "android:build": "npm run android:sync && cd android && .\\gradlew.bat assembleDebug",
