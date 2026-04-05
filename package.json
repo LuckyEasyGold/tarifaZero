@@ -19,7 +19,7 @@
     "android:sync": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
     "android:build": "npm run android:sync && cd android && .\\gradlew.bat assembleDebug",
-    "release:apk": "npm run android:build && node -e \"const fs=require('fs'); const src='android/app/build/outputs/apk/debug/TarifaZero-2.5.0.0.apk'; const dest='TarifaZero-2.5.0.0.apk'; fs.copyFileSync(src, dest); console.log('APK disponível em: ' + dest); console.log('Para atualizar no Vercel: git add TarifaZero-2.5.0.0.apk && git commit && git push');\"",
+    "release:apk": "npm run android:build && node scripts/copy-apk.cjs",
     "validate:ci": "powershell -ExecutionPolicy Bypass -File scripts/validate-ci.ps1",
     "validate:ci:bash": "bash scripts/validate-ci.sh"
   },

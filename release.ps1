@@ -71,7 +71,38 @@ if ($LASTEXITCODE -ne 0) { Write-Host "❌ Erro no sync" -ForegroundColor Red; e
 
 # 11. Build APK
 Write-Host "📱 Compilando APK..." -ForegroundColor Yellow
-$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot"
+
+# Detectar e configurar JAVA_HOME para Java 17
+$javaHome17 = $null
+$possiblePaths = @(
+    "C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot",
+    "C:\Program Files\Java\jdk-17",
+    "C:\Program Files\OpenJDK\jdk-17",
+    "C:\Program Files\Eclipse Adoptium\jdk-17*"
+)
+
+foreach ($path in $possiblePaths) {
+    if (Test-Path $path) {
+        $javaHome17 = $path
+        break
+    }
+    # Tentar com wildcard
+    $found = Get-ChildItem -Path (Split-Path $path) -Filter (Split-Path $path -Leaf) -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($found) {
+        $javaHome17 = $found.FullName
+        break
+    }
+}
+
+if (-not $javaHome17) {
+    Write-Host "❌ Java 17 não encontrado!" -ForegroundColor Red
+    Write-Host "   Instale o Java 17 de: https://adoptium.net/" -ForegroundColor Yellow
+    exit 1
+}
+
+Write-Host "   Usando Java: $javaHome17" -ForegroundColor Gray
+$env:JAVA_HOME = $javaHome17
+
 Set-Location android
 ./gradlew clean assembleDebug
 if ($LASTEXITCODE -ne 0) { Write-Host "❌ Erro ao compilar APK" -ForegroundColor Red; Set-Location ..; exit 1 }
