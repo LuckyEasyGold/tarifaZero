@@ -137,13 +137,24 @@ export default function Contribuir() {
       return;
     }
 
-    // No APK, verificar se WiFi foi validado
+    // No APK, verificar se WiFi foi validado (mas não bloquear se não estiver)
+    // Se WiFi não foi validado, perguntar se o usuário quer continuar sem validação
     if (wifiScanner.isNative && !wifiValidated) {
-      toast.error('Escolha o Wi-Fi do ônibus primeiro', {
-        duration: 5000
-      });
-      setShowWifiCard(true);
-      return;
+      const confirmarSemWifi = window.confirm(
+        'WiFi não validado. Deseja continuar mesmo assim?\n\n' +
+        'A rota será gravada mas não terá validação oficial.\n\n' +
+        'Você pode validar depois usando o BSSID do ônibus.'
+      );
+      
+      if (!confirmarSemWifi) {
+        setShowWifiCard(true);
+        return;
+      }
+      
+      // Usuário optou por continuar sem WiFi
+      setWifiValidated(true);
+      setSelectedWifi({ ssid: 'GPS Only - Sem Validacao', bssid: 'GPS-NO-VALIDATION' });
+      toast.info('Modo sem validação ativado', { duration: 3000 });
     }
 
     // Pedir permissão de localização
@@ -166,6 +177,36 @@ export default function Contribuir() {
     // Redirecionar para Home em modo gravação
     navigate(`/?recording=true&lineId=${selectedLineId}&sessionId=${sessionResult.data!.sessionId}&lineName=${encodeURIComponent(linha?.name || '')}&lineColor=${encodeURIComponent(linha?.colorHex || '#3B82F6')}`);
   };
+
+  // Validar BSSID do WiFi selecionado contra o banco
+  useEffect(() => {
+    const validateWifiBssid = async () => {
+      if (!selectedWifi?.bssid || !selectedLineId) return;
+
+      try {
+        const response = await fetch('/api/wifi/identify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bssid: selectedWifi.bssid }),
+        });
+        
+        const result = await response.json();
+        
+        if (result.success && result.line.id === selectedLineId) {
+          // BSSID válido e corresponde à linha selecionada
+          setWifiValidated(true);
+          toast.success('✅ WiFi validado! Rota terá validação oficial.', { duration: 4000 });
+        } else if (result.success) {
+          // BSSID válido mas para outra linha
+          toast.warning('⚠️ Este WiFi pertence a outra linha', { duration: 4000 });
+        }
+      } catch (error) {
+        console.error('Erro ao validar WiFi:', error);
+      }
+    };
+
+    validateWifiBssid();
+  }, [selectedWifi, selectedLineId]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -242,7 +283,7 @@ export default function Contribuir() {
 
               <button
                 onClick={handleStartTracking}
-                disabled={!selectedLineId || (wifiScanner.isNative && !wifiValidated)}
+                disabled={!selectedLineId}
                 className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
               >
                 <Play size={20} />
@@ -250,8 +291,8 @@ export default function Contribuir() {
               </button>
 
               {wifiScanner.isNative && !wifiValidated && selectedLineId && (
-                <p className="mt-2 text-xs text-center text-gray-600">
-                  Primeiro escolha o Wi-Fi do ônibus
+                <p className="mt-2 text-xs text-center text-orange-600">
+                  ⚠️ WiFi não validado - rota sem validação oficial
                 </p>
               )}
               

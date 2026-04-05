@@ -489,6 +489,128 @@ async function handleWifi(req, res, path) {
     });
   }
 
+  if (path === '/wifi/validate-by-trajeto' && req.method === 'POST') {
+    const { lineId, points } = req.body;
+
+    if (!lineId || !points || !Array.isArray(points) || points.length < 3) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'lineId e pelo menos 3 pontos são obrigatórios' 
+      });
+    }
+
+    try {
+      // Buscar rota da linha
+      const linha = await prisma.line.findUnique({
+        where: { id: lineId },
+        include: {
+          routes: {
+            where: { active: true },
+            include: {
+              points: {
+                orderBy: { sequence: 'asc' },
+                select: { lat: true, lng: true }
+              }
+            }
+          }
+        }
+      });
+
+      if (!linha || !linha.routes || linha.routes.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Rota da linha não encontrada' 
+        });
+      }
+
+      // Usar apenas a primeira rota (ida)
+      const rota = linha.routes[0];
+      const pontosRota = rota.points;
+
+      if (pontosRota.length < 2) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Rota com pontos insuficientes' 
+        });
+      }
+
+      // Calcular distância média entre pontos do trajeto do usuário e a rota
+      let distanciaTotal = 0;
+      let pontosValidos = 0;
+
+      for (const pontoUser of points) {
+        let menorDistancia = Infinity;
+
+        for (const pontoRota of pontosRota) {
+          const latDiff = pontoUser.lat - pontoRota.lat;
+          const lngDiff = pontoUser.lng - pontoRota.lng;
+          const distancia = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff) * 111000; // em metros
+
+          if (distancia < menorDistancia) {
+            menorDistancia = distancia;
+          }
+        }
+
+        // Considerar apenas pontos que estão dentro de 200m da rota
+        if (menorDistancia <= 200) {
+          distanciaTotal += menorDistancia;
+          pontosValidos++;
+        }
+      }
+
+      // Calcular confiança baseada na proximidade média
+      const confianca = pontosValidos > 0 
+        ? Math.max(0, 1 - (distanciaTotal / pontosValidos / 200)) 
+        : 0;
+
+      // Verificar se o trajeto tem consistência (variação de velocidade razoável)
+      let velocidadesValidas = 0;
+      let velocidadesTotais = 0;
+
+      for (let i = 1; i < points.length; i++) {
+        const p1 = points[i - 1];
+        const p2 = points[i];
+        
+        const latDiff = p2.lat - p1.lat;
+        const lngDiff = p2.lng - p1.lng;
+        const distancia = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff) * 111000;
+
+        // Se tiver timestamp, calcular velocidade
+        if (p1.timestamp && p2.timestamp) {
+          const tempoSegundos = (p2.timestamp - p1.timestamp) / 1000;
+          if (tempoSegundos > 0) {
+            const velocidadeMs = distancia / tempoSegundos;
+            const velocidadeKmh = velocidadeMs * 3.6;
+
+            // Velocidade entre 5 e 80 km/h é razoável para ônibus
+            if (velocidadeKmh >= 5 && velocidadeKmh <= 80) {
+              velocidadesValidas++;
+            }
+            velocidadesTotais++;
+          }
+        }
+      }
+
+      // Aumentar confiança se velocidades forem consistentes
+      const confiancaFinal = velocidadesTotais > 0
+        ? confianca * (0.7 + 0.3 * (velocidadesValidas / velocidadesTotais))
+        : confianca;
+
+      return res.status(200).json({
+        success: true,
+        validated: confiancaFinal >= 0.5,
+        confianca: Math.round(confiancaFinal * 100),
+        pontosValidos,
+        totalPontos: points.length,
+        distanciaMediaMetros: pontosValidos > 0 ? Math.round(distanciaTotal / pontosValidos) : 0,
+        velocidadesConsistentes: velocidadesValidas > velocidadesTotais * 0.5
+      });
+    } catch (error) {
+      console.error('Erro na validação por trajeto:', error);
+      return res.status(500).json({ error: 'Erro ao validar trajeto' });
+    }
+  }
+
   return res.status(404).json({ error: 'Endpoint not found' });
 }
 

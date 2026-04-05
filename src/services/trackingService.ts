@@ -106,4 +106,27 @@ export const trackingService = {
     const promises = dataArray.map(data => this.submitTrackingData(data));
     return Promise.all(promises);
   },
+
+  async validateByTrajectory(lineId: string, points: Array<{ lat: number; lng: number; timestamp?: number }>): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/wifi/validate-by-trajeto`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          lineId,
+          points,
+        }),
+      });
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao validar por trajeto:', error);
+      return {
+        success: false,
+        error: 'Erro ao conectar com o servidor',
+      };
+    }
+  },
 };

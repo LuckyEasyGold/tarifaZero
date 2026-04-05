@@ -42,11 +42,61 @@ Sistema colaborativo de rastreamento de transporte público em tempo real que ut
 
 - ✅ App nativo Android com scanner de WiFi
 - ✅ Sistema de crowdsourcing com gamificação
-- ✅ Validação por WiFi do ônibus
+- ✅ Validação por WiFi do ônibus (BSSID)
+- ✅ Validação por trajeto (comparação com rotas já gravadas)
 - ✅ Mapeamento colaborativo de rotas
 - ✅ Visualização em tempo real no mapa
 - ✅ Sistema de doações e apoiadores
 - ✅ Notificação automática de atualizações
+
+### Fluxo de Contribuição (Detalhado)
+
+```
+1. Usuário entra na tela "Contribuir"
+   ↓
+2. Seleciona a linha que está
+   ↓
+3. WiFi escaneia automaticamente (se disponível)
+   ↓
+4. Usuário escolhe o WiFi do ônibus (ou continua sem WiFi)
+   ↓
+5. BSSID é validado contra banco de dados
+   ↓
+6. Usuário clica em "Iniciar Criação de Rota"
+   ↓
+7. Sistema pede permissão de GPS
+   ↓
+8. Sistema inicia sessão no backend
+   ↓
+9. Usuário é redirecionado para mapa em modo gravação
+   ↓
+10. Durante a viagem:
+    - App coleta GPS em tempo real
+    - Usuário marca pontos de parada
+    - Dados são enviados para /api/tracking/submit
+   ↓
+11. Ao finalizar:
+    - Validação por trajeto compara com rota da linha
+    - Confiança calculada baseada na proximidade
+    - Rota salva com status: validada ou não validada
+```
+
+### Tipos de Validação
+
+**Validação Oficial (WiFi):**
+- BSSID do ônibus cadastrado no banco
+- Confiança: 100%
+- Rota aparece no ranking com badge "Validado"
+
+**Validação por Trajeto:**
+- Comparação do deslocamento com rota da linha
+- Confiança calculada baseada na proximidade média
+- Se ≥50% de confiança, rota é considerada válida
+
+**Modo Sem Validação:**
+- Usuário optou por continuar sem WiFi
+- Confiança: <50%
+- Rota é salva mas não aparece no ranking oficial
 
 
 ---
