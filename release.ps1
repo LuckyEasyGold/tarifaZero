@@ -125,12 +125,17 @@ git add -A
 git commit -m "v$newVersion - $CommitMessage"
 Write-Host "✅ Commit realizado!" -ForegroundColor Green
 
-# 15. Resumo
+# 15. Git push
+Write-Host "🚀 Enviando para GitHub..." -ForegroundColor Yellow
+git push origin main
+Write-Host "✅ Push realizado!" -ForegroundColor Green
+
+# 16. Resumo
 Write-Host "`n✨ Release concluído com sucesso!" -ForegroundColor Green
 Write-Host "📦 Versão: $newVersion (versionCode: $($versionJson.versionCode))" -ForegroundColor Cyan
 Write-Host "📱 APK: TarifaZero-$newVersion.apk ($([math]::Round($apkSize, 2)) MB)" -ForegroundColor Cyan
 Write-Host "🗑️  APK antigo removido automaticamente" -ForegroundColor Cyan
-Write-Host "🚀 Próximo passo: git push" -ForegroundColor Yellow
+Write-Host "🚀 Commit e push enviados para GitHub!" -ForegroundColor Green
 Write-Host "`n💡 Dica: O Vercel vai automaticamente:" -ForegroundColor Gray
 Write-Host "   - Remover o APK antigo" -ForegroundColor Gray
 Write-Host "   - Publicar o novo APK em: https://tarifazero.vercel.app/TarifaZero-$newVersion.apk" -ForegroundColor Gray

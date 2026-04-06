@@ -72,6 +72,11 @@ if "%COMMIT_MSG%"=="" set COMMIT_MSG="Lancamento oficial Apk v%newVersion%"
 git commit -m "%COMMIT_MSG%"
 
 echo ==============================================
-echo [SUCESSO] Commit criado com sucesso! Tudo salvo no controle de versaio.
-echo OBS: Nao esqueca de dar 'git push' para subir no Github e ligar para a Vercel.
+echo [4/4] Enviando para GitHub
+echo ==============================================
+git push origin main
+
+echo ==============================================
+echo [SUCESSO] Commit e push enviados para GitHub!
+echo OBS: O Vercel vai automaticamente publicar o novo APK.
 echo ==============================================

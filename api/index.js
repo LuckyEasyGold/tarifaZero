@@ -711,5 +711,32 @@ async function handleRouting(req, res, path) {
 
   }
   
+  // Endpoint para download do APK
+  if (path === '/apk/download' && req.method === 'GET') {
+    const apkPath = '/app/TarifaZero-2.5.0.3.apk';
+    
+    try {
+      // Verificar se o arquivo existe
+      const fs = require('fs');
+      const path = require('path');
+      
+      const apkFile = path.join(process.cwd(), apkPath);
+      
+      if (!fs.existsSync(apkFile)) {
+        return res.status(404).json({ error: 'APK não encontrado' });
+      }
+      
+      // Enviar o arquivo
+      res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+      res.setHeader('Content-Disposition', 'attachment; filename="TarifaZero-2.5.0.3.apk"');
+      res.setHeader('Content-Length', fs.statSync(apkFile).size);
+      
+      return res.sendFile(apkFile);
+    } catch (error) {
+      console.error('Erro ao baixar APK:', error);
+      return res.status(500).json({ error: 'Erro ao baixar APK' });
+    }
+  }
+  
   return res.status(404).json({ error: 'Endpoint not found' });
 }

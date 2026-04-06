@@ -67,7 +67,7 @@ export default function DownloadAppModal({ isOpen, onClose }: DownloadAppModalPr
         {/* Botões */}
         <div className="mt-6 space-y-3">
           <a
-            href="/TarifaZero.apk"
+            href="/api/apk/download"
             download
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2"
           >
