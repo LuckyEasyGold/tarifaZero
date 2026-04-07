@@ -3,6 +3,7 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
   workflow_dispatch:
 
 jobs:
@@ -81,29 +82,61 @@ jobs:
         echo "Assets folder contents:"
         ls -la android/app/src/main/assets/public/ | head -20
 
+    # ========== CONFIGURAÇÃO DE ASSINATURA (Se secrets existirem) ==========
+    - name: Create Keystore from Secrets
+      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      run: |
+        echo "🔐 Configurando assinatura do APK..."
+        echo ${{ secrets.ANDROID_KEYSTORE_BASE64 }} | base64 --decode > android/app/release-key.jks
+        echo "storeFile=release-key.jks" >> android/gradle.properties
+        echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/gradle.properties
+        echo "storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}" >> android/gradle.properties
+        echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/gradle.properties
+        echo "✅ Keystore configurado com sucesso!"
+
     - name: Grant execute permission for gradlew
       run: chmod +x android/gradlew
 
-    - name: Build APK with Gradle
+    # ========== BUILD RELEASE (Se keystore existir) ==========
+    - name: Build Release APK with Gradle
+      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
       working-directory: android
       run: |
-        echo "Starting Gradle build..."
-        ./gradlew assembleDebug --no-daemon --stacktrace --info || {
-          echo "❌ Gradle build failed!"
-          echo "Checking for error logs..."
-          find . -name "*.log" -type f -exec echo "=== {} ===" \; -exec cat {} \;
-          exit 1
-        }
+        echo "🚀 Iniciando build RELEASE assinado..."
+        ./gradlew assembleRelease --no-daemon --stacktrace
+        echo "✅ Build RELEASE concluído!"
 
-    - name: Verify APK was created
+    # ========== BUILD DEBUG (Fallback se não houver keystore) ==========
+    - name: Build Debug APK with Gradle
+      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 == '' }}
+      working-directory: android
       run: |
-        if [ -f "android/app/build/outputs/apk/debug/TarifaZero.apk" ]; then
-          echo "✅ APK created successfully!"
-          ls -lh android/app/build/outputs/apk/debug/TarifaZero.apk
+        echo "⚠️ Nenhum keystore encontrado. Build DEBUG (não atualizável)..."
+        ./gradlew assembleDebug --no-daemon --stacktrace
+        echo "⚠️ AVISO: Este APK NÃO poderá atualizar versões anteriores!"
+
+    # ========== VERIFICAÇÃO E UPLOAD ==========
+    - name: Verify APK was created (Release)
+      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      run: |
+        if [ -f "android/app/build/outputs/apk/release/TarifaZero-*.apk" ]; then
+          echo "✅ APK Release criado com sucesso!"
+          ls -lh android/app/build/outputs/apk/release/TarifaZero-*.apk
         else
-          echo "❌ APK not found!"
-          echo "Checking for any APK files:"
-          find android/app/build/outputs/apk -name "*.apk" || echo "No APK files found"
+          echo "❌ APK Release não encontrado!"
+          find android/app/build/outputs/apk -name "*.apk" || echo "Nenhum APK encontrado"
+          exit 1
+        fi
+
+    - name: Verify APK was created (Debug)
+      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 == '' }}
+      run: |
+        if [ -f "android/app/build/outputs/apk/debug/TarifaZero-*.apk" ]; then
+          echo "✅ APK Debug criado (limitado)!"
+          ls -lh android/app/build/outputs/apk/debug/TarifaZero-*.apk
+        else
+          echo "❌ APK Debug não encontrado!"
+          find android/app/build/outputs/apk -name "*.apk" || echo "Nenhum APK encontrado"
           exit 1
         fi
 
@@ -111,8 +144,10 @@ jobs:
       uses: actions/upload-artifact@v4
       if: success()
       with:
-        name: TarifaZero-${{ github.run_number }}.apk
-        path: android/app/build/outputs/apk/debug/TarifaZero-*.apk
+        name: TarifaZero-${{ github.run_number }}${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && '-release' || '-debug' }}
+        path: |
+          android/app/build/outputs/apk/release/*.apk
+          android/app/build/outputs/apk/debug/*.apk
         retention-days: 30
         compression-level: 0
 
@@ -123,11 +158,42 @@ jobs:
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "Version: $VERSION"
 
-    - name: Create Release
+    # ========== RELEASE AUTOMÁTICO (Tags ou Main) ==========
+    - name: Create Release (Tag)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v2
+      with:
+        files: android/app/build/outputs/apk/release/*.apk
+        tag_name: ${{ github.ref_name }}
+        name: TarifaZero ${{ github.ref_name }}
+        body: |
+          ## 🚀 Lançamento Oficial ${{ github.ref_name }}
+          
+          **Versão:** ${{ steps.get_version.outputs.version }}
+          **Commit:** ${{ github.sha }}
+          
+          ### ✅ APK Assinado
+          Este APK foi assinado com o keystore oficial e pode atualizar versões anteriores.
+          
+          ### 📦 Instalação
+          1. Baixe o APK abaixo
+          2. Instale no seu dispositivo Android
+          3. Atualize diretamente pelo app quando disponível
+          
+          ---
+          Build gerado automaticamente pelo GitHub Actions
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Release (Main Push)
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       uses: softprops/action-gh-release@v2
       with:
-        files: android/app/build/outputs/apk/debug/TarifaZero-*.apk
+        files: |
+          android/app/build/outputs/apk/release/*.apk
+          android/app/build/outputs/apk/debug/*.apk
         tag_name: v${{ steps.get_version.outputs.version }}-build${{ github.run_number }}
         name: TarifaZero v${{ steps.get_version.outputs.version }} (Build ${{ github.run_number }})
         body: |
@@ -139,6 +205,9 @@ jobs:
           
           ### 📦 Download
           Baixe o APK abaixo e instale no seu dispositivo Android.
+          
+          ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && '### ✅ APK Assinado' || '### ⚠️ APK Debug (não atualizável)' }}
+          ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && 'Este APK foi assinado e pode atualizar versões anteriores.' || 'Este APK é unsigned e NÃO poderá atualizar versões instaladas. Configure as secrets para build release.' }}
           
           ### 🔄 Changelog
           ${{ github.event.head_commit.message }}

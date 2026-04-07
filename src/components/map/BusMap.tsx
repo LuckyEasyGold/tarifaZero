@@ -68,7 +68,7 @@ const BusMap = ({
     }));
   }, [linhas]);
   
-  // Calcular progresso de cada rota percorrida
+  // Calcular progresso de cada rota percorrida (memoizado para evitar recriação)
   const rotasPercorridas = useMemo(() => {
     return linhas.map(linha => {
       const posicaoLinha = posicoes.find(p => p.linhaId === linha.id);

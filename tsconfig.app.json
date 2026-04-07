@@ -21,6 +21,12 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Performance optimizations */
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": false,
