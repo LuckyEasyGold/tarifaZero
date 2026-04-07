@@ -267,74 +267,81 @@ const BusMap = ({
         );
       })}
       
-      {/* Renderizar usuários ativos */}
-      {activeUsers.map((user) => {
-        const userColor = getUserColor(user.anonymousId);
-        const currentUserId = localStorage.getItem('anonymousId');
-        const isCurrentUser = user.anonymousId === currentUserId;
-        const displayName = isCurrentUser ? 'Eu' : (user.nickname || `Usuário ${user.anonymousId.slice(-4)}`);
-        
-        return (
-          <Marker
-            key={`user-${user.anonymousId}`}
-            position={[user.currentLat, user.currentLng]}
-            icon={createUserIcon(userColor)}
-            zIndexOffset={500}
-          >
-            <Tooltip 
-              direction="top"
-              offset={[0, -12]}
-              className="bg-white rounded-md shadow-md"
+      {/* Renderizar usuários ativos - APENAS O USUÁRIO LOGADO */}
+      {activeUsers
+        .filter(user => user.anonymousId === localStorage.getItem('anonymousId'))
+        .map((user) => {
+          const userColor = getUserColor(user.anonymousId);
+          const displayName = 'Eu';
+          
+          return (
+            <Marker
+              key={`user-${user.anonymousId}`}
+              position={[user.currentLat, user.currentLng]}
+              icon={createUserIcon(userColor)}
+              zIndexOffset={500}
             >
-              <div className="font-semibold text-xs" style={{ color: userColor }}>
-                {displayName}
-              </div>
-            </Tooltip>
-            <Popup>
-              <div className="p-3 min-w-[180px]">
-                <div className="flex items-center gap-2 mb-2">
-                  <div 
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: userColor }}
-                  />
-                  <h3 className="font-bold text-gray-900">{displayName}</h3>
+              <Tooltip 
+                direction="top"
+                offset={[0, -12]}
+                className="bg-white rounded-md shadow-md"
+              >
+                <div className="font-semibold text-xs" style={{ color: userColor }}>
+                  {displayName}
                 </div>
-                
-                <div className="space-y-1 text-sm">
-                  <p className="text-gray-700">
-                    <span className="font-medium">Nível:</span> {user.level}
-                  </p>
+              </Tooltip>
+              <Popup>
+                <div className="p-3 min-w-[180px]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div 
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: userColor }}
+                    />
+                    <h3 className="font-bold text-gray-900">{displayName}</h3>
+                  </div>
                   
-                  <p className="text-gray-700">
-                    <span className="font-medium">Pontos:</span> {user.points}
-                  </p>
-                  
-                  {user.isTracking && (
-                    <p className="text-green-600 font-semibold text-xs mt-2">
-                      🚌 Contribuindo agora
+                  <div className="space-y-1 text-sm">
+                    <p className="text-gray-700">
+                      <span className="font-medium">Nível:</span> {user.level}
                     </p>
-                  )}
-                  
-                  <p className="text-xs text-gray-500 mt-2">
-                    Ativo: {new Date(user.lastActive).toLocaleTimeString()}
-                  </p>
+                    
+                    <p className="text-gray-700">
+                      <span className="font-medium">Pontos:</span> {user.points}
+                    </p>
+                    
+                    {user.isTracking && (
+                      <p className="text-green-600 font-semibold text-xs mt-2">
+                        🚌 Contribuindo agora
+                      </p>
+                    )}
+                    
+                    <p className="text-xs text-gray-500 mt-2">
+                      Ativo: {new Date(user.lastActive).toLocaleTimeString()}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        );
-      })}
+              </Popup>
+            </Marker>
+          );
+        })
+      }
       
-      {/* Contador de usuários online */}
+      {/* Contador de usuários online - Canto superior esquerdo com visual melhorado */}
       {activeUsers.length > 0 && (
-        <div className="absolute top-4 right-4 z-50 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-gray-200 flex items-center gap-2">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          </svg>
-          <span className="font-semibold text-gray-900">{activeUsers.length} online</span>
+        <div className="absolute top-4 left-4 z-[1000] bg-gradient-to-br from-blue-500/95 to-blue-600/95 backdrop-blur-md px-4 py-3 rounded-xl shadow-2xl border border-white/20 flex items-center gap-3">
+          <div className="relative">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse border-2 border-white"></div>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-2xl font-bold text-white leading-none">{activeUsers.length}</span>
+            <span className="text-xs text-blue-100 font-medium">online</span>
+          </div>
         </div>
       )}
     </MapContainer>
