@@ -7,8 +7,8 @@ android {
         applicationId "com.newsdrop.tarifazero"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 24
-        versionName "2.5.0.5"
+        versionCode 30
+        versionName "2.5.0.11"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,6 +16,16 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    
+    signingConfigs {
+        release {
+            storeFile project.hasProperty('storeFile') ? file(project.property('storeFile')) : null
+            keyAlias project.hasProperty('keyAlias') ? project.property('keyAlias') : null
+            storePassword project.hasProperty('storePassword') ? project.property('storePassword') : null
+            keyPassword project.hasProperty('keyPassword') ? project.property('keyPassword') : null
+        }
+    }
+    
     buildTypes {
         release {
             minifyEnabled false
@@ -28,24 +38,6 @@ android {
         }
         debug {
             applicationIdSuffix ""
-        }
-    }
-    
-    signingConfigs {
-        release {
-            if (project.hasProperty('storeFile')) {
-                storeFile file(storeFile)
-                keyAlias keyAlias
-                storePassword storePassword
-                keyPassword keyPassword
-            }
-        }
-    }
-    
-    // Configurar nome do APK com versão
-    applicationVariants.all { variant ->
-        variant.outputs.all {
-            outputFileName = "TarifaZero-${variant.versionName}.apk"
         }
     }
 }
@@ -78,6 +70,12 @@ try {
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
+
+
+
+
+
+
 
 
 

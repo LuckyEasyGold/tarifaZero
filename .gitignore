@@ -101,4 +101,8 @@ coverage.xml
 *.tar.bz2
 *.tar.xz
 *.tar.zst
+
+# Keystore files (SENSITIVE - NUNCA commitar!)
+*.jks
+tarifarzo-base64.txt
 ```
