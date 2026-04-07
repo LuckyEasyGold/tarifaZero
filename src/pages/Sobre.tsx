@@ -153,7 +153,7 @@ export default function Sobre() {
 
         {/* Versão */}
         <p className="text-center text-xs text-gray-400 pb-2">
-          Tarifa Zero v{packageJson.version} · Palmas/PR · {new Date().getFullYear()}
+          Tarifa Zero v{packageJson.version} · Build {new Date().toISOString().split('T')[0]} · Palmas/PR · {new Date().getFullYear()}
         </p>
       </div>
     </div>
