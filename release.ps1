@@ -69,8 +69,8 @@ Write-Host "🔄 Sincronizando com Android..." -ForegroundColor Yellow
 npx cap sync android
 if ($LASTEXITCODE -ne 0) { Write-Host "❌ Erro no sync" -ForegroundColor Red; exit 1 }
 
-# 11. Build APK
-Write-Host "📱 Compilando APK..." -ForegroundColor Yellow
+# 11. Build APK (Release Assinado - igual ao GitHub Actions)
+Write-Host "📱 Compilando APK Release Assinado..." -ForegroundColor Yellow
 
 # Detectar e configurar JAVA_HOME para Java 17
 $javaHome17 = $null
@@ -103,17 +103,66 @@ if (-not $javaHome17) {
 Write-Host "   Usando Java: $javaHome17" -ForegroundColor Gray
 $env:JAVA_HOME = $javaHome17
 
+# Verificar se keystore existe
+if (-not (Test-Path "tarifarzo-release.jks")) {
+    Write-Host "❌ Keystore não encontrado!" -ForegroundColor Red
+    Write-Host "   Execute o comando para gerar o keystore primeiro." -ForegroundColor Yellow
+    exit 1
+}
+
+# Copiar keystore para android/app/ (igual ao GitHub Actions)
+Copy-Item "tarifarzo-release.jks" "android/app/release-key.jks" -Force
+
+# Ler senhas do usuário
+$storePassword = Read-Host -Prompt "Digite a senha do keystore" -AsSecureString
+$keyPassword = Read-Host -Prompt "Digite a senha da chave (ou a mesma do keystore)" -AsSecureString
+
+# Converter SecureString para string
+$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($storePassword)
+$storePasswordStr = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+[System.Runtime.InteropServices.Marshal]::FreeBSTR($BSTR)
+
+$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($keyPassword)
+$keyPasswordStr = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+[System.Runtime.InteropServices.Marshal]::FreeBSTR($BSTR)
+
+# Adicionar propriedades de assinatura ao gradle.properties (igual ao GitHub Actions)
+$gradleProps = @"
+storeFile=release-key.jks
+keyAlias=tarifarzo
+storePassword=$storePasswordStr
+keyPassword=$keyPasswordStr
+"@
+$gradleProps | Add-Content "android/gradle.properties"
+
 Set-Location android
-./gradlew clean assembleDebug
-if ($LASTEXITCODE -ne 0) { Write-Host "❌ Erro ao compilar APK" -ForegroundColor Red; Set-Location ..; exit 1 }
+./gradlew assembleRelease
+$buildResult = $LASTEXITCODE
 Set-Location ..
 
-# 12. Copiar APK apenas para raiz (NÃO para public)
-$apkSource = "android/app/build/outputs/apk/debug/TarifaZero-$newVersion.apk"
-$apkDestRoot = "TarifaZero-$newVersion.apk"
+# Limpar gradle.properties e keystore após build
+if (Test-Path "android/gradle.properties") {
+    $content = Get-Content "android/gradle.properties" | Where-Object { $_ -notmatch "storeFile|keyAlias|storePassword|keyPassword" }
+    $content | Set-Content "android/gradle.properties"
+}
+Remove-Item "android/app/release-key.jks" -Force -ErrorAction SilentlyContinue
 
-Copy-Item $apkSource $apkDestRoot -Force
-Write-Host "✅ APK copiado para raiz do projeto" -ForegroundColor Green
+if ($buildResult -ne 0) {
+    Write-Host "❌ Erro ao compilar APK" -ForegroundColor Red
+    exit 1
+}
+
+# 12. Copiar APK da pasta release para raiz
+$apkFiles = Get-ChildItem -Path "android/app/build/outputs/apk/release" -Filter "*.apk" -File
+if ($apkFiles.Count -gt 0) {
+    $apkSource = $apkFiles[0].FullName
+    $apkDestRoot = "TarifaZero-$newVersion.apk"
+    Copy-Item $apkSource $apkDestRoot -Force
+    Write-Host "✅ APK Release assinado copiado para raiz do projeto" -ForegroundColor Green
+} else {
+    Write-Host "⚠️  APK não encontrado" -ForegroundColor Yellow
+    exit 1
+}
 
 # 13. Mostrar tamanho do APK
 $apkSize = (Get-Item $apkDestRoot).Length / 1MB
