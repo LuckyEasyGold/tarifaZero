@@ -20,9 +20,25 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            
+            // Configuração de assinatura via gradle.properties (para CI/CD)
+            if (project.hasProperty('storeFile')) {
+                signingConfig signingConfigs.release
+            }
         }
         debug {
             applicationIdSuffix ""
+        }
+    }
+    
+    signingConfigs {
+        release {
+            if (project.hasProperty('storeFile')) {
+                storeFile file(storeFile)
+                keyAlias keyAlias
+                storePassword storePassword
+                keyPassword keyPassword
+            }
         }
     }
     
