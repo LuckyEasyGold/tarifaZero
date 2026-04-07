@@ -1,0 +1,5 @@
+# Configuração LOCAL do Java para Gradle (Windows)
+# Este arquivo NÃO deve ser commitado (está no .gitignore)
+# Copie este arquivo para gradle.properties quando for buildar localmente
+
+org.gradle.java.home=C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.18.8-hotspot

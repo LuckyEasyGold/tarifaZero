@@ -1,0 +1,62 @@
+{
+  "name": "Tarifa Zero - Rastreamento de Ônibus",
+  "short_name": "Tarifa Zero",
+  "description": "Sistema de rastreamento de transporte público em tempo real",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logoTarifaZero.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["travel", "navigation", "utilities"],
+  "screenshots": [
+    {
+      "src": "/screenshot-home.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ver Mapa",
+      "short_name": "Mapa",
+      "description": "Visualizar mapa de ônibus em tempo real",
+      "url": "/",
+      "icons": [{ "src": "/logoTarifaZero.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Linhas",
+      "short_name": "Linhas",
+      "description": "Ver todas as linhas disponíveis",
+      "url": "/linhas",
+      "icons": [{ "src": "/logoTarifaZero.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Contribuir",
+      "short_name": "Contribuir",
+      "description": "Ajudar a mapear rotas",
+      "url": "/contribuir",
+      "icons": [{ "src": "/logoTarifaZero.png", "sizes": "192x192" }]
+    }
+  ]
+}
