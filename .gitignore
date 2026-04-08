@@ -5,6 +5,9 @@
 build/
 app/build/
 
+# Exceção: permitir APK de produção na pasta public
+!public/tarifazero.apk
+
 # Dependencies
 node_modules/
 .gradle/
