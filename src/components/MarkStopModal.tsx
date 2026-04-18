@@ -5,9 +5,10 @@ interface MarkStopModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (name: string) => void;
+  defaultPlaceholder?: string;
 }
 
-export default function MarkStopModal({ isOpen, onClose, onSave }: MarkStopModalProps) {
+export default function MarkStopModal({ isOpen, onClose, onSave, defaultPlaceholder }: MarkStopModalProps) {
   const [stopName, setStopName] = useState('');
 
   if (!isOpen) return null;
@@ -56,7 +57,7 @@ export default function MarkStopModal({ isOpen, onClose, onSave }: MarkStopModal
               type="text"
               value={stopName}
               onChange={(e) => setStopName(e.target.value)}
-              placeholder="Ex: Posto de Saúde, Praça Central..."
+              placeholder={defaultPlaceholder || "Ex: Praça Central, Mercadinho do Seu Zé..."}
               maxLength={100}
               autoFocus
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
