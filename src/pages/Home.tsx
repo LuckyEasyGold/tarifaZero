@@ -112,18 +112,22 @@ export default function Home() {
   useEffect(() => {
     if (isRecording && geolocation.latitude && geolocation.longitude && recordingSessionId && recordingLineId) {
       const sendTrackingData = async () => {
-        const result = await trackingService.submitTrackingData({
-          lineId: recordingLineId,
-          latitude: geolocation.latitude!,
-          longitude: geolocation.longitude!,
-          accuracy: geolocation.accuracy,
-          speed: geolocation.speed,
-          heading: geolocation.heading,
-          sessionId: recordingSessionId,
-        });
-
-        if (result.success) {
+        try {
+          await fetch('/api/trajectories/point', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sessionId: recordingSessionId,
+              lat: geolocation.latitude!,
+              lng: geolocation.longitude!,
+              speed: geolocation.speed,
+              accuracy: geolocation.accuracy,
+              heading: geolocation.heading,
+            }),
+          });
           setPointsCollected(prev => prev + 1);
+        } catch (error) {
+          console.error('Erro ao enviar ponto:', error);
         }
       };
 
@@ -166,24 +170,36 @@ export default function Home() {
     geolocation.stopTracking();
     
     // Finalizar sessão no backend com dados de validação
-    const result = await trackingService.stopSession(recordingSessionId, {
-      validationMeta: {
-        clientConfidence: validationResult?.confidence ?? 0.5,
-        estimatedStops: validationResult?.estimatedStops ?? 0,
-        reasons: validationResult?.reasons ?? [],
-        avgSpeed: validationResult?.avgSpeed ?? 0,
-        maxSpeed: validationResult?.maxSpeed ?? 0,
-        distance: validationResult?.distance ?? 0,
-        duration: validationResult?.duration ?? 0
+    try {
+      const response = await fetch('/api/trajectories/stop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: recordingSessionId,
+          metadata: {
+            clientConfidence: validationResult?.confidence ?? 0.5,
+            estimatedStops: validationResult?.estimatedStops ?? 0,
+            reasons: validationResult?.reasons ?? [],
+            avgSpeed: validationResult?.avgSpeed ?? 0,
+            maxSpeed: validationResult?.maxSpeed ?? 0,
+            distance: validationResult?.distance ?? 0,
+            duration: validationResult?.duration ?? 0
+          }
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        const confidenceEmoji = validationResult && validationResult.confidence >= 0.7 ? '✅' : '⚠️';
+        toast.success(
+          `${confidenceEmoji} Rota salva! ${result.data?.pointsCount} pontos coletados. Aguardando validação colaborativa! 🎉`,
+          { duration: 5000 }
+        );
       }
-    });
-    
-    if (result.success) {
-      const confidenceEmoji = validationResult && validationResult.confidence >= 0.7 ? '✅' : '⚠️';
-      toast.success(
-        `${confidenceEmoji} Rota salva! ${result.data?.pointsCollected} pontos coletados. Obrigado! 🎉`,
-        { duration: 5000 }
-      );
+    } catch (error) {
+      console.error('Erro ao finalizar gravação:', error);
+      toast.error('Erro ao finalizar gravação');
     }
 
     // Redirecionar para página Contribuir
@@ -192,20 +208,19 @@ export default function Home() {
 
   // Função para marcar parada
   const handleMarkStop = async (stopName: string) => {
-    if (!isRecording || !geolocation.latitude || !geolocation.longitude || !recordingLineId) {
+    if (!isRecording || !geolocation.latitude || !geolocation.longitude || !recordingLineId || !recordingSessionId) {
       toast.error('Erro ao marcar parada');
       return;
     }
 
     try {
-      await fetch('/api/stops/mark', {
+      await fetch('/api/trajectories/stop-mark', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lineId: recordingLineId,
+          sessionId: recordingSessionId,
           lat: geolocation.latitude,
           lng: geolocation.longitude,
-          sessionId: recordingSessionId,
           name: stopName
         })
       });
