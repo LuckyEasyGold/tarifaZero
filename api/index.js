@@ -70,6 +70,16 @@ export default async function handler(req, res) {
       return await handleRouting(req, res, path);
     }
 
+    // Trajectories endpoints (novas rotas de colaboração)
+    if (path.startsWith('/trajectories')) {
+      return await handleTrajectories(req, res, path);
+    }
+
+    // Admin endpoints
+    if (path.startsWith('/admin')) {
+      return await handleAdmin(req, res, path);
+    }
+
     // Endpoint /version removido para simplificar e ler o estático de public/version.json
 
     return res.status(404).json({ error: 'Endpoint not found' });
@@ -735,6 +745,35 @@ async function handleRouting(req, res, path) {
     } catch (error) {
       console.error('Erro ao baixar APK:', error);
       return res.status(500).json({ error: 'Erro ao baixar APK' });
+    }
+  }
+  
+  return res.status(404).json({ error: 'Endpoint not found' });
+}
+
+// Handlers para Trajectories (colaboração de rotas)
+async function handleTrajectories(req, res, path) {
+  // Importar router dinamicamente
+  const trajectoriesRouter = (await import('./trajectories/index.ts')).default;
+  
+  // Usar o router para lidar com a requisição
+  return new Promise((resolve) => {
+    trajectoriesRouter(req, res, () => {
+      resolve(res.status(404).json({ error: 'Not found' }));
+    });
+  });
+}
+
+// Handlers para Admin
+async function handleAdmin(req, res, path) {
+  if (path === '/admin/validate-routes' && req.method === 'POST') {
+    try {
+      const { validateAndPromoteRoutes } = await import('./admin/validate-routes.js');
+      const result = await validateAndPromoteRoutes();
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Erro ao validar rotas:', error);
+      return res.status(500).json({ success: false, error: error.message });
     }
   }
   

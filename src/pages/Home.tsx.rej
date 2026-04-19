@@ -1,0 +1,12 @@
+--- src/pages/Home.tsx
++++ src/pages/Home.tsx
+@@ -654,7 +654,9 @@ export default function Home() {
+         <BusMap
+           linhas={linhasFiltradas}
+           posicoes={posicoesFiltradas}
+           activeUsers={activeUsers}
+           isMobile={false}
++          recordingPath={isRecording ? recordingPath : undefined}
++          recordingLineColor={recordingLineColor || '#EF4444'}
+         />
+ 

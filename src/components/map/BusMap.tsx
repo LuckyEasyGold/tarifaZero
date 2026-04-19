@@ -13,6 +13,10 @@ interface BusMapProps {
   centro?: [number, number];
   zoom?: number;
   isMobile?: boolean;
+  // Props para modo gravação
+  recordingPath?: Array<{ lat: number; lng: number }>;
+  recordingLineColor?: string;
+  showRecordingPath?: boolean;
 }
 
 // Componente para ajustar o bounds do mapa (apenas uma vez)
@@ -40,7 +44,10 @@ const BusMap = ({
   activeUsers = [],
   centro = [-23.5505, -46.6333], 
   zoom = 13,
-  isMobile = false
+  isMobile = false,
+  recordingPath = [],
+  recordingLineColor = '#EF4444',
+  showRecordingPath = false
 }: BusMapProps) => {
   const mapRef = useRef<L.Map>(null);
   
@@ -177,6 +184,18 @@ const BusMap = ({
           />
         )
       ))}
+      
+      {/* Renderizar rota sendo gravada (modo gravação) - VERMELHO */}
+      {showRecordingPath && recordingPath.length > 1 && (
+        <Polyline
+          key="recording-path"
+          positions={recordingPath.map(p => [p.lat, p.lng] as [number, number])}
+          color={recordingLineColor}
+          weight={8}
+          opacity={1}
+          dashArray=""
+        />
+      )}
       
       {/* Renderizar todas as paradas de todas as linhas */}
       {linhas.map((linha) => (

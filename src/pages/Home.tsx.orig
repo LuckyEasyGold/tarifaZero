@@ -656,29 +656,24 @@ export default function Home() {
           posicoes={posicoesFiltradas}
           activeUsers={activeUsers}
           isMobile={false}
-          recordingPath={recordingPath}
-          recordingLineColor={recordingLineColor || '#EF4444'}
-          showRecordingPath={isRecording}
         />
-        
-        {/* Botão Criar Parada - largura total na parte inferior (só visível em modo gravação) */}
-        {isRecording && (
-          <button
-            onClick={() => setShowMarkStopModal(true)}
-            className="fixed bottom-0 left-0 right-0 w-full bg-blue-600 text-white py-4 font-semibold text-lg shadow-2xl hover:bg-blue-700 transition z-10 flex items-center justify-center gap-2"
-          >
-            <MapPin size={24} />
-            Criar Parada
-          </button>
-        )}
         
         {/* Botões flutuantes quando gravando */}
         {isRecording && (
           <>
+            {/* Botão Marcar Parada */}
+            <button
+              onClick={() => setShowMarkStopModal(true)}
+              className="fixed bottom-24 right-6 w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl hover:bg-blue-700 transition flex items-center justify-center z-10"
+              title="Marcar Parada de Ônibus"
+            >
+              <MapPin size={28} />
+            </button>
+            
             {/* Botão Finalizar */}
             <button
               onClick={handleStopRecording}
-              className="fixed bottom-16 right-6 w-14 h-14 bg-red-600 text-white rounded-full shadow-2xl hover:bg-red-700 transition flex items-center justify-center z-10"
+              className="fixed bottom-24 left-6 w-14 h-14 bg-red-600 text-white rounded-full shadow-2xl hover:bg-red-700 transition flex items-center justify-center z-10"
               title="Finalizar Gravação"
             >
               <Square size={24} />

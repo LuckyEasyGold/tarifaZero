@@ -249,6 +249,47 @@ model TempStop {
   @@map("temp_stops")
 }
 
+// Nova tabela para armazenar trajetos gravados pelos usuários (pendentes de validação)
+model UserTrajectory {
+  id              String   @id @default(cuid())
+  userId          String
+  lineId          String
+  sessionId       String
+  status          String   @default("pending") // pending, verified, rejected
+  points          Json     // Array de {lat, lng, speed, ts, accuracy}
+  stops           Json?    // Array de {lat, lng, name, ts}
+  metadata        Json?    // {deviceType, wifiValidated, clientConfidence, etc}
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  verifiedAt      DateTime?
+  
+  @@index([lineId, status])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("user_trajectories")
+}
+
+// Nova tabela para paradas criadas pelos usuários (pendentes de validação)
+model UserStop {
+  id              String   @id @default(cuid())
+  userId          String
+  lineId          String
+  trajectoryId    String?
+  lat             Float
+  lng             Float
+  name            String
+  status          String   @default("pending") // pending, verified, rejected
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  verifiedAt      DateTime?
+  
+  @@index([lineId, status])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("user_stops")
+}
+
 model Supporter {
   id           String   @id @default(cuid())
   name         String
