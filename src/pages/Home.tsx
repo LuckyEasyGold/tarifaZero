@@ -5,6 +5,8 @@ import BusMap from '@/components/map/BusMap';
 import RecordingBanner from '@/components/RecordingBanner';
 import MarkStopModal from '@/components/MarkStopModal';
 import ValidationWarningModal from '@/components/ValidationWarningModal';
+import BackgroundWarningModal from '@/components/BackgroundWarningModal';
+import RecordingPausedModal from '@/components/RecordingPausedModal';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { trackingService } from '@/services/trackingService';
 import { validateBusPattern, type GPSPoint, type TrackValidationResult } from '@/lib/trackValidator';
@@ -74,6 +76,9 @@ export default function Home() {
   const [showMarkStopModal, setShowMarkStopModal] = useState(false);
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [validationResult, setValidationResult] = useState<TrackValidationResult | null>(null);
+  const [showBackgroundWarning, setShowBackgroundWarning] = useState(false);
+  const [showPausedModal, setShowPausedModal] = useState(false);
+  const [isRecordingPaused, setIsRecordingPaused] = useState(false);
   
   const geolocation = useGeolocation();
 
@@ -82,9 +87,32 @@ export default function Home() {
     if (isRecording && recordingSessionId) {
       setSessionStartTime(new Date());
       geolocation.startTracking();
-      toast.success('Gravação iniciada! 🔴', { duration: 3000 });
+      // Mostrar aviso sobre limitação de segundo plano
+      setShowBackgroundWarning(true);
     }
   }, [isRecording, recordingSessionId]);
+
+  // Detectar quando o app vai para segundo plano durante gravação
+  useEffect(() => {
+    if (!isRecording) return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // App foi para segundo plano — pausa a gravação
+        setIsRecordingPaused(true);
+        geolocation.stopTracking();
+        toast.warning('Gravação pausada — app em segundo plano', { duration: 3000 });
+      } else {
+        // Voltou ao app — mostra modal de retomada
+        if (isRecordingPaused) {
+          setShowPausedModal(true);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isRecording, isRecordingPaused]);
 
   // Adicionar ponto ao caminho quando localização mudar
   useEffect(() => {
@@ -206,9 +234,35 @@ export default function Home() {
     navigate('/contribuir');
   };
 
+  // Handler: usuário entendeu o aviso e vai manter o app aberto
+  const handleBackgroundWarningClose = () => {
+    setShowBackgroundWarning(false);
+    toast.success('Gravação iniciada! 🔴 Mantenha o app aberto.', { duration: 3000 });
+  };
+
+  // Handler: usuário quer encerrar pelo aviso inicial
+  const handleBackgroundWarningStop = () => {
+    setShowBackgroundWarning(false);
+    handleStopRecording();
+  };
+
+  // Handler: retomar gravação após voltar do segundo plano
+  const handleResumeRecording = () => {
+    setShowPausedModal(false);
+    setIsRecordingPaused(false);
+    geolocation.startTracking();
+    toast.success('Gravação retomada! 🔴', { duration: 2000 });
+  };
+
+  // Handler: encerrar após voltar do segundo plano
+  const handleStopAfterPause = () => {
+    setShowPausedModal(false);
+    setIsRecordingPaused(false);
+    handleStopRecording();
+  };
+
   // Função para marcar parada
-  const handleMarkStop = async (stopName: string) => {
-    if (!isRecording || !geolocation.latitude || !geolocation.longitude || !recordingLineId || !recordingSessionId) {
+  const handleMarkStop = async (stopName: string) => {    if (!isRecording || !geolocation.latitude || !geolocation.longitude || !recordingLineId || !recordingSessionId) {
       toast.error('Erro ao marcar parada');
       return;
     }
@@ -703,6 +757,21 @@ export default function Home() {
           validation={validationResult}
         />
       )}
+
+      {/* Aviso sobre limitação de segundo plano */}
+      <BackgroundWarningModal
+        isOpen={showBackgroundWarning}
+        onClose={handleBackgroundWarningClose}
+        onStop={handleBackgroundWarningStop}
+      />
+
+      {/* Modal quando volta do segundo plano */}
+      <RecordingPausedModal
+        isOpen={showPausedModal}
+        pointsCollected={pointsCollected}
+        onResume={handleResumeRecording}
+        onStop={handleStopAfterPause}
+      />
     </div>
   );
 }

@@ -3,13 +3,13 @@
 <div align="center">
 
 ![Tarifa Zero](https://img.shields.io/badge/Tarifa-Zero-blue?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-2.5.0.0-green?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-2.5.0.14-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-orange?style=for-the-badge)
-![Android](https://img.shields.io/badge/Android-13+-brightgreen?style=for-the-badge)
+![Android](https://img.shields.io/badge/Android-7%2B-brightgreen?style=for-the-badge)
 
 **Sistema colaborativo de rastreamento de transporte público em tempo real**
 
-[Demo](https://tarifazero.vercel.app) · [Download APK](https://github.com/LuckyEasyGold/tarifaZero/releases) · [Reportar Bug](https://github.com/LuckyEasyGold/tarifaZero/issues)
+[Demo](https://tarifazero.vercel.app) · [Download APK](https://tarifazero.vercel.app/tarifazero.apk) · [Reportar Bug](https://github.com/LuckyEasyGold/tarifaZero/issues)
 
 </div>
 
@@ -17,23 +17,19 @@
 
 ## 📋 Sobre o Projeto
 
-Tarifa Zero é uma plataforma completa de rastreamento de ônibus em tempo real que utiliza **crowdsourcing** para mapear rotas e posições dos veículos. O sistema permite que usuários contribuam com dados GPS enquanto estão no ônibus, criando um mapa colaborativo e preciso do transporte público de Palmas - PR.
+Tarifa Zero é uma plataforma de rastreamento de ônibus em tempo real que usa **crowdsourcing** para mapear rotas e posições dos veículos. Usuários contribuem com dados GPS enquanto estão no ônibus, criando um mapa colaborativo do transporte público de Palmas - PR.
 
 ### ✨ Diferenciais
 
-- 🎯 **Crowdsourcing Inteligente**: Usuários contribuem com dados GPS em tempo real
-- 📱 **App Nativo Android**: Scanner de Wi-Fi para identificação automática do ônibus
-- 🔒 **Validação em Camadas**: Sistema de 4 camadas para garantir qualidade dos dados
-- 🛡️ **Validação Client-Side**: Detecta automaticamente padrões atípicos (carro vs ônibus)
-- 🏆 **Sistema de Reputação**: Trust score progressivo baseado em contribuições
-- 🤝 **Consenso Espacial**: Rotas verificadas por múltiplos usuários
-- 🎮 **Gamificação**: Sistema de pontos, níveis, badges e ranking de contribuidores
-- 🗺️ **Visualização em Tempo Real**: Acompanhe ônibus e colaboradores no mapa
-- 📊 **API RESTful Completa**: Backend robusto com PostgreSQL + PostGIS
-- 🎨 **Interface Mobile-First**: Design responsivo e intuitivo
-- 🔐 **Conformidade LGPD**: Sistema completo de consentimento e privacidade
-- 🔔 **Sistema de Atualizações**: Notificação automática de novas versões com instalação nativa
-- 💛 **Sistema de Doações**: Apoie o projeto via Pix
+- 🎯 **Crowdsourcing com validação** — trajetos passam por 3 camadas antes de virar rota oficial
+- 🛡️ **Detecção automática** — o sistema identifica se o usuário estava em um ônibus ou carro
+- 🤝 **Consenso espacial** — rotas verificadas por ≥3 usuários independentes
+- 🏆 **Trust score progressivo** — contribuidores frequentes têm mais peso no sistema
+- 🎮 **Gamificação** — pontos, níveis, badges e ranking
+- 🗺️ **Mapa em tempo real** — visualize ônibus e colaboradores ativos
+- 📱 **App Android nativo** — via Capacitor, com scanner de WiFi para identificar o ônibus
+- 🔔 **Atualizações automáticas** — notificação e instalação de novas versões no app
+- 💛 **Apoio via Pix** — sustentado pela comunidade
 
 ---
 
@@ -41,59 +37,48 @@ Tarifa Zero é uma plataforma completa de rastreamento de ônibus em tempo real 
 
 ### Para Usuários
 
-- ✅ Visualizar todas as linhas de ônibus disponíveis
-- ✅ Ver rotas completas com paradas no mapa
-- ✅ Acompanhar ônibus em tempo real (simulado)
-- ✅ Ver informações detalhadas de cada linha
-- ✅ Calcular distância até parada mais próxima
-- ✅ Ver tempo estimado de chegada do ônibus
-- ✅ Contribuir com mapeamento de rotas (apenas APK)
-- ✅ Validação automática de trajetórias (detecta carro vs ônibus)
-- ✅ Marcar paradas de ônibus durante gravação
+- ✅ Visualizar linhas de ônibus e rotas no mapa
+- ✅ Acompanhar posição simulada dos ônibus em tempo real
+- ✅ Ver horários e paradas de cada linha
+- ✅ Calcular distância e tempo até a parada mais próxima
+- ✅ Contribuir com gravação de rotas (app Android)
+- ✅ Marcar paradas durante a gravação
 - ✅ Ganhar pontos e badges por contribuições
-- ✅ Sistema de reputação progressiva (trust score)
-- ✅ Competir no ranking de contribuidores
 - ✅ Ver colaboradores ativos no mapa
-- ✅ Receber notificações de atualizações com instalação automática
+- ✅ Receber notificações de novas versões com instalação automática
 - ✅ Apoiar o projeto com doações Pix
 
 ### Para Desenvolvedores
 
 - ✅ API RESTful documentada
-- ✅ Banco de dados PostgreSQL com PostGIS
-- ✅ Sistema de validação em 4 camadas
-- ✅ Validação client-side de padrão de movimento
+- ✅ PostgreSQL + PostGIS para dados geoespaciais
+- ✅ Validação client-side de padrão de movimento (ônibus vs carro)
 - ✅ Sistema de trust score e reputação
-- ✅ Clustering espacial de trajetórias
-- ✅ Detecção automática de outliers
-- ✅ Agregação de dados de múltiplos usuários
-- ✅ Sistema de usuários online
-- ✅ Endpoints de gamificação
+- ✅ Clustering espacial de trajetos para consenso
+- ✅ Cron horário para validação automática de rotas
 - ✅ Plugin nativo Android para instalação de APK
-- 🔄 WebSocket para updates em tempo real (planejado)
+- ✅ Plugin nativo Android para scanner de WiFi
 
 ---
 
 ## 🛠️ Tecnologias
 
 ### Frontend
-- **React 18** + **TypeScript** + **Vite**
-- **Tailwind CSS** + **Radix UI** (componentes)
-- **React Router DOM** (navegação multi-tela)
-- **Leaflet** + **React-Leaflet** (mapas)
+- **React 18** + **TypeScript** + **Vite 7**
+- **Tailwind CSS** + **Radix UI**
+- **React Router DOM v7**
+- **Leaflet** + **React-Leaflet**
 - **Capacitor 8** (app nativo Android)
 - **Sonner** (notificações toast)
 
 ### Backend
 - **Vercel Serverless Functions** (Node.js)
-- **Prisma ORM**
-- **PostgreSQL** (Neon) + **PostGIS**
-- **API consolidada** (1 função para evitar limite)
+- **Prisma ORM 5**
+- **PostgreSQL + PostGIS** (Neon)
 
 ### DevOps
 - **Vercel** (hosting frontend + API)
-- **GitHub Actions** (CI/CD automático)
-- **Git** (controle de versão)
+- **GitHub Actions** (CI/CD — APK gerado automaticamente a cada push)
 - **Neon** (PostgreSQL serverless)
 
 ---
@@ -103,11 +88,8 @@ Tarifa Zero é uma plataforma completa de rastreamento de ônibus em tempo real 
 ### Pré-requisitos
 
 - Node.js 24+
-- npm ou yarn
 - Conta no [Neon](https://neon.tech) (PostgreSQL)
 - Conta no [Vercel](https://vercel.com)
-- Android Studio (opcional, para build local do APK)
-- Java 17 (opcional, para build local do APK)
 
 ### 1. Clone o repositório
 
@@ -133,14 +115,9 @@ DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
 ### 4. Configure o banco de dados
 
 ```bash
-# Gerar Prisma Client
-npm run db:generate
-
-# Criar tabelas
-npm run db:push
-
-# Popular com dados iniciais (5 linhas)
-npm run db:seed
+npm run db:generate   # Gera o Prisma Client
+npm run db:push       # Cria as tabelas
+npm run db:seed       # Popula com as 5 linhas de Palmas-PR
 ```
 
 ### 5. Execute em desenvolvimento
@@ -155,52 +132,28 @@ Acesse: http://localhost:5173
 
 ## 🌐 Deploy
 
-### Deploy Web (Vercel)
+### Web (Vercel)
 
 ```bash
-# Instalar Vercel CLI
-npm i -g vercel
-
-# Deploy
 vercel --prod
 ```
 
-### Build Android APK
+### APK Android
 
-#### Opção 1: GitHub Actions (Recomendado)
-
-O APK é gerado automaticamente a cada push:
+O APK é gerado automaticamente pelo GitHub Actions a cada push na `main`:
 
 1. Acesse: https://github.com/LuckyEasyGold/tarifaZero/actions
-2. Aguarde o build completar (~5-10 min)
-3. Baixe o artifact `tarifazero-debug-apk`
-4. Extraia o `TarifaZero.apk`
+2. Baixe o artifact do build mais recente
 
-#### Opção 2: GitHub Releases (Versões Estáveis)
+Ou baixe a versão estável diretamente: https://tarifazero.vercel.app/tarifazero.apk
 
-Para versões testadas e estáveis:
-
-1. Acesse: https://github.com/LuckyEasyGold/tarifaZero/releases
-2. Baixe o `TarifaZero.apk` da última release
-3. Instale no Android
-
-#### Opção 3: Local (requer Android SDK + Java 17)
+Para build local (requer Android Studio + Java 17):
 
 ```bash
-# Build web
 npm run build
-
-# Sincronizar com Android
 npx cap sync android
-
-# Gerar APK
-cd android
-./gradlew assembleDebug
+cd android && ./gradlew assembleDebug
 ```
-
-APK gerado em: `android/app/build/outputs/apk/debug/TarifaZero.apk`
-
-📖 [Guia completo: GERENCIAMENTO_VERSOES.md](./GERENCIAMENTO_VERSOES.md)
 
 ---
 
@@ -208,60 +161,31 @@ APK gerado em: `android/app/build/outputs/apk/debug/TarifaZero.apk`
 
 ```
 tarifaZero/
-├── api/                      # Backend consolidado (1 função)
-│   ├── index.js             # Todos os endpoints
-│   ├── trajectory/          # Endpoints de trajetórias
-│   │   └── submit.ts        # Submissão de contribuições
-│   ├── lines/               # Endpoints de linhas
-│   │   └── [id]/trajectories.ts  # Consulta de trajetórias
-│   └── admin/               # Endpoints administrativos
-│       └── process-clustering.ts # Clustering manual
+├── api/                    # Backend (Vercel Serverless)
+│   ├── index.js           # Roteador principal
+│   ├── trajectories/      # Gravação de trajetos
+│   └── admin/             # Validação automática (cron)
 ├── src/
-│   ├── components/          # Componentes React
-│   │   ├── map/            # Componentes de mapa
-│   │   ├── ui/             # Componentes UI (Radix)
-│   │   ├── UpdateNotification.tsx     # Notificação de atualização
-│   │   ├── DownloadAppModal.tsx       # Modal para baixar APK
-│   │   ├── RecordingBanner.tsx        # Banner de gravação
-│   │   ├── MarkStopModal.tsx          # Modal para marcar paradas
-│   │   ├── ValidationWarningModal.tsx # Modal de validação
-│   │   └── RouteStatusBadge.tsx       # Badges de status
-│   ├── pages/              # Páginas (rotas)
-│   │   ├── Home.tsx        # Mapa principal + modo gravação
-│   │   ├── Linhas.tsx      # Lista de linhas
-│   │   ├── Contribuir.tsx  # Seleção de linha + WiFi
-│   │   ├── Ranking.tsx     # Ranking de usuários
-│   │   └── Sobre.tsx       # Sobre + contato + apoiadores
-│   ├── hooks/              # Hooks customizados
-│   │   ├── useGeolocation.ts
-│   │   └── useWifiScanner.ts
-│   ├── services/           # Serviços (API calls)
-│   │   ├── trackingService.ts
-│   │   ├── reputation.ts   # Sistema de reputação
-│   │   └── clusterRoutes.ts # Clustering espacial
-│   ├── lib/                # Bibliotecas utilitárias
-│   │   └── trackValidator.ts # Validador de trajetórias
-│   ├── data/               # Dados estáticos
-│   └── types/              # Tipos TypeScript
+│   ├── components/        # Componentes React
+│   │   └── map/           # Mapa e ícones
+│   ├── pages/             # Páginas da aplicação
+│   ├── hooks/             # useGeolocation, useWifiDetection
+│   ├── services/          # trackingService, reputation, clusterRoutes
+│   └── lib/               # trackValidator (detecção ônibus vs carro)
 ├── prisma/
-│   ├── schema.prisma       # Schema do banco (com Trajectory)
-│   └── seed.ts             # Dados iniciais
-├── android/                # Projeto Android (Capacitor)
+│   ├── schema.prisma      # Schema completo do banco
+│   └── seed.ts            # Dados iniciais
+├── android/               # Projeto Android (Capacitor)
 │   └── app/src/main/java/com/newsdrop/tarifazero/
-│       ├── WifiScannerPlugin.java  # Plugin WiFi Scanner
-│       ├── ApkInstallerPlugin.java # Plugin instalador APK
-│       └── MainActivity.java       # Activity principal
-├── public/                 # Assets estáticos
-│   └── version.json        # Informações de versão
-├── docs/                   # Documentação
-│   ├── ESPECIFICACAO_VALIDACAO_ROTAS_COLABORATIVAS.md
-│   ├── ANALISE_VALIDACAO_ROTAS.md
-│   ├── TAREFAS_IMPLEMENTADAS.md
-│   ├── GOOGLE-MAPS-API.md
-│   └── historico/          # Histórico de implementações
-└── scripts/                # Scripts utilitários
-    ├── seed-supporters.js  # Inserir contribuidores
-    └── update-coordinates.ts # Atualizar coordenadas
+│       ├── WifiScannerPlugin.java
+│       ├── ApkInstallerPlugin.java
+│       └── MainActivity.java
+├── public/
+│   ├── version.json       # Versão atual (para notificação de update)
+│   └── tarifazero.apk     # APK mais recente
+└── docs/                  # Documentação para contribuidores
+    ├── ARQUITETURA.md
+    └── CONTRIBUINDO.md
 ```
 
 ---
@@ -275,234 +199,78 @@ tarifaZero/
 | Ponto GPS coletado | 1 pt |
 | Minuto de tracking | 5 pts |
 | Viagem completa | 50 pts |
-| Wi-Fi detectado | 100 pts |
+| WiFi do ônibus detectado | 100 pts |
 | Parada validada | 200 pts |
 
 ### Badges
 
-- 🚌 **Primeira Viagem** - Complete 1 viagem
-- ⭐ **Passageiro Frequente** - Complete 10 viagens
-- 🌟 **Super Passageiro** - Complete 50 viagens
-- 📍 **Coletor GPS** - Colete 100 pontos GPS
-- 🎯 **Mestre GPS** - Colete 1000 pontos GPS
-- 🔥 **Sequência Semanal** - 7 dias consecutivos
-- 💎 **Sequência Mensal** - 30 dias consecutivos
-
-### Níveis
-
-- Nível = Pontos ÷ 1000
-- Cada nível desbloqueado dá acesso a recursos especiais
+- 🚌 **Primeira Viagem** — Complete 1 viagem
+- ⭐ **Passageiro Frequente** — Complete 10 viagens
+- 🌟 **Super Passageiro** — Complete 50 viagens
+- 📍 **Coletor GPS** — Colete 100 pontos GPS
+- 🎯 **Mestre GPS** — Colete 1000 pontos GPS
+- 🔥 **Sequência Semanal** — 7 dias consecutivos
+- 💎 **Sequência Mensal** — 30 dias consecutivos
 
 ---
 
 ## 🔌 API Endpoints
 
 ### Linhas
-
 ```http
 GET /api/lines
 GET /api/lines/:id
-GET /api/lines/:id/map
-GET /api/lines/:id/trajectories?status=verified&limit=50&offset=0
+GET /api/lines/:id/schedules
+GET /api/lines/:id/trajectories?status=verified&limit=50
 ```
 
-### Paradas
-
+### Gravação de Trajetos
 ```http
-GET /api/stops/nearby?lat=-23.5505&lng=-46.6333&radius=500
-```
-
-### Tracking & Trajetórias
-
-```http
-POST /api/tracking/session
-POST /api/tracking/submit
-POST /api/trajectory/submit
+POST /api/trajectories/start
+POST /api/trajectories/point
+POST /api/trajectories/stop-mark
+POST /api/trajectories/stop
 ```
 
 ### Gamificação
-
 ```http
-GET /api/gamification/ranking?period=all&limit=10
-GET /api/gamification/user?anonymousId=xxx
+GET  /api/gamification/ranking?period=all&limit=10
+GET  /api/gamification/user?anonymousId=xxx
 POST /api/gamification/user
 ```
 
 ### Usuários Online
-
 ```http
-GET /api/users/active
+GET  /api/users/active
 POST /api/users/heartbeat
 POST /api/users/create
 ```
 
-### Contribuidores
-
+### Outros
 ```http
-GET /api/supporters
-POST /api/supporters
-```
-
-### Versionamento
-
-```http
-GET /api/version
-```
-
-### Admin (Clustering)
-
-```http
-POST /api/admin/process-clustering
+GET  /api/supporters
+GET  /api/version
+POST /api/admin/validate-routes   # Cron horário (Vercel)
 ```
 
 📖 [Documentação completa da API](./README_API.md)
 
 ---
 
-## 🎨 Funcionalidades Recentes
-
-### v2.5.0.0 (04/04/2026) - Atual ✅
-
-**Sistema de Validação em Camadas**
-- Validação automática de trajetórias (detecta carro vs ônibus)
-- Análise de velocidade, paradas e padrão de movimento
-- Modal de aviso com estatísticas detalhadas
-- Score de confiança para cada contribuição
-- Sistema de trust score progressivo para usuários
-- Clustering espacial de trajetórias similares
-- Consenso entre múltiplos usuários (≥3) para verificação
-- Status de trajetórias: pending → draft → verified → rejected
-- Badges de status e reputação
-- API completa para consulta e gerenciamento
-
-**Instalação Automática de APK**
-- Plugin nativo Android para instalação
-- Download com barra de progresso em tempo real
-- Instalador abre automaticamente após download
-- Suporte para Android 7.0+ com FileProvider
-
-**Geocodificação com Nominatim**
-- Substituição do Google Maps por OpenStreetMap
-- Gratuito e sem necessidade de API key
-- Atualização automática de coordenadas das paradas
-
-### v2.1.0 (30/03/2026) ✅
-
-**Sistema de Versionamento e Atualizações**
-- Notificação automática de novas versões no app
-- Endpoint `/api/version` para verificar atualizações
-- Suporte para atualizações opcionais e obrigatórias
-- GitHub Releases para distribuição de versões estáveis
-
-**Sistema de Contribuidores e Doações**
-- Card "Quem já contribuiu" na página Sobre
-- Tabela `supporters` no banco de dados
-- Chave Pix para doações (46991966464)
-- Links para redes sociais dos apoiadores
-
-**Melhorias no WiFi Scanner**
-- Suporte completo para Android 13+ (permissão NEARBY_WIFI_DEVICES)
-- Fallback para cache quando scan falha
-- Logs detalhados para debug
-- Mensagens de erro específicas e amigáveis
-
-**Página Sobre Completa**
-- Perfil do desenvolvedor
-- Edição de nickname
-- Visualização de ID anônimo
-- Contato (email e WhatsApp)
-- Lista de apoiadores
-- Link para Política de Privacidade
-
-**GitHub Actions Corrigido**
-- Build automático do APK a cada push
-- Nome correto do APK (TarifaZero.apk)
-- Verificações de build melhoradas
-- Artifacts disponíveis para download
-
-### v2.0.0 - Modo Gravação de Rotas ✅
-
-**Gravação de Rotas (apenas APK)**
-- Validação de WiFi do ônibus antes de gravar
-- Modo gravação na página Home (mapa existente)
-- Banner vermelho com tempo, pontos GPS e precisão
-- Botões flutuantes para marcar paradas e finalizar
-- Modal para nomear paradas com sugestões
-
-**Sistema de Paradas**
-- Marcação de paradas durante gravação
-- Campo `name` para identificar paradas
-- Armazenamento em `TempStop` para processamento posterior
-
-**Restrições de Contribuição**
-- Apenas APK pode contribuir (não browser/PWA)
-- Modal explicativo no browser com link para download
-- Validação obrigatória de WiFi do ônibus
-
-### v1.0.0 - Base do Sistema ✅
-
-**Tela de Boas-Vindas e LGPD**
-- Splash screen com vídeo animado
-- Consentimento obrigatório conforme LGPD
-- Campo opcional para nome/apelido
-- Página completa de Política de Privacidade
-- Geração de ID anônimo único por dispositivo
-
-**Sistema de Usuários Online**
-- Visualização de colaboradores ativos no mapa
-- Cores únicas por usuário
-- Informações de nível e pontos
-- Heartbeat automático a cada 30s
-- Marcadores personalizados no mapa
-
-**Detalhes de Linha Avançados**
-- Informações em tempo real do ônibus (posição, sentido, velocidade)
-- Cálculo da parada mais próxima do usuário
-- Distância e tempo caminhando até a parada
-- Tempo estimado até ônibus chegar
-- Botão "Ver no Mapa" com filtro de linha
-- Navegação integrada entre telas
-
----
-
-## 🤝 Como Contribuir
-
-Contribuições são bem-vindas! Siga os passos:
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
-4. Push para a branch (`git push origin feature/MinhaFeature`)
-5. Abra um Pull Request
-
-### Áreas que precisam de ajuda
-
-- [ ] Implementar busca de rotas (origem → destino)
-- [ ] Adicionar WebSocket para tempo real
-- [ ] Melhorar algoritmo de inferência de posição
-- [ ] Criar testes automatizados (Jest/Vitest)
-- [ ] Tradução para outros idiomas (i18n)
-- [ ] Documentação de API com Swagger/OpenAPI
-- [ ] Modo escuro (dark mode)
-- [ ] Notificações push
-- [ ] Histórico de viagens do usuário
-
----
-
 ## 📊 Progresso do Projeto
 
-**Status Atual:** 85% Concluído
+**Status Atual:** 90% Concluído
 
 | Fase | Descrição | Status |
 |------|-----------|--------|
 | 1 | Infraestrutura Base | ✅ 100% |
 | 2 | Modelagem do Banco | ✅ 100% |
-| 3 | API Endpoints Básicos | ✅ 100% |
+| 3 | API Endpoints | ✅ 100% |
 | 4 | Interface Multi-Tela | ✅ 100% |
 | 5 | Sistema de Crowdsourcing | ✅ 100% |
-| 6 | Tela de Boas-Vindas e LGPD | ✅ 100% |
-| 7 | Sistema de Usuários Online | ✅ 100% |
-| 8 | Detalhes de Linha Avançados | ✅ 100% |
+| 6 | Boas-Vindas e LGPD | ✅ 100% |
+| 7 | Usuários Online | ✅ 100% |
+| 8 | Detalhes de Linha | ✅ 100% |
 | 9 | Modo Gravação de Rotas | ✅ 100% |
 | 10 | Sistema de Versionamento | ✅ 100% |
 | 11 | Sistema de Contribuidores | ✅ 100% |
@@ -510,18 +278,34 @@ Contribuições são bem-vindas! Siga os passos:
 | 13 | Trust Score e Reputação | ✅ 100% |
 | 14 | Clustering Espacial | ✅ 100% |
 | 15 | Instalação Automática APK | ✅ 100% |
-| 16 | Identificação de Veículos | ⏸️ 0% |
-| 17 | Motor de Inferência Avançado | ⏸️ 0% |
-| 18 | Sistema de Roteamento | ⏸️ 0% |
-| 19 | Testes e Otimização | ⏸️ 0% |
+| 16 | Rotas Colaborativas (consenso) | ✅ 100% |
+| 17 | Identificação de Veículos | ⏸️ 0% |
+| 18 | Motor de Inferência Avançado | ⏸️ 0% |
+| 19 | Busca de Rotas (origem→destino) | ⏸️ 0% |
+| 20 | Testes Automatizados | ⏸️ 0% |
 
-📖 [Documentação completa: DOCUMENTACAO_COMPLETA.md](./DOCUMENTACAO_COMPLETA.md)
+---
+
+## 🤝 Como Contribuir
+
+Contribuições são bem-vindas! Veja o guia completo em [docs/CONTRIBUINDO.md](./docs/CONTRIBUINDO.md).
+
+### Áreas que precisam de ajuda
+
+- [ ] Busca de rotas (origem → destino)
+- [ ] WebSocket para tempo real
+- [ ] Testes automatizados (Vitest)
+- [ ] Tradução para outros idiomas (i18n)
+- [ ] Documentação de API com Swagger
+- [ ] Modo escuro
+- [ ] Notificações push
+- [ ] Histórico de viagens do usuário
 
 ---
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto está sob a licença MIT.
 
 ---
 
@@ -532,26 +316,19 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - GitHub: [@LuckyEasyGold](https://github.com/LuckyEasyGold)
 - Email: viniciusribramos@gmail.com
 - WhatsApp: (42) 99106-6464
-- Projeto: [Tarifa Zero](https://github.com/LuckyEasyGold/tarifaZero)
 - Localização: Palmas - PR, Brasil
 
 ---
 
 ## 🙏 Agradecimentos
 
-- Comunidade open source
 - Contribuidores do projeto
 - Apoiadores via Pix: Marcos Dieison, Din0, Leticia, Claudio
-- Usuários que testam e reportam bugs
-- Todos que acreditam em transporte público gratuito e acessível
+- Comunidade open source
 
 ### 💛 Apoie o Projeto
 
-Se o Tarifa Zero te ajuda no dia a dia, considere contribuir:
-
 **Chave Pix**: 46991966464 (Vinícius Ribeiro Ramos)
-
-Sua contribuição ajuda a cobrir custos de servidores, GPS e desenvolvimento!
 
 ---
 

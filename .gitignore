@@ -1,1 +1,35 @@
-Nothing should be ignored based on the provided file changes. The only added file is `MCP_INSTRUCTIONS.md`, which is a markdown documentation file and should be tracked in version control.
+# Dependências
+node_modules/
+
+# Build
+dist/
+android/app/build/
+android/build/
+android/.gradle/
+
+# Ambiente
+.env
+.env.local
+
+# TypeScript cache
+tsconfig.tsbuildinfo
+
+# Keystore local (backup — o original fica na raiz versionado)
+android/app/release-key.jks
+android/gradle.properties.backup
+android/gradle.properties.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Vercel
+.vercel/

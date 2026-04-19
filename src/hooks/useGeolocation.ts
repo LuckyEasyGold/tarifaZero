@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface GeolocationState {
   latitude: number | null;
@@ -30,6 +30,42 @@ export function useGeolocation(): UseGeolocationReturn {
   });
 
   const [watchId, setWatchId] = useState<number | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+
+  // Solicitar Wake Lock para manter a tela ativa durante gravação
+  const requestWakeLock = useCallback(async () => {
+    if ('wakeLock' in navigator) {
+      try {
+        wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+        console.log('[Geolocation] Wake Lock ativado - tela não vai apagar');
+
+        // Reativar wake lock se a visibilidade da página mudar (ex: usuário volta ao app)
+        document.addEventListener('visibilitychange', async () => {
+          if (document.visibilityState === 'visible' && wakeLockRef.current === null) {
+            try {
+              wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+            } catch {
+              // Silencioso - não crítico
+            }
+          }
+        });
+      } catch (err) {
+        console.log('[Geolocation] Wake Lock não disponível:', err);
+      }
+    }
+  }, []);
+
+  const releaseWakeLock = useCallback(async () => {
+    if (wakeLockRef.current) {
+      try {
+        await wakeLockRef.current.release();
+        wakeLockRef.current = null;
+        console.log('[Geolocation] Wake Lock liberado');
+      } catch {
+        // Silencioso
+      }
+    }
+  }, []);
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
     if (!('geolocation' in navigator)) {
@@ -49,7 +85,7 @@ export function useGeolocation(): UseGeolocationReturn {
         setState(prev => ({ ...prev, error: 'Permissão de localização negada' }));
         return false;
       }
-    } catch (error) {
+    } catch {
       // Alguns navegadores não suportam permissions API
       return true;
     }
@@ -61,10 +97,11 @@ export function useGeolocation(): UseGeolocationReturn {
       return;
     }
 
+    // Usar enableHighAccuracy: true → GPS se disponível, senão Wi-Fi/torres de celular
     const options: PositionOptions = {
       enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0,
+      timeout: 15000,
+      maximumAge: 5000, // Aceitar posição de até 5s atrás (reduz consumo de bateria)
     };
 
     const onSuccess = (position: GeolocationPosition) => {
@@ -81,27 +118,44 @@ export function useGeolocation(): UseGeolocationReturn {
     };
 
     const onError = (error: GeolocationPositionError) => {
+      // Se falhar com alta precisão, tentar com baixa precisão (funciona em mais aparelhos)
+      if (error.code === error.TIMEOUT || error.code === error.POSITION_UNAVAILABLE) {
+        console.log('[Geolocation] Alta precisão falhou, tentando baixa precisão...');
+        const fallbackOptions: PositionOptions = {
+          enableHighAccuracy: false,
+          timeout: 20000,
+          maximumAge: 10000,
+        };
+        const fallbackId = navigator.geolocation.watchPosition(onSuccess, onFinalError, fallbackOptions);
+        setWatchId(fallbackId);
+        return;
+      }
+      onFinalError(error);
+    };
+
+    const onFinalError = (error: GeolocationPositionError) => {
       let errorMessage = 'Erro ao obter localização';
-      
       switch (error.code) {
         case error.PERMISSION_DENIED:
           errorMessage = 'Permissão de localização negada';
           break;
         case error.POSITION_UNAVAILABLE:
-          errorMessage = 'Localização indisponível';
+          errorMessage = 'Localização indisponível no momento';
           break;
         case error.TIMEOUT:
           errorMessage = 'Tempo esgotado ao obter localização';
           break;
       }
-
       setState(prev => ({ ...prev, error: errorMessage, isTracking: false }));
     };
 
     const id = navigator.geolocation.watchPosition(onSuccess, onError, options);
     setWatchId(id);
     setState(prev => ({ ...prev, isTracking: true, error: null }));
-  }, []);
+
+    // Ativar wake lock para manter app ativo durante gravação
+    requestWakeLock();
+  }, [requestWakeLock]);
 
   const stopTracking = useCallback(() => {
     if (watchId !== null) {
@@ -109,15 +163,17 @@ export function useGeolocation(): UseGeolocationReturn {
       setWatchId(null);
     }
     setState(prev => ({ ...prev, isTracking: false }));
-  }, [watchId]);
+    releaseWakeLock();
+  }, [watchId, releaseWakeLock]);
 
   useEffect(() => {
     return () => {
       if (watchId !== null) {
         navigator.geolocation.clearWatch(watchId);
       }
+      releaseWakeLock();
     };
-  }, [watchId]);
+  }, [watchId, releaseWakeLock]);
 
   return {
     ...state,

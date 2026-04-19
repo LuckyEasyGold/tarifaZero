@@ -1,5 +1,11 @@
 {
   "installCommand": "npm install --legacy-peer-deps",
+  "crons": [
+    {
+      "path": "/api/admin/validate-routes",
+      "schedule": "0 * * * *"
+    }
+  ],
   "routes": [
     {
       "src": "/api/(.*)",
