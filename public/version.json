@@ -1,8 +1,8 @@
 {
-  "version": "2.5.0.14",
-  "versionCode": 33,
-  "releaseDate": "2026-04-07",
-  "downloadUrl": "https://tarifazero.vercel.app/TarifaZero-2.5.0.14.apk",
+  "version": "2.5.0.19",
+  "versionCode": 38,
+  "releaseDate": "2026-04-19",
+  "downloadUrl": "https://tarifazero.vercel.app/TarifaZero-2.5.0.19.apk",
   "changelog": [
     "🔧 Correção de congelamento na atualização",
     "🎨 Tela branca corrigida após atualização",

@@ -19,6 +19,9 @@ android/app/release-key.jks
 android/gradle.properties.backup
 android/gradle.properties.local
 
+# local.properties é específico de cada máquina, nunca commitar
+android/local.properties
+
 # Logs
 *.log
 npm-debug.log*

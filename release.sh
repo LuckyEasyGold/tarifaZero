@@ -4,6 +4,19 @@
 
 set -e  # Para na primeira falha
 
+# Carregar nvm para garantir Node correto
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm use 22 2>/dev/null || nvm use default 2>/dev/null || true
+
+# Carregar sdkman para garantir Java correto
+export SDKMAN_DIR="$HOME/.sdkman"
+[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && \. "$SDKMAN_DIR/bin/sdkman-init.sh"
+
+# Carregar Android SDK
+export ANDROID_HOME="$HOME/Android/Sdk"
+export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0"
+
 COMMIT_MESSAGE="$1"
 
 if [ -z "$COMMIT_MESSAGE" ]; then
@@ -78,27 +91,30 @@ echo "📱 Compilando APK Release Assinado..."
 
 # Detectar Java 17
 JAVA_HOME_17=""
-JAVA_CANDIDATES=(
-  "/usr/lib/jvm/java-17-openjdk-amd64"
-  "/usr/lib/jvm/java-17-openjdk"
-  "/usr/lib/jvm/temurin-17"
-  "/usr/lib/jvm/java-17"
-)
-for path in "${JAVA_CANDIDATES[@]}"; do
-  if [ -d "$path" ]; then
-    JAVA_HOME_17="$path"
-    break
-  fi
-done
 
-# Fallback: buscar qualquer java-17 instalado
+# 1. Verificar sdkman (instalado sem sudo)
+if [ -d "$HOME/.sdkman/candidates/java/current" ]; then
+  JAVA_HOME_17="$HOME/.sdkman/candidates/java/current"
+fi
+
+# 2. Buscar versão 17 específica no sdkman
+if [ -z "$JAVA_HOME_17" ]; then
+  JAVA_HOME_17=$(find "$HOME/.sdkman/candidates/java" -maxdepth 1 -name "17*" -type d 2>/dev/null | head -1)
+fi
+
+# 3. Fallback: /usr/lib/jvm
 if [ -z "$JAVA_HOME_17" ]; then
   JAVA_HOME_17=$(find /usr/lib/jvm -maxdepth 1 -name "*17*" -type d 2>/dev/null | head -1)
 fi
 
+# 4. Fallback: java no PATH
+if [ -z "$JAVA_HOME_17" ] && command -v java &>/dev/null; then
+  JAVA_HOME_17=$(dirname $(dirname $(readlink -f $(which java))))
+fi
+
 if [ -z "$JAVA_HOME_17" ]; then
   echo "❌ Java 17 não encontrado!"
-  echo "   Instale com: sudo apt install openjdk-17-jdk"
+  echo "   Instale via sdkman: sdk install java 17.0.11-tem"
   exit 1
 fi
 
@@ -137,7 +153,7 @@ BUILD_RESULT=$?
 cd ..
 
 # Limpar gradle.properties (remover linhas de assinatura)
-grep -v -E "storeFile|keyAlias|storePassword|keyPassword" android/gradle.properties > android/gradle.properties.tmp
+grep -v -E "^(storeFile|keyAlias|storePassword|keyPassword)" android/gradle.properties > android/gradle.properties.tmp
 mv android/gradle.properties.tmp android/gradle.properties
 
 # Remover keystore temporário
